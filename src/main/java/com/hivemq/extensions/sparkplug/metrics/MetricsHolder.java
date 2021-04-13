@@ -3,8 +3,6 @@ package com.hivemq.extensions.sparkplug.metrics;
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.hivemq.extension.sdk.api.annotations.NotNull;
-import com.hivemq.extension.sdk.api.services.Services;
-import com.hivemq.extensions.sparkplug.config.SparklplugConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

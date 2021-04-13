@@ -5,8 +5,6 @@ import com.hivemq.extension.sdk.api.annotations.NotNull;
 import com.hivemq.extension.sdk.api.parameter.*;
 import com.hivemq.extension.sdk.api.services.Services;
 import com.hivemq.extension.sdk.api.services.intializer.InitializerRegistry;
-import com.hivemq.extensions.sparkplug.config.ConfigurationReader;
-import com.hivemq.extensions.sparkplug.config.SparklplugConfiguration;
 import com.hivemq.extensions.sparkplug.metrics.MetricsHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,10 +21,8 @@ public class SparkplugExtensionMain implements ExtensionMain {
 
         try {
             metricsHolder = new MetricsHolder(Services.metricRegistry());
-            resetMetrics(metricsHolder);
-
-            addSparkplugInterceptor();
-
+            resetStatusMetrics(metricsHolder);
+            addSparkplugMetricsInterceptor();
             log.info("Started " + extensionInformation.getName() + ":" + extensionInformation.getVersion());
         } catch (Exception e) {
             log.error("Exception thrown at extension start: ", e);
@@ -34,22 +30,24 @@ public class SparkplugExtensionMain implements ExtensionMain {
 
     }
 
-    private void resetMetrics(MetricsHolder metricsHolder) {
+    private void resetStatusMetrics(MetricsHolder metricsHolder) {
+        //log.debug(" get initial eon count for {}", metricsHolder.getCurrentEonsOnline().getCount() );
         long x = metricsHolder.getCurrentEonsOnline().getCount();
         metricsHolder.getCurrentEonsOnline().dec(x);
-        log.debug(" get initial eon count for {}",metricsHolder.getCurrentEonsOnline().getCount() );
+        //log.debug(" get initial dev count for {}",metricsHolder.getCurrentDeviceOnline().getCount() );
         long y = metricsHolder.getCurrentDeviceOnline().getCount();
         metricsHolder.getCurrentDeviceOnline().dec(y);
-        log.debug(" get initial dev count for {}",metricsHolder.getCurrentDeviceOnline().getCount() );
+        metricsHolder.getStatusMetrics("scada_0", null).setValue(0);
     }
 
     @Override
     public void extensionStop(@NotNull ExtensionStopInput extensionStopInput, @NotNull ExtensionStopOutput extensionStopOutput) {
         final ExtensionInformation extensionInformation = extensionStopInput.getExtensionInformation();
+        resetStatusMetrics(metricsHolder);
         log.info("Stopped " + extensionInformation.getName() + ":" + extensionInformation.getVersion());
     }
 
-    private void addSparkplugInterceptor() {
+    private void addSparkplugMetricsInterceptor() {
         final InitializerRegistry initializerRegistry = Services.initializerRegistry();
         final SparkplugBInterceptor sparkplugBInterceptor = new SparkplugBInterceptor(metricsHolder);
         initializerRegistry.setClientInitializer((initializerInput, clientContext) -> {

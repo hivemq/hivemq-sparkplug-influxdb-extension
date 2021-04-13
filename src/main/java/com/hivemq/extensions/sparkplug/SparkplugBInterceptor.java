@@ -5,7 +5,6 @@ import com.hivemq.extension.sdk.api.interceptor.publish.PublishInboundIntercepto
 import com.hivemq.extension.sdk.api.interceptor.publish.parameter.PublishInboundInput;
 import com.hivemq.extension.sdk.api.interceptor.publish.parameter.PublishInboundOutput;
 import com.hivemq.extension.sdk.api.packets.publish.PublishPacket;
-import com.hivemq.extensions.sparkplug.config.SparklplugConfiguration;
 import com.hivemq.extensions.sparkplug.metrics.MetricsHolder;
 import com.hivemq.extensions.sparkplug.topics.TopicStructure;
 import org.eclipse.tahu.protobuf.SparkplugBProto;
@@ -59,10 +58,10 @@ public class SparkplugBInterceptor implements PublishInboundInterceptor {
     }
 
     private void generateMetricsFromMessage(TopicStructure topicStructure, List<SparkplugBProto.Payload.Metric> metricsList) {
+        log.debug("Message type & structure {} ", topicStructure );
         switch (topicStructure.getMessageType()) {
             case "NBIRTH": {
                 metricsHolder.getStatusMetrics(topicStructure.getEonId(),null).setValue(1);
-                log.debug("NBIRTH {} ", topicStructure );
                 metricsHolder.getCurrentEonsOnline().inc();
                 break;
             }
