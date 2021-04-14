@@ -51,11 +51,13 @@ tasks.withType<Test>().configureEach {
     useJUnitPlatform()
 }
 
+/**
+ should be done by IDEA setup
 sourceSets {
     val main by getting { }
     main.java.srcDirs("build/generated/source/proto/main/java")
 }
-
+**/
 
 val prepareAsciidoc by tasks.registering(Sync::class) {
     from("README.adoc").into({ temporaryDir })
@@ -77,17 +79,16 @@ license {
     mapping("java", "SLASHSTAR_STYLE")
 }
 
-
-
 //preparation and tasks to run & debug Extension locally
+
 val unzipHivemq by tasks.registering(Sync::class) {
     from(zipTree(rootDir.resolve("/your/path/to/hivemq-<VERSION>.zip")))
     into({ temporaryDir })
 }
 
+
 tasks.prepareHivemqHome {
     hivemqFolder.set(unzipHivemq.map { it.destinationDir.resolve("hivemq-<VERSION>" ) } as Any)
-    from("src/main/resources/sparkplug.properties") { into("extensions/hivemq-sparkplug-extension") }
 }
 
 tasks.runHivemqWithExtension {
