@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <hivemq-extension>
     <id>hivemq-sparkplug-extension</id>
-    <version>1.0.0</version>
+    <version>4.5.3</version>
     <name>HiveMQ Sparkplug Extension</name>
     <author>HiveMQ</author>
     <priority>0</priority>

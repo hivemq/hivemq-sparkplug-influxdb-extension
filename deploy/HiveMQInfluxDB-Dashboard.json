@@ -10,7 +10,7 @@
       "type": "dashboard",
       "attributes": {
         "name": "HiveMQ Dashboard",
-        "description": ""
+        "description": "Example dashboard, that shows the most important mqtt metrics HiveMQ "
       },
       "relationships": {
         "label": {

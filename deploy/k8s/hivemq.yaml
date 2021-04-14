@@ -18,10 +18,6 @@ hivemq:
     - name: hivemq-sparkplug-extension
       extensionUri: https://github.com/hivemq/hivemq-sparkplug-extension/deploy/hivemq-sparkplug-extension-1.0.0.zip
       enabled: true
-    - name: hivemq-influxdb-extension
-      extensionUri: https://github.com/hivemq/hivemq-sparkplug-extension/deploy/hivemq-influxdb-extension-4.1.1-SNAPSHOT-distribution.zip
-      enabled: true
-
 monitoring:
   dedicated: true
   enabled: true

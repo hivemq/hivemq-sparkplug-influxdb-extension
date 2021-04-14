@@ -9,16 +9,15 @@ public class TopicStructure {
     String eonId;
     String scadaId;
     String deviceId;
-    boolean valid=false;
+    boolean valid = false;
 
-    public TopicStructure(@NotNull String topic) {
+    public TopicStructure(@NotNull String topic, String sparkplugVersion) {
         String[] arr = topic.split("/");
-        if(arr.length >= 4 ) {
-            valid=true;
+        if (arr.length >= 4) {
             namespace = arr[0];
             groupId = arr[1];
             messageType = arr[2];
-            if (messageType.matches( "STATE")) {
+            if (messageType.matches("STATE")) {
                 scadaId = arr[3];
             } else {
                 eonId = arr[3];
@@ -26,6 +25,10 @@ public class TopicStructure {
             if (arr.length > 4) {
                 deviceId = arr[4];
             }
+            valid = sparkplugVersion.equals(namespace)
+                    && groupId != null
+                    && messageType != null
+                    && (scadaId != null || eonId != null);
         }
     }
 

@@ -1,3 +1,18 @@
+/*
+ * Copyright 2021 HiveMQ GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.hivemq.extensions.sparkplug.metrics;
 
 import com.codahale.metrics.Gauge;
@@ -9,8 +24,8 @@ import com.codahale.metrics.Metric;
  * is set when needed.  This can be somewhat convienent, but direct use of a Gauge is likely better
  * </p>
  * <p>
- *     Usage example:
- *     <pre>{@code
+ * Usage example:
+ * <pre>{@code
  *       MetricRegister metricRegistry;
  *       SettableDoubleGauge settable = metricRegistry.register("metric.name", new SettableDoubleGauge());
  *       // ...
@@ -27,8 +42,18 @@ public class SettableDoubleGauge implements Metric, Gauge<Double> {
     private volatile double value;
 
     /**
+     * The last value set by {@link #setValue(double)}}
+     *
+     * @return Last set value, or zero.
+     */
+    public Double getValue() {
+        return value;
+    }
+
+    /**
      * Set the current value the {@link Gauge} will return to something else.
-     * @param value    last set value
+     *
+     * @param value last set value
      * @return itself
      */
     public SettableDoubleGauge setValue(double value) {
@@ -36,17 +61,9 @@ public class SettableDoubleGauge implements Metric, Gauge<Double> {
         return this;
     }
 
-    /**
-     * The last value set by {@link #setValue(double)}}
-     * @return Last set value, or zero.
-     */
-    public Double getValue() {
-        return value;
-    }
-
-
     public final static class Builder implements MetricBuilder<SettableDoubleGauge> {
         public static final Builder INSTANCE = new Builder();
+
         private Builder() {
         }
 
