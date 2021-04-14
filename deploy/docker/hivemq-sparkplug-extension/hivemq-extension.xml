@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<hivemq-extension>
-    <id>hivemq-sparkplug-extension</id>
-    <version>4.5.3</version>
-    <name>HiveMQ Sparkplug Extension</name>
-    <author>HiveMQ</author>
-    <priority>0</priority>
-    <start-priority>1000</start-priority>
-</hivemq-extension>
