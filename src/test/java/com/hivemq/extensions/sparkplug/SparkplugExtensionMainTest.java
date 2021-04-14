@@ -46,7 +46,7 @@ public class SparkplugExtensionMainTest {
         MockitoAnnotations.initMocks(this);
 
         root = folder.getRoot();
-        String fileName = "influxdb.properties";
+        String fileName = "sparkplug.properties";
         file = folder.newFile(fileName);
     }
 
@@ -68,7 +68,7 @@ public class SparkplugExtensionMainTest {
     @Test
     public void extensionStart_failed_configuration_file_not_valid() throws IOException {
 
-        final List<String> lines = Arrays.asList("host:localhost", "port:-3000");
+        final List<String> lines = Arrays.asList("influxdb.host:localhost", "influxdb.port:-3000");
         Files.write(file.toPath(), lines, Charset.forName("UTF-8"));
 
         final SparkplugExtensionMain main = new SparkplugExtensionMain();
@@ -85,7 +85,7 @@ public class SparkplugExtensionMainTest {
     @Test
     public void extensionStart_failed_configuration_file_valid() throws IOException {
 
-        final List<String> lines = Arrays.asList("host:localhost", "port:3000");
+        final List<String> lines = Arrays.asList("influxdb.host:localhost", "influxdb.port:3000");
         Files.write(file.toPath(), lines, Charset.forName("UTF-8"));
 
         final SparkplugExtensionMain main = new SparkplugExtensionMain();

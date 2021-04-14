@@ -10,6 +10,7 @@ plugins {
 
 group = "com.hivemq.extensions.sparkplug"
 description = "HiveMQ Sparkplug Extension - a extension to monitor sparkplug data with influxdata."
+version = "${property("version")}"
 
 hivemqExtension {
     name = "HiveMQ Sparkplug Extension"
@@ -17,7 +18,7 @@ hivemqExtension {
     priority = 0
     startPriority = 1000
     mainClass = "$group.SparkplugExtensionMain"
-    sdkVersion = "4.5.0"
+    sdkVersion = "${property("hivemq-extension-sdk.version")}"
 }
 
 repositories {
@@ -30,7 +31,7 @@ dependencies {
     implementation("com.izettle:dropwizard-metrics-influxdb:${property("dropwizard-metrics-influxdb.version")}")
     implementation("org.apache.commons:commons-lang3:${property("commons.version")}")
     implementation("com.google.collections:google-collections:${property("collections.version")}")
-    implementation("ch.qos.logback:logback-classic:1.2.3")
+    implementation("ch.qos.logback:logback-classic:${property("logback.version")}")
 }
 
 /* Test dependencies */
@@ -39,11 +40,11 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:${property("junit-jupiter.version")}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${property("junit-jupiter.version")}")
     testImplementation("com.hivemq:hivemq-testcontainer-junit5:${property("testcontainer.version")}")
-    testImplementation("org.testcontainers:influxdb:1.15.1")
+    testImplementation("org.testcontainers:influxdb:${property("influx-test.version")}")
     testImplementation( "junit:junit:${property("junit.version")}")
-    testImplementation( "org.mockito:mockito-core:1.10.19")
-    testImplementation( "org.slf4j:slf4j-api:1.7.25")
-    testImplementation( "com.github.tomakehurst:wiremock-jre8-standalone:2.25.1")
+    testImplementation( "org.mockito:mockito-core:${property("mockito-core.version")}")
+    testImplementation( "org.slf4j:slf4j-api:${property("slf4j-api.version")}")
+    testImplementation( "com.github.tomakehurst:wiremock-jre8-standalone:${property("wiremock-jre8-standalone.version")}")
 }
 
 tasks.withType<Test>().configureEach {
@@ -76,17 +77,16 @@ license {
     mapping("java", "SLASHSTAR_STYLE")
 }
 
-//preparation and tasks to run & debug Hello World Extension locally
 
+
+//preparation and tasks to run & debug Extension locally
 val unzipHivemq by tasks.registering(Sync::class) {
-    from(zipTree(rootDir.resolve("/Users/ahelmbre/hivemq/hivemq-4.5.1.zip")))
-//    from(zipTree(rootDir.resolve("/your/path/to/hivemq-<VERSION>.zip")))
-
+    from(zipTree(rootDir.resolve("/your/path/to/hivemq-<VERSION>.zip")))
     into({ temporaryDir })
 }
 
 tasks.prepareHivemqHome {
-    hivemqFolder.set(unzipHivemq.map { it.destinationDir.resolve("hivemq-4.5.1" ) } as Any)
+    hivemqFolder.set(unzipHivemq.map { it.destinationDir.resolve("hivemq-<VERSION>" ) } as Any)
     from("src/main/resources/sparkplug.properties") { into("extensions/hivemq-sparkplug-extension") }
 }
 
@@ -96,12 +96,14 @@ tasks.runHivemqWithExtension {
     }
 }
 
+/**
 tasks.register("copyExtensionToDockerFolder") {
+    mustRunAfter(tasks.hivemqExtensionZip)
     dependsOn(tasks.hivemqExtensionZip)
     copy {
-        from(zipTree("build/hivemq-extension/hivemq-sparkplug-extension-4.5.3.zip"))
+        from(zipTree("build/hivemq-extension/hivemq-sparkplug-extension-$version.zip"))
         into("deploy/docker")
     }
-}
+}**/
 
 

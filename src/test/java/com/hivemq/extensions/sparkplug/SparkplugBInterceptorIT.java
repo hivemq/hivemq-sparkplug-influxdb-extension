@@ -33,8 +33,8 @@ public class SparkplugBInterceptorIT {
     @Ignore
     @Test
     void test_DBIRTH() {
-        final String DEATH_TOPIC = "spbv1.0/group1/eon1/NDEATH";
-        final String BIRTH_TOPIC = "spbv1.0/group1/eon1/NBIRTH";
+        final String DEATH_TOPIC = "spBv1_0/group1/eon1/NDEATH";
+        final String BIRTH_TOPIC = "spBv1_0/group1/eon1/NBIRTH";
 
         final Mqtt5BlockingClient client = Mqtt5Client.builder()
                 .serverHost("localhost")
