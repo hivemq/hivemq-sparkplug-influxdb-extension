@@ -6,13 +6,12 @@
 :influxdb-docker: https://hub.docker.com/_/influxdb/
 
 <p align="center">
-<a href="https://hivemq.github.io/mqtt-cli/">
+<a href="https://hivemq.github.io/hivemq-sparkplug-extensio/">
 <img src="/img/HiveMQSparkplugExtension.jpg" width="500"/>
 </a>
 </p>
 
 == Sparklpug Extension for HiveMQ
-
 
 *Extension Type:* Monitoring of IIoT data
 

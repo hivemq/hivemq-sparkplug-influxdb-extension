@@ -1,4 +1,3 @@
 /.idea/
 /.gradle/
 /build/
-/deploy/docker/hivemq-influxdb-extension/hivemq-extension.xml
