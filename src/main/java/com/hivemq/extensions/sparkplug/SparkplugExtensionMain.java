@@ -59,7 +59,7 @@ public class SparkplugExtensionMain implements ExtensionMain {
         try {
             final File extensionHomeFolder = extensionStartInput.getExtensionInformation().getExtensionHomeFolder();
             //read & validate configuration
-            if (configurationValidated(extensionStartOutput, extensionHomeFolder) == false) {
+            if (! configurationValidated(extensionStartOutput, extensionHomeFolder))   {
                 return;
             }
 

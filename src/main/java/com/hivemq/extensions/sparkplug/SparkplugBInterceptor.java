@@ -34,7 +34,10 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * interceptor for incoming sparkplug publishes
+ * Interceptor for incoming publishes
+ * validates the topic structure as sparkplug topic
+ * parses sparkplug payload
+ * creates or add a metric via metricRegistry from sparkplug metric data object
  *
  * @author Anja Helmbrecht-Schaar
  */
@@ -57,11 +60,11 @@ public class SparkplugBInterceptor implements PublishInboundInterceptor {
         }
 
         final PublishPacket publishPacket = publishInboundInput.getPublishPacket();
-        final Optional<ByteBuffer> payload = publishPacket.getPayload();
         final String topic = publishPacket.getTopic();
+        final Optional<ByteBuffer> payload = publishPacket.getPayload();
+        final TopicStructure topicStructure = new TopicStructure(topic);
 
-        TopicStructure topicStructure = new TopicStructure(topic, sparkplugVersion);
-        if (payload.isPresent() && topicStructure.isValid()) {
+        if (payload.isPresent() && topicStructure.isValid(sparkplugVersion)) {
             //it is a sparkplug publish
             final ByteBuffer byteBuffer = payload.get();
             try {
@@ -79,7 +82,9 @@ public class SparkplugBInterceptor implements PublishInboundInterceptor {
                 log.error("Could not parse MQTT payload to protobuf", e);
             }
         } else {
-            log.warn("This might not be a sparkplug topic structure: {}", topicStructure);
+            if( log.isTraceEnabled()) {
+                log.trace("This might not be a sparkplug topic structure: {}", topicStructure);
+            }
         }
     }
 
@@ -89,32 +94,32 @@ public class SparkplugBInterceptor implements PublishInboundInterceptor {
         }
 
         switch (topicStructure.getMessageType()) {
-            case "NBIRTH": {
+            case NBIRTH: {
                 metricsHolder.getStatusMetrics(topicStructure.getEonId(), null).setValue(1);
                 metricsHolder.getCurrentEonsOnline().inc();
                 break;
             }
-            case "NDEATH": {
+            case NDEATH: {
                 metricsHolder.getStatusMetrics(topicStructure.getEonId(), null).setValue(0);
                 metricsHolder.getCurrentEonsOnline().dec();
                 break;
             }
-            case "DBIRTH": {
+            case DBIRTH: {
                 metricsHolder.getStatusMetrics(topicStructure.getEonId(), topicStructure.getDeviceId()).setValue(1);
                 metricsHolder.getCurrentDeviceOnline().inc();
                 break;
             }
-            case "DDEATH": {
+            case DDEATH: {
                 metricsHolder.getStatusMetrics(topicStructure.getEonId(), topicStructure.getDeviceId()).setValue(0);
                 metricsHolder.getCurrentDeviceOnline().dec();
                 break;
             }
-            case "STATE": {
+            case STATE: {
                 metricsHolder.getStatusMetrics(topicStructure.getScadaId(), null).setValue(1);
                 break;
             }
-            case "DDATA":
-            case "NDATA": {
+            case DDATA:
+            case NDATA: {
                 for (SparkplugBProto.Payload.Metric metric : metricsList) {
                     final long alias = metric.getAlias();
                     final String metricName = aliasToMetric.get(alias);

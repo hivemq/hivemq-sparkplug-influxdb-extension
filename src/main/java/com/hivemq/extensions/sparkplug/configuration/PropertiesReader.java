@@ -31,7 +31,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 /**
  * Load the content of a {@link File} into {@link Properties}.
  *
- * @author Michael Walter
+ * @author Anja Helmbrecht-Schaar
  */
 public abstract class PropertiesReader {
 

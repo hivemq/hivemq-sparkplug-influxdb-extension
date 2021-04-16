@@ -27,7 +27,7 @@ import com.codahale.metrics.Metric;
  * Usage example:
  * <pre>{@code
  *       MetricRegister metricRegistry;
- *       SettableLongGauge settable = metricRegistry.register("metric.name", new SettableLongGauge());
+ *       SettableLongGauge settable = metricRegistry.register("metric.name", new SettableIntGauge());
  *       // ...
  *       settable.setValue(100);
  *       // ...
@@ -62,20 +62,4 @@ public class SettableIntGauge implements Metric, Gauge<Integer> {
         return this;
     }
 
-    public final static class Builder implements MetricBuilder<SettableIntGauge> {
-        public static final Builder INSTANCE = new Builder();
-
-        private Builder() {
-        }
-
-        @Override
-        public SettableIntGauge newMetric() {
-            return new SettableIntGauge();
-        }
-
-        @Override
-        public boolean isInstance(Metric metric) {
-            return metric instanceof SettableIntGauge;
-        }
-    }
 }

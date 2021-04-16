@@ -63,7 +63,7 @@ public class SparkplugConfiguration extends PropertiesReader {
     private static final int CONNECT_TIMEOUT_DEFAULT = 5000;
 
     private static final String SPARKPLUG_VERSION = "sparkplug.version";
-    private static final String SPARKPLUG_VERSION_DEFAULT = "spBv1_0";
+    private static final String SPARKPLUG_VERSION_DEFAULT = "spBv1.0";
 
     private static final HashMap<String, String> TAGS_DEFAULT = new HashMap<>();
 

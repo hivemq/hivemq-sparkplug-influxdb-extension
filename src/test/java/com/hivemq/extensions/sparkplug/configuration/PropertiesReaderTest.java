@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.hivemq.extensions.sparkplug.configuration.PropertiesReader;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
@@ -37,7 +38,7 @@ import static org.junit.Assert.*;
 
 public class PropertiesReaderTest {
 
-    @Rule
+    @TempDir
     public TemporaryFolder folder = new TemporaryFolder();
 
     @Test(expected = NullPointerException.class)

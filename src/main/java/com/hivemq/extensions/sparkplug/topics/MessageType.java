@@ -13,19 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hivemq.extensions.sparkplug.metrics;
+package com.hivemq.extensions.sparkplug.topics;
 
-import com.codahale.metrics.Gauge;
-import com.codahale.metrics.Metric;
+public enum MessageType {
+    DBIRTH, DDEATH, NBIRTH, NDEATH, DDATA, NDATA, DCMD, NCMD, STATE, UNKNOWN;
 
-public class SettableBooleanGauge implements Metric, Gauge<Boolean> {
-    private volatile boolean value = false;
-    public Boolean getValue() {
-        return value;
-    }
-
-    public SettableBooleanGauge setValue(boolean value) {
-        this.value = value;
-        return this;
+    public static MessageType fromString(String s) {
+        try {
+            return MessageType.valueOf(s);
+        } catch (IllegalArgumentException|NullPointerException e) {
+            return UNKNOWN;
+        }
     }
 }

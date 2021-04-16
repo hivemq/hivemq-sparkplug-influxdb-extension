@@ -15,6 +15,8 @@
  */
 package com.hivemq.extensions.sparkplug;
 
+import com.hivemq.extension.sdk.api.annotations.NotNull;
+import com.hivemq.extension.sdk.api.annotations.Nullable;
 import com.izettle.metrics.influxdb.InfluxDbHttpSender;
 import com.izettle.metrics.influxdb.utils.TimeUtils;
 
@@ -30,7 +32,7 @@ import java.util.zip.GZIPOutputStream;
 /**
  * Sender for InfluxDB Cloud.
  *
- * @author Simon Baier
+ * @author Anja Helmbrecht-Schaar
  */
 public class InfluxDbCloudSender extends InfluxDbHttpSender {
     private final String authToken;
@@ -38,10 +40,10 @@ public class InfluxDbCloudSender extends InfluxDbHttpSender {
     private final int readTimeout;
     private final URL url;
 
-    public InfluxDbCloudSender(String protocol, String host, int port,
-                               String authToken, TimeUnit timePrecision,
-                               int connectTimeout, int readTimeout, String measurementPrefix,
-                               final String organization, final String bucket) throws Exception {
+    public InfluxDbCloudSender(final @NotNull String protocol, final @NotNull String host, final @NotNull int port,
+                               final @NotNull String authToken, final @NotNull TimeUnit timePrecision,
+                               final @NotNull int connectTimeout, final @NotNull int readTimeout, final @Nullable String measurementPrefix,
+                               final @NotNull String organization, final @NotNull   String bucket) throws Exception {
         super(protocol, host, port, "", authToken, timePrecision, connectTimeout, readTimeout, measurementPrefix);
         this.authToken = authToken;
         this.connectTimeout = connectTimeout;
@@ -55,7 +57,7 @@ public class InfluxDbCloudSender extends InfluxDbHttpSender {
     }
 
     @Override
-    protected int writeData(byte[] line) throws Exception {
+    protected int writeData( byte[] line) throws Exception {
         final HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("POST");
         con.setRequestProperty("Authorization", "Token " + authToken);

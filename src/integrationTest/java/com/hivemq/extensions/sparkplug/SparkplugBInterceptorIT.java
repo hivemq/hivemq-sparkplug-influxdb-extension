@@ -15,70 +15,79 @@
  */
 package com.hivemq.extensions.sparkplug;
 
-import com.hivemq.client.mqtt.mqtt5.Mqtt5AsyncClient;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5BlockingClient;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5Client;
 import com.hivemq.client.mqtt.mqtt5.message.connect.Mqtt5Connect;
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish;
-import com.hivemq.client.mqtt.mqtt5.message.subscribe.Mqtt5Subscribe;
-import com.hivemq.extension.sdk.api.annotations.NotNull;
 import com.hivemq.testcontainer.core.GradleHiveMQExtensionSupplier;
 import com.hivemq.testcontainer.junit5.HiveMQTestContainerExtension;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.slf4j.event.Level;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 public class SparkplugBInterceptorIT {
 
     @RegisterExtension
     public final @NotNull HiveMQTestContainerExtension container =
-            new HiveMQTestContainerExtension("hivemq/hivemq4", "4.5.2")
+            new HiveMQTestContainerExtension("hivemq/hivemq4", "4.5.3")
                     .withExtension(new GradleHiveMQExtensionSupplier(Paths.get("").toAbsolutePath().toFile()).get())
                     .waitForExtension("HiveMQ Sparkplug Extension")
                     .withLogLevel(Level.TRACE);
 
-    @Ignore
+
     @Test
-    void test_DBIRTH() {
-        final String DEATH_TOPIC = "spBv1_0/group1/eon1/NDEATH";
-        final String BIRTH_TOPIC = "spBv1_0/group1/eon1/NBIRTH";
+    @Timeout(value = 3, unit = TimeUnit.MINUTES)
+    void test_DBIRTH() throws Exception {
+
+        final String DEATH_TOPIC = "spBv1.0/group1/NDEATH/eon1";
+        final String BIRTH_TOPIC = "spBv1.0/group1/NBIRTH/eon1";
 
         final Mqtt5BlockingClient client = Mqtt5Client.builder()
                 .serverHost("localhost")
                 .serverPort(container.getMqttPort())
+                .identifier("EON1")
                 .buildBlocking();
 
-        final Mqtt5AsyncClient  subscriber = Mqtt5Client.builder()
+        final Mqtt5BlockingClient subscriber = Mqtt5Client.builder()
                 .serverHost("localhost")
                 .serverPort(container.getMqttPort())
-                .buildAsync();
+                .identifier("SCADA")
+                .buildBlocking();
 
-        assertTrue(container.isRunning());
-
-        AtomicBoolean birthMessageReceived= new AtomicBoolean(false);
-        AtomicBoolean deathMessageReceived= new AtomicBoolean(false);
         subscriber.connect();
-        subscriber.subscribeWith().topicFilter(BIRTH_TOPIC).callback(publish -> {
-            birthMessageReceived.set(true);
-        });
-        subscriber.subscribeWith().topicFilter(DEATH_TOPIC).callback(publish -> {
-            deathMessageReceived.set(true);
-        });
+
+        final CompletableFuture<Mqtt5Publish> publishBIRTH = new CompletableFuture<>();
+        final CompletableFuture<Mqtt5Publish> publishDEATH = new CompletableFuture<>();
+
+        assertTrue(subscriber.getState().isConnected());
+
+        subscriber.toAsync().subscribeWith().topicFilter(BIRTH_TOPIC)
+                .callback(publishBIRTH::complete).send().get();
+
+        subscriber.toAsync().subscribeWith().topicFilter(DEATH_TOPIC)
+                .callback(publishDEATH::complete).send().get();
+
 
         @Nullable Mqtt5Publish will = Mqtt5Publish.builder()
                 .topic(DEATH_TOPIC)
                 .payload(new String().getBytes(StandardCharsets.UTF_8))
                 .build();
+
         Mqtt5Connect connect = Mqtt5Connect.builder().willPublish(will).build();
         client.connect(connect);
+
         assertTrue(client.getState().isConnected());
 
         @Nullable Mqtt5Publish birthPublish = Mqtt5Publish.builder()
@@ -87,9 +96,12 @@ public class SparkplugBInterceptorIT {
                 .build();
         client.publish(birthPublish);
 
-        client.disconnect();
-        //assertTrue("Birth message published", birthMessageReceived.get());
-        //assertTrue("Death message published", deathMessageReceived.get());
+        final Mqtt5Publish birth = publishBIRTH.get();
+        assertEquals(BIRTH_TOPIC, birth.getTopic().toString());
 
+        // disconnect triggers a death certificate
+        client.disconnect();
+        subscriber.disconnect();
+        container.close();
     }
 }

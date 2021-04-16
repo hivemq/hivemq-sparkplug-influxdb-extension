@@ -61,21 +61,4 @@ public class SettableLongGauge implements Metric, Gauge<Long> {
         this.value = value;
         return this;
     }
-
-    public final static class Builder implements MetricBuilder<SettableLongGauge> {
-        public static final Builder INSTANCE = new Builder();
-
-        private Builder() {
-        }
-
-        @Override
-        public SettableLongGauge newMetric() {
-            return new SettableLongGauge();
-        }
-
-        @Override
-        public boolean isInstance(Metric metric) {
-            return metric instanceof SettableLongGauge;
-        }
-    }
 }

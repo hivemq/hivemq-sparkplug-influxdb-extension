@@ -17,22 +17,27 @@ package com.hivemq.extensions.sparkplug.topics;
 
 import com.hivemq.extension.sdk.api.annotations.NotNull;
 
+/**
+ * Topic structure meta object to create sparkplug structure and
+ * validate the incoming topic parts against sparkplug topic specification
+ *
+ * @author Anja Helmbrecht-Schaar
+ */
 public class TopicStructure {
-    String namespace;
-    String groupId;
-    String messageType;
-    String eonId;
-    String scadaId;
-    String deviceId;
-    boolean valid = false;
+    private String namespace;
+    private String groupId;
+    private MessageType messageType;
+    private String eonId;
+    private  String scadaId;
+    private  String deviceId;
 
-    public TopicStructure(@NotNull String topic, String sparkplugVersion) {
-        String[] arr = topic.split("/");
+    public TopicStructure(final @NotNull String topic) {
+        final String[] arr = topic.split("/");
         if (arr.length >= 4) {
             namespace = arr[0];
             groupId = arr[1];
-            messageType = arr[2];
-            if (messageType.matches("STATE")) {
+            messageType = MessageType.fromString(arr[2]);
+            if (MessageType.STATE == messageType) {
                 scadaId = arr[3];
             } else {
                 eonId = arr[3];
@@ -40,18 +45,22 @@ public class TopicStructure {
             if (arr.length > 4) {
                 deviceId = arr[4];
             }
-            valid = sparkplugVersion.equals(namespace)
-                    && groupId != null
-                    && messageType != null
-                    && (scadaId != null || eonId != null);
         }
+    }
+
+    private boolean isValidNamespace(String sparkplugVersion) {
+        return (namespace != null && sparkplugVersion.matches(namespace));
+    }
+
+    private boolean isValidMessageType() {
+        return ( messageType != MessageType.UNKNOWN);
     }
 
     public String getNamespace() {
         return namespace;
     }
 
-    public String getMessageType() {
+    public MessageType getMessageType() {
         return messageType;
     }
 
@@ -67,8 +76,10 @@ public class TopicStructure {
         return deviceId;
     }
 
-    public boolean isValid() {
-        return valid;
+    public boolean isValid(final @NotNull String sparkplugVersion) {
+        return isValidNamespace(sparkplugVersion)
+                && isValidMessageType()
+                && (scadaId != null || eonId != null);
     }
 
     @Override
@@ -80,7 +91,6 @@ public class TopicStructure {
                 ", eonId='" + eonId + '\'' +
                 ", deviceId='" + deviceId + '\'' +
                 ", scadaId='" + scadaId + '\'' +
-                ", valid=" + valid +
                 '}';
     }
 }
