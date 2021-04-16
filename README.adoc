@@ -6,7 +6,7 @@
 :influxdb-docker: https://hub.docker.com/_/influxdb/
 
 
-== Sparklpug Extension for HiveMQ
+== Sparkplug Extension for HiveMQ
 
 image::/img/HiveMQSparkplugExtension.jpg[Sunset]
 
