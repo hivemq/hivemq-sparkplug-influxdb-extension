@@ -15,7 +15,9 @@
  */
 package com.hivemq.extensions.sparkplug.topics;
 
-import com.hivemq.extension.sdk.api.annotations.NotNull;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Topic structure meta object to create sparkplug structure and
@@ -24,16 +26,18 @@ import com.hivemq.extension.sdk.api.annotations.NotNull;
  * @author Anja Helmbrecht-Schaar
  */
 public class TopicStructure {
-    private String namespace;
-    private String groupId;
-    private MessageType messageType;
-    private String eonId;
-    private  String scadaId;
-    private  String deviceId;
+    private final int topicLevels;
+    private @NotNull String namespace;
+    private @NotNull String groupId;
+    private @NotNull MessageType messageType;
+    private @Nullable String eonId;
+    private @Nullable String scadaId;
+    private @Nullable String deviceId;
 
     public TopicStructure(final @NotNull String topic) {
         final String[] arr = topic.split("/");
-        if (arr.length >= 4) {
+        topicLevels = arr.length;
+        if (topicLevels >= 4) {
             namespace = arr[0];
             groupId = arr[1];
             messageType = MessageType.fromString(arr[2]);
@@ -42,48 +46,49 @@ public class TopicStructure {
             } else {
                 eonId = arr[3];
             }
-            if (arr.length > 4) {
+            if (topicLevels > 4) {
                 deviceId = arr[4];
             }
         }
     }
 
-    private boolean isValidNamespace(String sparkplugVersion) {
-        return (namespace != null && sparkplugVersion.matches(namespace));
+    private boolean isValidNamespace(final @NotNull String sparkplugVersion) {
+        return sparkplugVersion.matches(namespace);
     }
 
     private boolean isValidMessageType() {
-        return ( messageType != MessageType.UNKNOWN);
+        return (messageType != MessageType.UNKNOWN);
     }
 
-    public String getNamespace() {
+    public @NotNull String getNamespace() {
         return namespace;
     }
 
-    public MessageType getMessageType() {
+    public @NotNull MessageType getMessageType() {
         return messageType;
     }
 
-    public String getEonId() {
+    public @Nullable String getEonId() {
         return eonId;
     }
 
-    public String getScadaId() {
+    public @Nullable String getScadaId() {
         return scadaId;
     }
 
-    public String getDeviceId() {
+    public @Nullable String getDeviceId() {
         return deviceId;
     }
 
     public boolean isValid(final @NotNull String sparkplugVersion) {
-        return isValidNamespace(sparkplugVersion)
+        return topicLevels > 3
+                && isValidNamespace(sparkplugVersion)
                 && isValidMessageType()
                 && (scadaId != null || eonId != null);
     }
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         return "TopicStructure{" +
                 "namespace='" + namespace + '\'' +
                 ", groupId='" + groupId + '\'' +

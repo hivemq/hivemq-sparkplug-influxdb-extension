@@ -17,7 +17,8 @@ package com.hivemq.extensions.sparkplug.metrics;
 
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
-import com.hivemq.extension.sdk.api.annotations.NotNull;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,26 +29,26 @@ import org.slf4j.LoggerFactory;
  */
 
 public class MetricsHolder {
-    private static final @NotNull Logger log = LoggerFactory.getLogger(MetricsHolder.class);
-    public final String METRIC_ROOT = "sparkplug";
-    private final MetricRegistry metricRegistry;
 
-    public MetricsHolder(MetricRegistry registry) {
+    private static final @NotNull Logger log = LoggerFactory.getLogger(MetricsHolder.class);
+    public final @NotNull String METRIC_ROOT = "sparkplug";
+    private final @NotNull MetricRegistry metricRegistry;
+
+    public MetricsHolder(@NotNull MetricRegistry registry) {
         metricRegistry = registry;
     }
 
-
-    public MetricRegistry getMetricRegistry() {
+    public @NotNull MetricRegistry getMetricRegistry() {
         return metricRegistry;
     }
 
-    public SettableDoubleGauge getStatusMetrics(String eonId, String deviceId) {
-        String metricName = getMetricName(eonId, deviceId, "status");
+    public @NotNull SettableDoubleGauge getStatusMetrics(@NotNull String eonId, @Nullable String deviceId) {
+        final @NotNull String metricName = getMetricName(eonId, deviceId, "status");
         return getSettableDoubleGauge(metricName);
     }
 
-    private String getMetricName(String eonId, String deviceId, String postfix) {
-        String metricName = METRIC_ROOT + "." + eonId + ".";
+    private @NotNull String getMetricName(@NotNull String eonId, @Nullable String deviceId, @Nullable String postfix) {
+        @NotNull String metricName = METRIC_ROOT + "." + eonId + ".";
         if (deviceId != null) {
             metricName += deviceId + ".";
         }
@@ -55,12 +56,12 @@ public class MetricsHolder {
         return metricName;
     }
 
-    public SettableDoubleGauge getDeviceInformationMetricsDouble(String eonId, String deviceId, String information) {
-        String metricName = getMetricName(eonId, deviceId, information);
+    public @NotNull SettableDoubleGauge getDeviceInformationMetricsDouble(@NotNull String eonId, @Nullable String deviceId, @Nullable String information) {
+        @NotNull String metricName = getMetricName(eonId, deviceId, information);
         return getSettableDoubleGauge(metricName);
     }
 
-    public SettableIntGauge getDeviceInformationMetricsInt(String eonId, String deviceId, String information) {
+    public @NotNull SettableIntGauge getDeviceInformationMetricsInt(@NotNull String eonId, @Nullable String deviceId, @Nullable String information) {
         String metricName = getMetricName(eonId, deviceId, information);
         if (getMetricRegistry().getMetrics().containsKey(metricName)) {
             return (SettableIntGauge) getMetricRegistry().getMetrics().get(metricName);
@@ -69,7 +70,7 @@ public class MetricsHolder {
         return getMetricRegistry().register(metricName, new SettableIntGauge());
     }
 
-    public SettableLongGauge getDeviceInformationMetricsLong(String eonId, String deviceId, String information) {
+    public @NotNull SettableLongGauge getDeviceInformationMetricsLong(@NotNull String eonId, @Nullable String deviceId, @Nullable String information) {
         String metricName = getMetricName(eonId, deviceId, information);
         if (getMetricRegistry().getMetrics().containsKey(metricName)) {
             return (SettableLongGauge) getMetricRegistry().getMetrics().get(metricName);
@@ -78,7 +79,7 @@ public class MetricsHolder {
         return getMetricRegistry().register(metricName, new SettableLongGauge());
     }
 
-    public SettableBooleanGauge getDeviceInformationMetricsBoolean(String eonId, String deviceId, String information) {
+    public @NotNull SettableBooleanGauge getDeviceInformationMetricsBoolean(@NotNull String eonId, @Nullable String deviceId, @Nullable String information) {
         String metricName = getMetricName(eonId, deviceId, information);
         if (getMetricRegistry().getMetrics().containsKey(metricName)) {
             return (SettableBooleanGauge) getMetricRegistry().getMetrics().get(metricName);
@@ -87,26 +88,25 @@ public class MetricsHolder {
         return getMetricRegistry().register(metricName, new SettableBooleanGauge());
     }
 
-    public Counter getCurrentDeviceOnline() {
+    public @NotNull Counter getCurrentDeviceOnline() {
         return getMetricRegistry().counter(METRIC_ROOT + ".devices.current.count");
     }
 
-    public Counter getCurrentEonsOnline() {
+    public @NotNull Counter getCurrentEonsOnline() {
         return getMetricRegistry().counter(METRIC_ROOT + ".eons.current.count");
     }
 
-    public SettableDoubleGauge getDeviceDataMetrics(String eonId, String deviceId, String metric) {
+    public @NotNull SettableDoubleGauge getDeviceDataMetrics(@NotNull String eonId, @Nullable String deviceId, @NotNull String metric) {
         String metricName = getMetricName(eonId, deviceId, metric);
         return getSettableDoubleGauge(metricName);
     }
 
-    private SettableDoubleGauge getSettableDoubleGauge(String metricName) {
+    private @NotNull SettableDoubleGauge getSettableDoubleGauge(@NotNull String metricName) {
         if (getMetricRegistry().getMetrics().containsKey(metricName)) {
             return (SettableDoubleGauge) getMetricRegistry().getMetrics().get(metricName);
         }
         log.debug("Register SettableDoubleGauge metric for: {} ", metricName);
         return getMetricRegistry().register(metricName, new SettableDoubleGauge());
-
     }
 
 }

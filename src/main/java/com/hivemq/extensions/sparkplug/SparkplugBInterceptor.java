@@ -15,7 +15,6 @@
  */
 package com.hivemq.extensions.sparkplug;
 
-import com.hivemq.extension.sdk.api.annotations.NotNull;
 import com.hivemq.extension.sdk.api.interceptor.publish.PublishInboundInterceptor;
 import com.hivemq.extension.sdk.api.interceptor.publish.parameter.PublishInboundInput;
 import com.hivemq.extension.sdk.api.interceptor.publish.parameter.PublishInboundOutput;
@@ -24,6 +23,7 @@ import com.hivemq.extensions.sparkplug.configuration.SparkplugConfiguration;
 import com.hivemq.extensions.sparkplug.metrics.MetricsHolder;
 import com.hivemq.extensions.sparkplug.topics.TopicStructure;
 import org.eclipse.tahu.protobuf.SparkplugBProto;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +32,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import static com.hivemq.extensions.sparkplug.topics.MessageType.STATE;
 
 /**
  * Interceptor for incoming publishes
@@ -55,7 +57,7 @@ public class SparkplugBInterceptor implements PublishInboundInterceptor {
 
     @Override
     public void onInboundPublish(@NotNull PublishInboundInput publishInboundInput, @NotNull PublishInboundOutput publishInboundOutput) {
-        if( log.isTraceEnabled()) {
+        if (log.isTraceEnabled()) {
             log.trace("Incoming publish from {}", publishInboundInput.getPublishPacket().getTopic());
         }
 
@@ -82,17 +84,29 @@ public class SparkplugBInterceptor implements PublishInboundInterceptor {
                 log.error("Could not parse MQTT payload to protobuf", e);
             }
         } else {
-            if( log.isTraceEnabled()) {
+            if (log.isTraceEnabled()) {
                 log.trace("This might not be a sparkplug topic structure: {}", topicStructure);
             }
         }
     }
 
-    private void generateMetricsFromMessage(TopicStructure topicStructure, List<SparkplugBProto.Payload.Metric> metricsList) {
+    private void generateMetricsFromMessage(final @NotNull TopicStructure topicStructure, final @NotNull List<SparkplugBProto.Payload.Metric> metricsList) {
         if (log.isTraceEnabled()) {
             log.trace("Sparkplug Message type & structure {} ", topicStructure);
         }
 
+        if (topicStructure.getScadaId() != null && STATE == topicStructure.getMessageType()) {
+            metricsHolder.getStatusMetrics(topicStructure.getScadaId(), null).setValue(1);
+        } else {
+            generatMetricForEdgesAndDevices(topicStructure, metricsList);
+        }
+    }
+
+    private void generatMetricForEdgesAndDevices(@NotNull TopicStructure topicStructure, @NotNull List<SparkplugBProto.Payload.Metric> metricsList) {
+        if (topicStructure.getEonId() == null) {
+            log.error("Edge Node Id is null - Sparkplug Message structure {} ", topicStructure);
+            return;
+        }
         switch (topicStructure.getMessageType()) {
             case NBIRTH: {
                 metricsHolder.getStatusMetrics(topicStructure.getEonId(), null).setValue(1);
@@ -112,10 +126,6 @@ public class SparkplugBInterceptor implements PublishInboundInterceptor {
             case DDEATH: {
                 metricsHolder.getStatusMetrics(topicStructure.getEonId(), topicStructure.getDeviceId()).setValue(0);
                 metricsHolder.getCurrentDeviceOnline().dec();
-                break;
-            }
-            case STATE: {
-                metricsHolder.getStatusMetrics(topicStructure.getScadaId(), null).setValue(1);
                 break;
             }
             case DDATA:
@@ -140,7 +150,6 @@ public class SparkplugBInterceptor implements PublishInboundInterceptor {
             default: {
                 log.error("Unknown Sparkplug Message Type: {} ", topicStructure);
             }
-
         }
     }
 

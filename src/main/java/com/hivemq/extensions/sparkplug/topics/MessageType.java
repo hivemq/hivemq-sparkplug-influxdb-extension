@@ -15,13 +15,54 @@
  */
 package com.hivemq.extensions.sparkplug.topics;
 
-public enum MessageType {
-    DBIRTH, DDEATH, NBIRTH, NDEATH, DDATA, NDATA, DCMD, NCMD, STATE, UNKNOWN;
+import com.hivemq.extension.sdk.api.annotations.NotNull;
 
-    public static MessageType fromString(String s) {
+public enum MessageType {
+    /**
+     * THE BIRTH certificate message of a device
+     */
+    DBIRTH,
+    /**
+     * THE DEATH certificate message of a device
+     */
+    DDEATH,
+    /**
+     * THE BIRTH certificate message of an edge node
+     */
+    NBIRTH,
+    /**
+     * THE DEATH certificate message of an edge node
+     */
+    NDEATH,
+    /**
+     * THE DATA message message from a device
+     */
+    DDATA,
+    /**
+     * THE DATA message message from an edge node
+     */
+    NDATA,
+    /**
+     * THE Command message message from a SCADA host for a device
+     */
+    DCMD,
+    /**
+     * THE Command message message from a SCADA host for an edge node
+     */
+    NCMD,
+    /**
+     * THE Command message message from a SCADA host
+     */
+    STATE,
+    /**
+     * THE UNKNOWN - if something else was used
+     */
+    UNKNOWN;
+
+    public static MessageType fromString(@NotNull String s) {
         try {
             return MessageType.valueOf(s);
-        } catch (IllegalArgumentException|NullPointerException e) {
+        } catch (IllegalArgumentException | NullPointerException e) {
             return UNKNOWN;
         }
     }

@@ -17,14 +17,16 @@ package com.hivemq.extensions.sparkplug.metrics;
 
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.Metric;
+import org.jetbrains.annotations.NotNull;
 
 public class SettableBooleanGauge implements Metric, Gauge<Boolean> {
     private volatile boolean value = false;
-    public Boolean getValue() {
+
+    public @NotNull Boolean getValue() {
         return value;
     }
 
-    public SettableBooleanGauge setValue(boolean value) {
+    public @NotNull SettableBooleanGauge setValue(boolean value) {
         this.value = value;
         return this;
     }

@@ -40,7 +40,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class SparkplugBInterceptorIT {
 
     @RegisterExtension
-    public final @NotNull HiveMQTestContainerExtension container =
+    public final @NotNull
+    HiveMQTestContainerExtension container =
             new HiveMQTestContainerExtension("hivemq/hivemq4", "4.5.3")
                     .withExtension(new GradleHiveMQExtensionSupplier(Paths.get("").toAbsolutePath().toFile()).get())
                     .waitForExtension("HiveMQ Sparkplug Extension")

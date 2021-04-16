@@ -17,6 +17,7 @@ package com.hivemq.extensions.sparkplug.metrics;
 
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.Metric;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * <p>
@@ -47,7 +48,7 @@ public class SettableIntGauge implements Metric, Gauge<Integer> {
      *
      * @return Last set value, or zero.
      */
-    public Integer getValue() {
+    public @NotNull Integer getValue() {
         return value;
     }
 
@@ -57,9 +58,8 @@ public class SettableIntGauge implements Metric, Gauge<Integer> {
      * @param value last set value
      * @return itself
      */
-    public SettableIntGauge setValue(int value) {
+    public @NotNull SettableIntGauge setValue(int value) {
         this.value = value;
         return this;
     }
-
 }

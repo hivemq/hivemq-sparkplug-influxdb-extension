@@ -16,15 +16,16 @@
 
 package com.hivemq.extensions.sparkplug.configuration;
 
-import com.hivemq.extension.sdk.api.annotations.NotNull;
-import com.hivemq.extension.sdk.api.annotations.Nullable;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -38,34 +39,34 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class SparkplugConfiguration extends PropertiesReader {
 
-    private static final Logger log = LoggerFactory.getLogger(SparkplugConfiguration.class);
-    private static final String DB = "influxdb.";
+    private static final @NotNull Logger log = LoggerFactory.getLogger(SparkplugConfiguration.class);
+    private static final @NotNull String DB = "influxdb.";
 
-    private static final String HOST = DB + "host";
-    private static final String PORT = DB + "port";
-    private static final String MODE = DB + "mode";
-    private static final String PROTOCOL = DB + "protocol";
-    private static final String REPORTING_INTERVAL = DB + "reportingInterval";
-    private static final String PREFIX = DB + "prefix";
-    private static final String DATABASE = DB + "database";
-    private static final String CONNECT_TIMEOUT = DB + "connectTimeout";
-    private static final String AUTH = DB + "auth";
-    private static final String TAGS = DB + "tags";
+    private static final @NotNull String HOST = DB + "host";
+    private static final @NotNull String PORT = DB + "port";
+    private static final @NotNull String MODE = DB + "mode";
+    private static final @NotNull String PROTOCOL = DB + "protocol";
+    private static final @NotNull String REPORTING_INTERVAL = DB + "reportingInterval";
+    private static final @NotNull String PREFIX = DB + "prefix";
+    private static final @NotNull String DATABASE = DB + "database";
+    private static final @NotNull String CONNECT_TIMEOUT = DB + "connectTimeout";
+    private static final @NotNull String AUTH = DB + "auth";
+    private static final @NotNull String TAGS = DB + "tags";
     //InfluxDB Cloud
-    private static final String BUCKET = DB + "bucket";
-    private static final String ORGANIZATION = DB + "organization";
+    private static final @NotNull String BUCKET = DB + "bucket";
+    private static final @NotNull String ORGANIZATION = DB + "organization";
 
-    private static final String MODE_DEFAULT = "http";
-    private static final String PROTOCOL_DEFAULT = "http";
-    private static final String PREFIX_DEFAULT = "";
-    private static final String DATABASE_DEFAULT = "hivemq";
+    private static final @NotNull String MODE_DEFAULT = "http";
+    private static final @NotNull String PROTOCOL_DEFAULT = "http";
+    private static final @NotNull String PREFIX_DEFAULT = "";
+    private static final @NotNull String DATABASE_DEFAULT = "hivemq";
     private static final int REPORTING_INTERVAL_DEFAULT = 1;
     private static final int CONNECT_TIMEOUT_DEFAULT = 5000;
 
-    private static final String SPARKPLUG_VERSION = "sparkplug.version";
-    private static final String SPARKPLUG_VERSION_DEFAULT = "spBv1.0";
+    private static final @NotNull String SPARKPLUG_VERSION = "sparkplug.version";
+    private static final @NotNull String SPARKPLUG_VERSION_DEFAULT = "spBv1.0";
 
-    private static final HashMap<String, String> TAGS_DEFAULT = new HashMap<>();
+    private static final @NotNull HashMap<String, String> TAGS_DEFAULT = new HashMap<>();
 
 
     public SparkplugConfiguration(@NotNull final File configFilePath) {
@@ -88,24 +89,21 @@ public class SparkplugConfiguration extends PropertiesReader {
         }
 
         // check for valid port value
-        final String port = getProperty(PORT);
+        final @Nullable String port = getProperty(PORT);
         try {
-            final int intPort = Integer.parseInt(port);
-
+            final int intPort = port != null ? Integer.parseInt(port) : -1;
             if (intPort < 0 || intPort > 65535) {
                 log.error("Value for mandatory InfluxDB property {} is not in valid port range.", PORT);
                 countError++;
             }
-
-        } catch (NumberFormatException e) {
+        } catch (Exception e) {
             log.error("Value for mandatory InfluxDB property {} is not a number.", PORT);
             countError++;
         }
 
         // check if host is still --INFLUX-DB-IP--
         final String host = getProperty(HOST);
-
-        if (host.equals("--INFLUX-DB-IP--")) {
+        if (host == null || host.equals("--INFLUX-DB-IP--")) {
             countError++;
         }
 
@@ -122,7 +120,6 @@ public class SparkplugConfiguration extends PropertiesReader {
         checkNotNull(property, "Mandatory property must not be null");
 
         final String value = getProperty(property);
-
         if (value == null) {
             log.error("Mandatory property {} is not set.", property);
             return 1;
@@ -148,16 +145,13 @@ public class SparkplugConfiguration extends PropertiesReader {
 
     @Nullable
     public Integer getPort() {
-
-        final Integer port;
-
+        final int port;
         try {
-            port = Integer.parseInt(getProperty(PORT));
+            port = Integer.parseInt(Objects.requireNonNull(getProperty(PORT)));
         } catch (NumberFormatException e) {
             log.error("Value for {} is not a number", PORT);
             return null;
         }
-
         return port;
     }
 
@@ -171,12 +165,10 @@ public class SparkplugConfiguration extends PropertiesReader {
 
     @NotNull
     public String getProtocol() {
-        final String protocol = getProperty(PROTOCOL);
+        final @Nullable String protocol = getProperty(PROTOCOL);
         if (protocol == null) {
-            if (getMode().equals("http")) {
-                log.warn("No protocol configured for InfluxDb, using default: {}", PROTOCOL_DEFAULT);
-                return PROTOCOL_DEFAULT;
-            }
+            log.warn("No protocol configured for InfluxDb, using default: {}", PROTOCOL_DEFAULT);
+            return PROTOCOL_DEFAULT;
         }
         return protocol;
     }
@@ -227,7 +219,7 @@ public class SparkplugConfiguration extends PropertiesReader {
     }
 
     @Override
-    public String getFilename() {
+    public @org.jetbrains.annotations.NotNull String getFilename() {
         return "sparkplug.properties";
     }
 
@@ -264,15 +256,13 @@ public class SparkplugConfiguration extends PropertiesReader {
     private int validateIntProperty(@NotNull final String key, final int defaultValue, final boolean zeroAllowed, final boolean negativeAllowed) {
         checkNotNull(key, "Key to fetch property must not be null");
 
-        final String value = properties.getProperty(key);
-
+        final String value = properties != null ? properties.getProperty(key) : null;
         if (value == null) {
             log.warn("No '{}' configured, using default: {}", key, defaultValue);
             return defaultValue;
         }
 
         int valueAsInt;
-
         try {
             valueAsInt = Integer.parseInt(value);
         } catch (NumberFormatException e) {
@@ -293,7 +283,7 @@ public class SparkplugConfiguration extends PropertiesReader {
         return valueAsInt;
     }
 
-    public String getSparkplugVersion() {
+    public @NotNull String getSparkplugVersion() {
         return validateStringProperty(SPARKPLUG_VERSION, SPARKPLUG_VERSION_DEFAULT);
     }
 }

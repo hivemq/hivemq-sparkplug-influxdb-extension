@@ -29,6 +29,8 @@ dependencies {
     implementation("com.izettle:dropwizard-metrics-influxdb:${property("dropwizard-metrics-influxdb.version")}")
     implementation("org.apache.commons:commons-lang3:${property("commons.version")}")
     implementation("ch.qos.logback:logback-classic:${property("logback.version")}")
+    implementation("org.jetbrains:annotations:20.1.0")
+
 }
 
 /* Test dependencies */

@@ -15,10 +15,10 @@
  */
 package com.hivemq.extensions.sparkplug;
 
-import com.hivemq.extension.sdk.api.annotations.NotNull;
-import com.hivemq.extension.sdk.api.annotations.Nullable;
 import com.izettle.metrics.influxdb.InfluxDbHttpSender;
 import com.izettle.metrics.influxdb.utils.TimeUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -35,15 +35,15 @@ import java.util.zip.GZIPOutputStream;
  * @author Anja Helmbrecht-Schaar
  */
 public class InfluxDbCloudSender extends InfluxDbHttpSender {
-    private final String authToken;
+    private final @NotNull String authToken;
     private final int connectTimeout;
     private final int readTimeout;
-    private final URL url;
+    private final @NotNull URL url;
 
-    public InfluxDbCloudSender(final @NotNull String protocol, final @NotNull String host, final @NotNull int port,
+    public InfluxDbCloudSender(final @NotNull String protocol, final @NotNull String host, final int port,
                                final @NotNull String authToken, final @NotNull TimeUnit timePrecision,
-                               final @NotNull int connectTimeout, final @NotNull int readTimeout, final @Nullable String measurementPrefix,
-                               final @NotNull String organization, final @NotNull   String bucket) throws Exception {
+                               final int connectTimeout, final int readTimeout, final @Nullable String measurementPrefix,
+                               final @NotNull String organization, final @NotNull String bucket) throws Exception {
         super(protocol, host, port, "", authToken, timePrecision, connectTimeout, readTimeout, measurementPrefix);
         this.authToken = authToken;
         this.connectTimeout = connectTimeout;
@@ -57,7 +57,7 @@ public class InfluxDbCloudSender extends InfluxDbHttpSender {
     }
 
     @Override
-    protected int writeData( byte[] line) throws Exception {
+    protected int writeData(final byte @NotNull [] line) throws Exception {
         final HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("POST");
         con.setRequestProperty("Authorization", "Token " + authToken);

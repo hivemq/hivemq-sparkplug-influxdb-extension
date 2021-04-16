@@ -26,10 +26,9 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
 
 class InfluxDbCloudSenderTest {
-    private InfluxDbCloudSender sender;
-
     @Rule
     public WireMockRule wireMockRule = new WireMockRule(WireMockConfiguration.options().dynamicPort());
+    private InfluxDbCloudSender sender;
 
     @Test
     public void test_write_data() throws Exception {

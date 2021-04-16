@@ -15,14 +15,7 @@
  */
 package com.hivemq.extensions.sparkplug.configuration;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.*;
-
-import com.hivemq.extensions.sparkplug.configuration.PropertiesReader;
-import org.junit.Rule;
+import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.rules.TemporaryFolder;
@@ -45,7 +38,7 @@ public class PropertiesReaderTest {
     public void readPropertiesFromFile_file_null() {
         new PropertiesReader(null) {
             @Override
-            public String getFilename() {
+            public @NotNull String getFilename() {
                 return "test";
             }
         };
@@ -59,7 +52,7 @@ public class PropertiesReaderTest {
 
         final PropertiesReader propertiesReader = new PropertiesReader(root) {
             @Override
-            public String getFilename() {
+            public @NotNull String getFilename() {
                 return "test";
             }
         };
@@ -77,7 +70,7 @@ public class PropertiesReaderTest {
 
         final PropertiesReader propertiesReader = new PropertiesReader(root) {
             @Override
-            public String getFilename() {
+            public @NotNull String getFilename() {
                 return "test";
             }
         };
@@ -98,7 +91,7 @@ public class PropertiesReaderTest {
 
         final PropertiesReader propertiesReader = new PropertiesReader(root) {
             @Override
-            public String getFilename() {
+            public @NotNull String getFilename() {
                 return "test";
             }
         };
@@ -123,7 +116,7 @@ public class PropertiesReaderTest {
 
         final PropertiesReader propertiesReader = new PropertiesReader(root) {
             @Override
-            public String getFilename() {
+            public @NotNull String getFilename() {
                 return "test";
             }
         };
@@ -149,7 +142,7 @@ public class PropertiesReaderTest {
 
         final PropertiesReader propertiesReader = new PropertiesReader(root) {
             @Override
-            public String getFilename() {
+            public @NotNull String getFilename() {
                 return "test";
             }
         };
@@ -172,7 +165,7 @@ public class PropertiesReaderTest {
 
         final PropertiesReader propertiesReader = new PropertiesReader(root) {
             @Override
-            public String getFilename() {
+            public @NotNull String getFilename() {
                 return "test";
             }
         };

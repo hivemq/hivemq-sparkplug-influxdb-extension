@@ -18,12 +18,12 @@ package com.hivemq.extensions.sparkplug;
 import com.hivemq.extension.sdk.api.parameter.ExtensionInformation;
 import com.hivemq.extension.sdk.api.parameter.ExtensionStartInput;
 import com.hivemq.extension.sdk.api.parameter.ExtensionStartOutput;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -32,29 +32,25 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class SparkplugExtensionMainTest {
 
-    @Mock
-    ExtensionStartInput extensionStartInput;
-
-    @Mock
-    ExtensionStartOutput extensionStartOutput;
-
-    @Mock
-    ExtensionInformation extensionInformation;
-
     @TempDir
     static Path tempDir;
     static Path tempFile;
+    @Mock
+    ExtensionStartInput extensionStartInput;
+    @Mock
+    ExtensionStartOutput extensionStartOutput;
+    @Mock
+    ExtensionInformation extensionInformation;
 
     @BeforeEach
     public void set_up() throws IOException {
         MockitoAnnotations.initMocks(this);
-        if( tempFile == null) {
+        if (tempFile == null) {
             tempFile = Files.createFile(tempDir.resolve("sparkplug.properties"));
         }
     }
@@ -72,8 +68,8 @@ public class SparkplugExtensionMainTest {
     @Test
     public void extensionStart_failed_configuration_file_not_valid() throws IOException {
 
-            final List<String> lines = Arrays.asList("influxdb.host:localhost", "influxdb.port: -3000");
-            Files.write(tempFile, lines, Charset.forName("UTF-8"));
+        final List<String> lines = Arrays.asList("influxdb.host:localhost", "influxdb.port: -3000");
+        Files.write(tempFile, lines, Charset.forName("UTF-8"));
 
         final SparkplugExtensionMain main = new SparkplugExtensionMain();
         when(extensionStartInput.getExtensionInformation()).thenReturn(extensionInformation);
@@ -83,20 +79,4 @@ public class SparkplugExtensionMainTest {
 
         verify(extensionStartOutput).preventExtensionStartup(anyString());
     }
-
-    @Disabled
-    @Test
-    public void extensionStart_failed_configuration_file_valid() throws IOException {
-        final List<String> lines = Arrays.asList("influxdb.host:localhost", "influxdb.port: 3000");
-        Files.write(tempFile, lines, Charset.forName("UTF-8"));
-
-        final SparkplugExtensionMain main = new SparkplugExtensionMain();
-        when(extensionStartInput.getExtensionInformation()).thenReturn(extensionInformation);
-        when(extensionStartInput.getExtensionInformation().getExtensionHomeFolder()).thenReturn(tempFile.getParent().toFile());
-
-        main.extensionStart(extensionStartInput, extensionStartOutput);
-
-        verify(extensionStartOutput, times(0)).preventExtensionStartup(anyString());
-    }
-
 }

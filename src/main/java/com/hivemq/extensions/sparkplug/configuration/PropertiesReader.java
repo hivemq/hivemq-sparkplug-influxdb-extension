@@ -15,9 +15,9 @@
  */
 package com.hivemq.extensions.sparkplug.configuration;
 
-import com.hivemq.extension.sdk.api.annotations.NotNull;
-import com.hivemq.extension.sdk.api.annotations.Nullable;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,10 +35,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public abstract class PropertiesReader {
 
-    private static final Logger log = LoggerFactory.getLogger(PropertiesReader.class);
+    private static final @NotNull Logger log = LoggerFactory.getLogger(PropertiesReader.class);
 
-    private final File configFilePath;
-    Properties properties;
+    private final @NotNull File configFilePath;
+    @Nullable Properties properties;
 
     PropertiesReader(@NotNull final File configFilePath) {
         checkNotNull(configFilePath, "Path to config file must not be null");
@@ -99,5 +99,5 @@ public abstract class PropertiesReader {
         }
     }
 
-    public abstract String getFilename();
+    public abstract @NotNull String getFilename();
 }

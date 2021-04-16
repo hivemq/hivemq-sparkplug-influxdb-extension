@@ -20,14 +20,16 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.ScheduledReporter;
 import com.google.common.collect.Sets;
 import com.hivemq.extension.sdk.api.ExtensionMain;
-import com.hivemq.extension.sdk.api.annotations.NotNull;
-import com.hivemq.extension.sdk.api.annotations.Nullable;
-import com.hivemq.extension.sdk.api.parameter.*;
+import com.hivemq.extension.sdk.api.parameter.ExtensionStartInput;
+import com.hivemq.extension.sdk.api.parameter.ExtensionStartOutput;
+import com.hivemq.extension.sdk.api.parameter.ExtensionStopInput;
+import com.hivemq.extension.sdk.api.parameter.ExtensionStopOutput;
 import com.hivemq.extension.sdk.api.services.Services;
-import com.hivemq.extension.sdk.api.services.intializer.InitializerRegistry;
 import com.hivemq.extensions.sparkplug.configuration.SparkplugConfiguration;
 import com.hivemq.extensions.sparkplug.metrics.MetricsHolder;
 import com.izettle.metrics.influxdb.*;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,28 +44,30 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Main entrypoint for sparkplug extension
  * starts influxdb reporter after validating the configuration
  * initializes the sparkplug interceptor
+ *
  * @author Anja Helmbrecht-Schaar
  */
 public class SparkplugExtensionMain implements ExtensionMain {
 
     private static final @NotNull Logger log = LoggerFactory.getLogger(SparkplugExtensionMain.class);
-    private static final HashSet<String> METER_FIELDS = Sets.newHashSet("count", "m1_rate", "m5_rate", "m15_rate", "mean_rate");
-    private static final HashSet<String> TIMER_FIELDS = Sets.newHashSet("count", "min", "max", "mean", "stddev", "p50", "p75", "p95", "p98", "p99", "p999", "m1_rate", "m5_rate", "m15_rate", "mean_rate");
+    private static final @NotNull HashSet<String> METER_FIELDS = Sets.newHashSet("count", "m1_rate", "m5_rate", "m15_rate", "mean_rate");
+    private static final @NotNull HashSet<String> TIMER_FIELDS = Sets.newHashSet("count", "min", "max", "mean", "stddev", "p50", "p75", "p95", "p98", "p99", "p999", "m1_rate", "m5_rate", "m15_rate", "mean_rate");
 
-    private ScheduledReporter reporter;
-    private SparkplugConfiguration configuration;
+    private @Nullable ScheduledReporter reporter;
+    private @Nullable SparkplugConfiguration configuration;
 
     @Override
     public void extensionStart(@NotNull final ExtensionStartInput extensionStartInput, @NotNull final ExtensionStartOutput extensionStartOutput) {
-
         try {
-            final File extensionHomeFolder = extensionStartInput.getExtensionInformation().getExtensionHomeFolder();
+            final @NotNull File extensionHomeFolder = extensionStartInput.getExtensionInformation().getExtensionHomeFolder();
             //read & validate configuration
-            if (! configurationValidated(extensionStartOutput, extensionHomeFolder))   {
+            if (!configurationValidated(extensionStartOutput, extensionHomeFolder)) {
                 return;
             }
-
-            final InfluxDbSender sender = setupSender(configuration);
+            if (configuration == null) {
+                return;
+            }
+            final @Nullable InfluxDbSender sender = setupSender(configuration);
             if (sender == null) {
                 extensionStartOutput.preventExtensionStartup("Couldn't create an influxdb sender. Please check that the configuration is correct");
                 return;
@@ -75,7 +79,7 @@ public class SparkplugExtensionMain implements ExtensionMain {
             initializeSparkplugMetricsInterceptor();
 
         } catch (Exception e) {
-            log.warn("Start failed because of", e);
+            log.warn("Start failed because of: ", e);
             extensionStartOutput.preventExtensionStartup("Start failed because of an exception");
         }
     }
@@ -87,7 +91,7 @@ public class SparkplugExtensionMain implements ExtensionMain {
         }
     }
 
-    private boolean configurationValidated(ExtensionStartOutput extensionStartOutput, File extensionHomeFolder) {
+    private boolean configurationValidated(@NotNull final ExtensionStartOutput extensionStartOutput, @NotNull final File extensionHomeFolder) {
         configuration = new SparkplugConfiguration(extensionHomeFolder);
 
         if (!configuration.readPropertiesFromFile()) {
@@ -102,11 +106,9 @@ public class SparkplugExtensionMain implements ExtensionMain {
     }
 
     private void initializeSparkplugMetricsInterceptor() {
-        MetricsHolder metricsHolder = new MetricsHolder(Services.metricRegistry());
+        final MetricsHolder metricsHolder = new MetricsHolder(Services.metricRegistry());
         final SparkplugBInterceptor sparkplugBInterceptor = new SparkplugBInterceptor(metricsHolder, configuration);
-        Services.initializerRegistry().setClientInitializer((initializerInput, clientContext) -> {
-            clientContext.addPublishInboundInterceptor(sparkplugBInterceptor);
-        });
+        Services.initializerRegistry().setClientInitializer((initializerInput, clientContext) -> clientContext.addPublishInboundInterceptor(sparkplugBInterceptor));
     }
 
     @NotNull
@@ -176,7 +178,6 @@ public class SparkplugExtensionMain implements ExtensionMain {
 
         return sender;
     }
-
 
 
 }
