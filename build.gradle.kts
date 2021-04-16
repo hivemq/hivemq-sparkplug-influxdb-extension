@@ -75,7 +75,6 @@ tasks.hivemqExtensionResources {
 
 //preparation and tasks to run & debug Extension locally
 val unzipHivemq by tasks.registering(Sync::class) {
-    //from(zipTree(rootDir.resolve("/Users/ahelmbre/hivemq/hivemq-4.5.1.zip")))
     from(zipTree(rootDir.resolve("/your/path/to/hivemq-<VERSION>.zip")))
     into({ temporaryDir })
 }
@@ -83,7 +82,6 @@ val unzipHivemq by tasks.registering(Sync::class) {
 
 tasks.prepareHivemqHome {
     hivemqFolder.set(unzipHivemq.map { it.destinationDir.resolve("hivemq-<VERSION>" ) } as Any)
-    //hivemqFolder.set(unzipHivemq.map { it.destinationDir.resolve("hivemq-4.5.1" ) } as Any)
 }
 
 tasks.runHivemqWithExtension {
