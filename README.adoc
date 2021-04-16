@@ -50,7 +50,7 @@ The Sparkplug Monitoring extension uses its own configuration file `sparkplug.pr
 | influxdb.tags | no | The tags for each metric. Listed as a semicolon ( `;` ) separated list. | -
 | influxdb.organization | only for mode: "cloud" | The organization to push data to | -
 | influxdb.bucket | only for mode: "cloud" | The bucket to push data to | -
-| sparkplug.version | no | The sparkplug version to be used | spBv1_0
+| sparkplug.version | no | The sparkplug version to be used | spBv1.0
 
 |===
 
