@@ -51,6 +51,27 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
+sourceSets {
+    create("integrationTest") {
+        compileClasspath += sourceSets.main.get().output
+        runtimeClasspath += sourceSets.main.get().output
+    }
+}
+
+configurations {
+    getByName("integrationTestImplementation").extendsFrom(testImplementation.get())
+    getByName("integrationTestRuntimeOnly").extendsFrom(testRuntimeOnly.get())
+}
+
+val integrationTest by tasks.registering(Test::class) {
+    group = "verification"
+    description = "Runs integration tests."
+
+    testClassesDirs = sourceSets["integrationTest"].output.classesDirs
+    classpath = sourceSets["integrationTest"].runtimeClasspath
+    shouldRunAfter(tasks.test)
+}
+
 protobuf {
     protoc {
         artifact = "com.google.protobuf:protoc:3.15.8"
