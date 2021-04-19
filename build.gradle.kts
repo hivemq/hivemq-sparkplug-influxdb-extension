@@ -4,6 +4,7 @@ import com.google.protobuf.gradle.protoc
 plugins {
     id("com.hivemq.extension")
     id("com.google.protobuf")
+    id("com.github.hierynomus.license")
     id("com.github.sgtsilvio.gradle.utf8")
     id("org.asciidoctor.jvm.convert")
     id("idea")
@@ -85,6 +86,11 @@ tasks.runHivemqWithExtension {
     debugOptions {
         enabled.set(false)
     }
+}
+
+license {
+    header = projectDir.resolve("HEADER")
+    mapping("java", "SLASHSTAR_STYLE")
 }
 
 /*
