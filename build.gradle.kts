@@ -1,8 +1,12 @@
+import com.google.protobuf.gradle.protobuf
+import com.google.protobuf.gradle.protoc
+
 plugins {
     id("com.hivemq.extension")
     id("com.google.protobuf")
     id("com.github.sgtsilvio.gradle.utf8")
     id("org.asciidoctor.jvm.convert")
+    id("idea")
 }
 
 group = "com.hivemq.extensions.sparkplug"
@@ -46,13 +50,11 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
-
-sourceSets {
-    val main by getting { }
-    main.java.srcDirs("build/generated/source/proto/main/java")
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:3.15.8"
+    }
 }
-
-
 
 val prepareAsciidoc by tasks.registering(Sync::class) {
     from("README.adoc").into({ temporaryDir })
@@ -68,7 +70,6 @@ tasks.hivemqExtensionResources {
     from("README.adoc") { rename { "README.txt" } }
     from(tasks.asciidoctor)
 }
-
 
 //preparation and tasks to run & debug Extension locally
 val unzipHivemq by tasks.registering(Sync::class) {
