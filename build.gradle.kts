@@ -1,5 +1,3 @@
-import org.gradle.kotlin.dsl.support.unzipTo
-
 plugins {
     id("com.hivemq.extension")
     id("com.google.protobuf")
@@ -8,7 +6,7 @@ plugins {
 }
 
 group = "com.hivemq.extensions.sparkplug"
-description = "HiveMQ Sparkplug Extension - a extension to monitor sparkplug data with influxdata."
+description = "HiveMQ Sparkplug Extension - an extension to monitor sparkplug data with influxdata."
 
 hivemqExtension {
     name = "HiveMQ Sparkplug Extension"
@@ -30,7 +28,6 @@ dependencies {
     implementation("org.apache.commons:commons-lang3:${property("commons.version")}")
     implementation("ch.qos.logback:logback-classic:${property("logback.version")}")
     implementation("org.jetbrains:annotations:20.1.0")
-
 }
 
 /* Test dependencies */
@@ -40,12 +37,12 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${property("junit-jupiter.version")}")
     testImplementation("com.hivemq:hivemq-testcontainer-junit5:${property("testcontainer.version")}")
     testImplementation("org.testcontainers:influxdb:${property("influx-test.version")}")
-    testImplementation( "org.mockito:mockito-core:${property("mockito-core.version")}")
-    testImplementation( "org.slf4j:slf4j-api:${property("slf4j-api.version")}")
-    testImplementation( "com.github.tomakehurst:wiremock-jre8-standalone:${property("wiremock-jre8-standalone.version")}")
+    testImplementation("org.mockito:mockito-core:${property("mockito-core.version")}")
+    testImplementation("org.slf4j:slf4j-api:${property("slf4j-api.version")}")
+    testImplementation("com.github.tomakehurst:wiremock-jre8-standalone:${property("wiremock-jre8-standalone.version")}")
 }
 
-tasks.withType<Test>().configureEach {
+tasks.withType<Test> {
     useJUnitPlatform()
 }
 
@@ -79,9 +76,8 @@ val unzipHivemq by tasks.registering(Sync::class) {
     into({ temporaryDir })
 }
 
-
 tasks.prepareHivemqHome {
-    hivemqFolder.set(unzipHivemq.map { it.destinationDir.resolve("hivemq-<VERSION>" ) } as Any)
+    hivemqFolder.set(unzipHivemq.map { it.destinationDir.resolve("hivemq-<VERSION>") } as Any)
 }
 
 tasks.runHivemqWithExtension {
@@ -90,7 +86,7 @@ tasks.runHivemqWithExtension {
     }
 }
 
-/**
+/*
 version = "${property("version")}"
 tasks.register("copyExtensionToDockerFolder") {
     mustRunAfter(tasks.hivemqExtensionZip)
@@ -98,6 +94,4 @@ tasks.register("copyExtensionToDockerFolder") {
         from(zipTree("build/hivemq-extension/hivemq-sparkplug-extension-$version.zip"))
         into("deploy/docker")
     }
-}**/
-
-
+}*/
