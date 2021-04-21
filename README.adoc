@@ -12,7 +12,7 @@ image::/img/HiveMQSparkplugExtension.jpg[Sunset]
 
 *Extension Type:* Monitoring of IIoT data
 
-*Version:* 4.5.3
+*Version:* 1.0.0-beta
 
 *License:* Apache License 2.0
 
