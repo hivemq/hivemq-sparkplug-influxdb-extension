@@ -8,7 +8,7 @@
 
 == Sparkplug InfluxDB Extension for HiveMQ
 
-image::/img/HiveMQSparkplugExtension.jpg[Sunset]
+image::/img/HiveMQSparkplugExtension.jpg[Logo]
 
 *Extension Type:* Monitoring of IIoT data
 
@@ -21,6 +21,13 @@ image::/img/HiveMQSparkplugExtension.jpg[Sunset]
 The HiveMQ {sparkplug-link}[Sparkplug^] Extension can be leveraged to gather sparkplug metrics from {hivemq-link}[HiveMQ^] and persist them into a {influxdb-link}[InfluxDB^] database.
 This database can be used as the data source for a monitoring dashboard to monitor directly the data from the devices and gateways of a Sparkplug Infrastructure.
 
+#**This extension is not yet ready for production use. **#
+
+If you want use this in production, please contact HiveMQ contact@hivemq.com
+
+=== Flow
+image::/img/HiveMQExtensionFlow.jpg[Flow]
+
 === Installation
 Installing the extension for HiveMQ is very easy:
 
@@ -29,9 +36,20 @@ Installing the extension for HiveMQ is very easy:
 . Copy the folder `hivemq-sparkplug-extension` to your `[HIVEMQ_HOME]/extensions` folder
 . Done
 
-
 === Configuration
 The Sparkplug Monitoring extension uses its own configuration file `sparkplug.properties`. The extension won't start if this file is missing or the required properties are not set.
+
+==== Dashboards
+2 InfluxDB example dashboards are provided in the `deploy` subfolder of this extension.
+
+|===
+| Influx dashboard | Description
+| HiveMQInfluxDB-Dashboard.json | HiveMQ dashboard with the most useful hivemq metrics
+| SparkplugInfluxDB-Dashboard.json | Sparkplug example dashboard, that vizualizes data of 2 edge nodes and their related devices.
+|===
+
+image::/img/Sparkplugdashboard.jpg[Dashboard]
+
 
 ==== General Configuration
 
