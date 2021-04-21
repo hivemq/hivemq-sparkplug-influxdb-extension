@@ -142,4 +142,4 @@ If you want to contribute to HiveMQ Sparkplug Extension, see the link:CONTRIBUTI
 
 == License
 
-HiveMQ Sparkplug Extension is licensed under the `APACHE LICENSE, VERSION 2.0`. A copy of the license can be found link:LICENSE.txt[here].
+HiveMQ Sparkplug Extension is licensed under the `APACHE LICENSE, VERSION 2.0`. A copy of the license can be found link:LICENSE[here].
