@@ -78,7 +78,7 @@ influxdb.tags:host=localhost
 ==== Quick Start Sparkplug
 
 ===== InfluxDB setup
-If you don't already have an InfluxDB 2.0 instance set up, here is a instruction how to start a not configured InfluxDB instance with Docker.
+If you don't already have an InfluxDB 2.0 instance set up, here is a instruction how to start and configure an InfluxDB instance with Docker.
 
 . Download and install {docker}[Docker^] for your platform
 . Start an InfluxDB docker container with the command `docker run -p 8086:8086 -v $PWD:/var/lib/influxdb influxdb`. For more information about using InfluxDB with Docker visit the {influxdb-docker}[official Docker repository^] for InfluxDB
