@@ -48,7 +48,7 @@ The Sparkplug Monitoring extension uses its own configuration file `sparkplug.pr
 | SparkplugInfluxDB-Dashboard.json | Sparkplug example dashboard, that vizualizes data of 2 edge nodes and their related devices.
 |===
 
-image::/img/Sparkplugdashboard.jpg[Dashboard]
+image::/img/SparkplugDashboard.jpg[Dashboard]
 
 
 ==== General Configuration
