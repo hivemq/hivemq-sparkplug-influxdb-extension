@@ -32,8 +32,7 @@ repositories {
 dependencies {
     implementation("com.google.protobuf:protobuf-java:${property("protobuf.version")}")
     implementation("com.izettle:dropwizard-metrics-influxdb:${property("dropwizard-metrics-influxdb.version")}")
-    implementation("org.apache.commons:commons-lang3:${property("commons.version")}")
-    implementation("ch.qos.logback:logback-classic:${property("logback.version")}")
+    implementation("org.apache.commons:commons-lang3:${property("commons-lang3.version")}")
     implementation("org.jetbrains:annotations:20.1.0")
 }
 
@@ -65,14 +64,11 @@ tasks.hivemqExtensionResources {
 /* ******************** test ******************** */
 
 dependencies {
-    testImplementation("com.hivemq:hivemq-mqtt-client:${property("hivemq-mqtt-client.version")}")
     testImplementation("org.junit.jupiter:junit-jupiter-api:${property("junit-jupiter.version")}")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${property("junit-jupiter.version")}")
-    testImplementation("com.hivemq:hivemq-testcontainer-junit5:${property("testcontainer.version")}")
-    testImplementation("org.testcontainers:influxdb:${property("influx-test.version")}")
-    testImplementation("org.mockito:mockito-core:${property("mockito-core.version")}")
-    testImplementation("org.slf4j:slf4j-api:${property("slf4j-api.version")}")
-    testImplementation("com.github.tomakehurst:wiremock-jre8-standalone:${property("wiremock-jre8-standalone.version")}")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+    testImplementation("org.mockito:mockito-core:${property("mockito.version")}")
+    testImplementation("com.github.tomakehurst:wiremock-jre8-standalone:${property("wiremock.version")}")
+    testRuntimeOnly("ch.qos.logback:logback-classic:${property("logback.version")}")
 }
 
 tasks.withType<Test> {
@@ -93,12 +89,18 @@ val integrationTestRuntimeOnly: Configuration by configurations.getting {
     extendsFrom(configurations.testRuntimeOnly.get())
 }
 
+dependencies {
+    integrationTestImplementation("org.testcontainers:influxdb:${property("testcontainers.version")}")
+    integrationTestImplementation("com.hivemq:hivemq-testcontainer-junit5:${property("hivemq-testcontainer.version")}")
+    integrationTestImplementation("com.hivemq:hivemq-mqtt-client:${property("hivemq-mqtt-client.version")}")
+}
+
 val integrationTest by tasks.registering(Test::class) {
     group = "verification"
     description = "Runs integration tests."
 
-    testClassesDirs = sourceSets["integrationTest"].output.classesDirs
-    classpath = sourceSets["integrationTest"].runtimeClasspath
+    testClassesDirs = sourceSets[name].output.classesDirs
+    classpath = sourceSets[name].runtimeClasspath
     shouldRunAfter(tasks.test)
 }
 
