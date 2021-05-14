@@ -16,46 +16,40 @@
 package com.hivemq.extensions.sparkplug.configuration;
 
 import com.hivemq.extension.sdk.api.annotations.NotNull;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class SparkplugConfigurationTest {
 
-    @Rule
-    public TemporaryFolder folder = new TemporaryFolder();
-
-    private File root;
+    @TempDir
+    File root;
 
     private File file;
 
-    @Before
-    public void set_up() throws IOException {
-        root = folder.getRoot();
-        String fileName = "influxdb.properties";
-        file = folder.newFile(fileName);
+    @BeforeEach
+    public void set_up() {
+        file = new File(root, "sparkplug.properties");
     }
 
     @Test
     public void validateConfiguration_ok() throws IOException {
 
-        final List<String> lines = Arrays.asList("host:localhost", "port:3000");
-        Files.write(file.toPath(), lines, Charset.forName("UTF-8"));
+        final List<String> lines = Arrays.asList("influxdb.host:localhost", "influxdb.port:3000");
+        Files.write(file.toPath(), lines, StandardCharsets.UTF_8);
 
-        com.hivemq.extensions.sparkplug.configuration.SparkplugConfiguration
-                propertiesReader = new com.hivemq.extensions.sparkplug.configuration.SparkplugConfiguration(root);
+        final SparkplugConfiguration propertiesReader = new SparkplugConfiguration(root);
 
         propertiesReader.readPropertiesFromFile();
         final boolean validateConfiguration = propertiesReader.validateConfiguration();
@@ -66,8 +60,8 @@ public class SparkplugConfigurationTest {
     @Test
     public void validateConfiguration_wrong_port() throws IOException {
 
-        final List<String> lines = Arrays.asList("host:localhost", "port:-3000");
-        Files.write(file.toPath(), lines, Charset.forName("UTF-8"));
+        final List<String> lines = Arrays.asList("influxdb.host:localhost", "influxdb.port:-3000");
+        Files.write(file.toPath(), lines, StandardCharsets.UTF_8);
 
         final SparkplugConfiguration propertiesReader = new SparkplugConfiguration(root);
 
@@ -80,8 +74,8 @@ public class SparkplugConfigurationTest {
     @Test
     public void validateConfiguration_host_missing() throws IOException {
 
-        final List<String> lines = Collections.singletonList("port:3000");
-        Files.write(file.toPath(), lines, Charset.forName("UTF-8"));
+        final List<String> lines = Collections.singletonList("influxdb.port:3000");
+        Files.write(file.toPath(), lines, StandardCharsets.UTF_8);
 
         final SparkplugConfiguration propertiesReader = new SparkplugConfiguration(root);
 
@@ -94,8 +88,8 @@ public class SparkplugConfigurationTest {
     @Test
     public void validateConfiguration_port_missing() throws IOException {
 
-        final List<String> lines = Collections.singletonList("host:localhost");
-        Files.write(file.toPath(), lines, Charset.forName("UTF-8"));
+        final List<String> lines = Collections.singletonList("influxdb.host:localhost");
+        Files.write(file.toPath(), lines, StandardCharsets.UTF_8);
 
         final SparkplugConfiguration propertiesReader = new SparkplugConfiguration(root);
 
@@ -108,8 +102,8 @@ public class SparkplugConfigurationTest {
     @Test
     public void validateConfiguration_port_null() throws IOException {
 
-        final List<String> lines = Arrays.asList("host:localhost", "port:");
-        Files.write(file.toPath(), lines, Charset.forName("UTF-8"));
+        final List<String> lines = Arrays.asList("influxdb.host:localhost", "influxdb.port:");
+        Files.write(file.toPath(), lines, StandardCharsets.UTF_8);
 
         final SparkplugConfiguration propertiesReader = new SparkplugConfiguration(root);
 
@@ -124,8 +118,8 @@ public class SparkplugConfigurationTest {
     @Test
     public void validateConfiguration_host_null() throws IOException {
 
-        final List<String> lines = Arrays.asList("host:", "port:3000");
-        Files.write(file.toPath(), lines, Charset.forName("UTF-8"));
+        final List<String> lines = Arrays.asList("influxdb.host:", "influxdb.port:3000");
+        Files.write(file.toPath(), lines, StandardCharsets.UTF_8);
 
         final SparkplugConfiguration propertiesReader = new SparkplugConfiguration(root);
 
@@ -141,17 +135,17 @@ public class SparkplugConfigurationTest {
     public void all_properties_empty() throws IOException {
 
         final List<String> lines = Arrays.asList(
-                "mode:",
-                "host:",
-                "port:",
-                "tags:",
-                "prefix:",
-                "protocol:",
-                "database:",
-                "connectTimeout:",
-                "reportingInterval:",
-                "auth:");
-        Files.write(file.toPath(), lines, Charset.forName("UTF-8"));
+                "influxdb.mode:",
+                "influxdb.host:",
+                "influxdb.port:",
+                "influxdb.tags:",
+                "influxdb.prefix:",
+                "influxdb.protocol:",
+                "influxdb.database:",
+                "influxdb.connectTimeout:",
+                "influxdb.reportingInterval:",
+                "influxdb.auth:");
+        Files.write(file.toPath(), lines, StandardCharsets.UTF_8);
 
         final SparkplugConfiguration propertiesReader = new SparkplugConfiguration(root);
 
@@ -175,12 +169,11 @@ public class SparkplugConfigurationTest {
     public void all_properties_null() throws IOException {
 
         final List<String> lines = Collections.emptyList();
-        Files.write(file.toPath(), lines, Charset.forName("UTF-8"));
+        Files.write(file.toPath(), lines, StandardCharsets.UTF_8);
 
         final SparkplugConfiguration propertiesReader = new SparkplugConfiguration(root);
 
         propertiesReader.readPropertiesFromFile();
-        final String mode = propertiesReader.getMode();
 
         assertFalse(propertiesReader.validateConfiguration());
         assertEquals("http", propertiesReader.getMode());
@@ -199,17 +192,17 @@ public class SparkplugConfigurationTest {
     public void all_properties_have_correct_values() throws IOException {
 
         final List<String> lines = Arrays.asList(
-                "mode:tcp",
-                "host:hivemq.monitoring.com",
-                "port:3000",
-                "tags:host=hivemq1;version=3.4.1",
-                "prefix:node1",
-                "protocol:tcp",
-                "database:test-hivemq",
-                "connectTimeout:10000",
-                "reportingInterval:5",
-                "auth:username:password");
-        Files.write(file.toPath(), lines, Charset.forName("UTF-8"));
+                "influxdb.mode:tcp",
+                "influxdb.host:hivemq.monitoring.com",
+                "influxdb.port:3000",
+                "influxdb.tags:host=hivemq1;version=3.4.1",
+                "influxdb.prefix:node1",
+                "influxdb.protocol:tcp",
+                "influxdb.database:test-hivemq",
+                "influxdb.connectTimeout:10000",
+                "influxdb.reportingInterval:5",
+                "influxdb.auth:username:password");
+        Files.write(file.toPath(), lines, StandardCharsets.UTF_8);
 
         final SparkplugConfiguration propertiesReader = new SparkplugConfiguration(root);
         propertiesReader.readPropertiesFromFile();
@@ -228,15 +221,15 @@ public class SparkplugConfigurationTest {
         assertEquals(5, propertiesReader.getReportingInterval());
         assertEquals("username:password", propertiesReader.getAuth());
         assertEquals("hivemq.monitoring.com", propertiesReader.getHost());
-        assertEquals(3000, propertiesReader.getPort().intValue());
+        assertEquals(3000, propertiesReader.getPort());
     }
 
     @Test
     public void tags_invalid_configured() throws IOException {
 
         final List<String> lines = Collections.singletonList(
-                "tags:host=hivemq1;version=;use=monitoring");
-        Files.write(file.toPath(), lines, Charset.forName("UTF-8"));
+                "influxdb.tags:host=hivemq1;version=;use=monitoring");
+        Files.write(file.toPath(), lines, StandardCharsets.UTF_8);
 
         final SparkplugConfiguration propertiesReader = new SparkplugConfiguration(root);
         propertiesReader.readPropertiesFromFile();
@@ -254,8 +247,8 @@ public class SparkplugConfigurationTest {
     public void tags_has_only_semicolons() throws IOException {
 
         final List<String> lines = Collections.singletonList(
-                "tags:;;;;;;");
-        Files.write(file.toPath(), lines, Charset.forName("UTF-8"));
+                "influxdb.tags:;;;;;;");
+        Files.write(file.toPath(), lines, StandardCharsets.UTF_8);
 
         final SparkplugConfiguration propertiesReader = new SparkplugConfiguration(root);
         propertiesReader.readPropertiesFromFile();
@@ -269,8 +262,8 @@ public class SparkplugConfigurationTest {
     public void tags_has_only_a_key() throws IOException {
 
         final List<String> lines = Collections.singletonList(
-                "tags:okay");
-        Files.write(file.toPath(), lines, Charset.forName("UTF-8"));
+                "influxdb.tags:okay");
+        Files.write(file.toPath(), lines, StandardCharsets.UTF_8);
 
         final SparkplugConfiguration propertiesReader = new SparkplugConfiguration(root);
         propertiesReader.readPropertiesFromFile();
@@ -284,8 +277,8 @@ public class SparkplugConfigurationTest {
     public void tags_has_correct_tag_but_missing_semicolon() throws IOException {
 
         final List<String> lines = Collections.singletonList(
-                "tags:key=value");
-        Files.write(file.toPath(), lines, Charset.forName("UTF-8"));
+                "influxdb.tags:key=value");
+        Files.write(file.toPath(), lines, StandardCharsets.UTF_8);
 
         final SparkplugConfiguration propertiesReader = new SparkplugConfiguration(root);
         propertiesReader.readPropertiesFromFile();
@@ -299,8 +292,8 @@ public class SparkplugConfigurationTest {
     public void properties_that_are_numbers_have_invalid_string() throws IOException {
 
         final List<String> lines = Arrays.asList("host:test",
-                "port:800000", "reportingInterval:0", "connectTimeout:-1");
-        Files.write(file.toPath(), lines, Charset.forName("UTF-8"));
+                "influxdb.port:800000", "influxdb.reportingInterval:0", "influxdb.connectTimeout:-1");
+        Files.write(file.toPath(), lines, StandardCharsets.UTF_8);
 
         final SparkplugConfiguration propertiesReader = new SparkplugConfiguration(root);
         propertiesReader.readPropertiesFromFile();
@@ -316,8 +309,8 @@ public class SparkplugConfigurationTest {
     @Test
     public void validateConfiguration_cloud_token_missing() throws IOException {
 
-        final List<String> lines = Arrays.asList("mode:cloud", "host:localhost", "bucket:mybucket");
-        Files.write(file.toPath(), lines, Charset.forName("UTF-8"));
+        final List<String> lines = Arrays.asList("influxdb.mode:cloud", "influxdb.host:localhost", "influxdb.bucket:mybucket");
+        Files.write(file.toPath(), lines, StandardCharsets.UTF_8);
 
         final SparkplugConfiguration propertiesReader = new SparkplugConfiguration(root);
 
@@ -330,8 +323,8 @@ public class SparkplugConfigurationTest {
     @Test
     public void validateConfiguration_cloud_bucket_missing() throws IOException {
 
-        final List<String> lines = Arrays.asList("mode:cloud", "host:localhost", "token:mytoken");
-        Files.write(file.toPath(), lines, Charset.forName("UTF-8"));
+        final List<String> lines = Arrays.asList("influxdb.mode:cloud", "influxdb.host:localhost", "influxdb.token:mytoken");
+        Files.write(file.toPath(), lines, StandardCharsets.UTF_8);
 
         final SparkplugConfiguration propertiesReader = new SparkplugConfiguration(root);
 
@@ -344,8 +337,8 @@ public class SparkplugConfigurationTest {
     @Test
     public void validateConfiguration_cloud_ok() throws IOException {
 
-        final List<String> lines = Arrays.asList("mode:cloud", "host:localhost", "token:mytoken", "bucket:mybucket");
-        Files.write(file.toPath(), lines, Charset.forName("UTF-8"));
+        final List<String> lines = Arrays.asList("influxdb.mode:cloud", "influxdb.host:localhost", "influxdb.token:mytoken", "influxdb.bucket:mybucket");
+        Files.write(file.toPath(), lines, StandardCharsets.UTF_8);
 
         final SparkplugConfiguration propertiesReader = new SparkplugConfiguration(root);
 
