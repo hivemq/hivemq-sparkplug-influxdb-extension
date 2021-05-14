@@ -19,17 +19,15 @@ import com.hivemq.client.mqtt.mqtt5.Mqtt5BlockingClient;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5Client;
 import com.hivemq.client.mqtt.mqtt5.message.connect.Mqtt5Connect;
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish;
-import com.hivemq.testcontainer.core.GradleHiveMQExtensionSupplier;
 import com.hivemq.testcontainer.junit5.HiveMQTestContainerExtension;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.slf4j.event.Level;
 
+import java.io.File;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Paths;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -39,13 +37,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class SparkplugBInterceptorIT {
 
     @RegisterExtension
-    public final @NotNull
-    HiveMQTestContainerExtension container =
+    public final @NotNull HiveMQTestContainerExtension container =
             new HiveMQTestContainerExtension("hivemq/hivemq4", "4.5.3")
-                    .withExtension(new GradleHiveMQExtensionSupplier(Paths.get("").toAbsolutePath().toFile()).get())
+                    .withExtension(new File("build/hivemq-extension-test/hivemq-sparkplug-extension"))
                     .waitForExtension("HiveMQ Sparkplug Extension")
                     .withLogLevel(Level.TRACE);
-
 
     @Test
     @Timeout(value = 3, unit = TimeUnit.MINUTES)
@@ -80,19 +76,19 @@ public class SparkplugBInterceptorIT {
                 .callback(publishDEATH::complete).send().get();
 
 
-        @Nullable Mqtt5Publish will = Mqtt5Publish.builder()
+        final Mqtt5Publish will = Mqtt5Publish.builder()
                 .topic(DEATH_TOPIC)
-                .payload(new String().getBytes(StandardCharsets.UTF_8))
+                .payload("".getBytes(StandardCharsets.UTF_8))
                 .build();
 
-        Mqtt5Connect connect = Mqtt5Connect.builder().willPublish(will).build();
+        final Mqtt5Connect connect = Mqtt5Connect.builder().willPublish(will).build();
         client.connect(connect);
 
         assertTrue(client.getState().isConnected());
 
-        @Nullable Mqtt5Publish birthPublish = Mqtt5Publish.builder()
+        final Mqtt5Publish birthPublish = Mqtt5Publish.builder()
                 .topic(BIRTH_TOPIC)
-                .payload(new String().getBytes(StandardCharsets.UTF_8))
+                .payload("".getBytes(StandardCharsets.UTF_8))
                 .build();
         client.publish(birthPublish);
 

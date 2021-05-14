@@ -95,6 +95,14 @@ dependencies {
     integrationTestImplementation("com.hivemq:hivemq-mqtt-client:${property("hivemq-mqtt-client.version")}")
 }
 
+val prepareExtensionTest by tasks.registering(Sync::class) {
+    group = "hivemq extension"
+    description = "Prepares the extension for integration testing."
+
+    from(tasks.hivemqExtensionZip.map { zipTree(it.archiveFile) })
+    into(buildDir.resolve("hivemq-extension-test"))
+}
+
 val integrationTest by tasks.registering(Test::class) {
     group = "verification"
     description = "Runs integration tests."
@@ -102,6 +110,7 @@ val integrationTest by tasks.registering(Test::class) {
     testClassesDirs = sourceSets[name].output.classesDirs
     classpath = sourceSets[name].runtimeClasspath
     shouldRunAfter(tasks.test)
+    dependsOn(prepareExtensionTest)
 }
 
 tasks.check { dependsOn(integrationTest) }
