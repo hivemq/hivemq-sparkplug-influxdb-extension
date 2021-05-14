@@ -7,8 +7,9 @@ plugins {
     id("com.github.hierynomus.license")
     id("com.github.sgtsilvio.gradle.utf8")
     id("org.asciidoctor.jvm.convert")
-    id("idea")
 }
+
+/* ******************** metadata ******************** */
 
 group = "com.hivemq.extensions.sparkplug"
 description = "HiveMQ Sparkplug Extension - an extension to monitor sparkplug data with influxdata."
@@ -22,11 +23,12 @@ hivemqExtension {
     sdkVersion = "${property("hivemq-extension-sdk.version")}"
 }
 
+/* ******************** dependencies ******************** */
+
 repositories {
     mavenCentral()
 }
 
-/* Main dependencies */
 dependencies {
     implementation("com.google.protobuf:protobuf-java:${property("protobuf.version")}")
     implementation("com.izettle:dropwizard-metrics-influxdb:${property("dropwizard-metrics-influxdb.version")}")
@@ -35,7 +37,8 @@ dependencies {
     implementation("org.jetbrains:annotations:20.1.0")
 }
 
-/* Test dependencies */
+/* ******************** test ******************** */
+
 dependencies {
     testImplementation("com.hivemq:hivemq-mqtt-client:${property("hivemq-mqtt-client.version")}")
     testImplementation("org.junit.jupiter:junit-jupiter-api:${property("junit-jupiter.version")}")
@@ -51,16 +54,18 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
-sourceSets {
-    create("integrationTest") {
-        compileClasspath += sourceSets.main.get().output
-        runtimeClasspath += sourceSets.main.get().output
-    }
+/* ******************** integration test ******************** */
+
+sourceSets.create("integrationTest") {
+    compileClasspath += sourceSets.main.get().output
+    runtimeClasspath += sourceSets.main.get().output
 }
 
-configurations {
-    getByName("integrationTestImplementation").extendsFrom(testImplementation.get())
-    getByName("integrationTestRuntimeOnly").extendsFrom(testRuntimeOnly.get())
+val integrationTestImplementation: Configuration by configurations.getting {
+    extendsFrom(configurations.testImplementation.get())
+}
+val integrationTestRuntimeOnly: Configuration by configurations.getting {
+    extendsFrom(configurations.testRuntimeOnly.get())
 }
 
 val integrationTest by tasks.registering(Test::class) {
@@ -72,11 +77,17 @@ val integrationTest by tasks.registering(Test::class) {
     shouldRunAfter(tasks.test)
 }
 
+tasks.check { dependsOn(integrationTest) }
+
+/* ******************** protobuf ******************** */
+
 protobuf {
     protoc {
         artifact = "com.google.protobuf:protoc:3.15.8"
     }
 }
+
+/* ******************** resources ******************** */
 
 val prepareAsciidoc by tasks.registering(Sync::class) {
     from("README.adoc").into({ temporaryDir })
@@ -93,7 +104,8 @@ tasks.hivemqExtensionResources {
     from(tasks.asciidoctor)
 }
 
-//preparation and tasks to run & debug Extension locally
+/* ******************** debugging ******************** */
+
 val unzipHivemq by tasks.registering(Sync::class) {
     from(zipTree(rootDir.resolve("/your/path/to/hivemq-<VERSION>.zip")))
     into({ temporaryDir })
@@ -109,17 +121,9 @@ tasks.runHivemqWithExtension {
     }
 }
 
+/* ******************** checks ******************** */
+
 license {
     header = projectDir.resolve("HEADER")
     mapping("java", "SLASHSTAR_STYLE")
 }
-
-/*
-version = "${property("version")}"
-tasks.register("copyExtensionToDockerFolder") {
-    mustRunAfter(tasks.hivemqExtensionZip)
-    copy {
-        from(zipTree("build/hivemq-extension/hivemq-sparkplug-extension-$version.zip"))
-        into("deploy/docker")
-    }
-}*/

@@ -9,5 +9,3 @@ pluginManagement {
         id("org.asciidoctor.jvm.convert") version "${extra["plugin.asciidoctor.version"]}"
     }
 }
-
-
