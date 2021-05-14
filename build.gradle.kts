@@ -11,7 +11,7 @@ plugins {
 
 /* ******************** metadata ******************** */
 
-group = "com.hivemq.extensions.sparkplug"
+group = "com.hivemq.extensions"
 description = "HiveMQ Sparkplug Extension - an extension to monitor sparkplug data with influxdata."
 
 hivemqExtension {
@@ -19,7 +19,7 @@ hivemqExtension {
     author = "HiveMQ"
     priority = 0
     startPriority = 1000
-    mainClass = "$group.SparkplugExtensionMain"
+    mainClass = "$group.sparkplug.SparkplugExtensionMain"
     sdkVersion = "${property("hivemq-extension-sdk.version")}"
 }
 
@@ -35,6 +35,31 @@ dependencies {
     implementation("org.apache.commons:commons-lang3:${property("commons.version")}")
     implementation("ch.qos.logback:logback-classic:${property("logback.version")}")
     implementation("org.jetbrains:annotations:20.1.0")
+}
+
+/* ******************** protobuf ******************** */
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:3.15.8"
+    }
+}
+
+/* ******************** resources ******************** */
+
+val prepareAsciidoc by tasks.registering(Sync::class) {
+    from("README.adoc").into({ temporaryDir })
+}
+
+tasks.asciidoctor {
+    dependsOn(prepareAsciidoc)
+    sourceDir(prepareAsciidoc.map { it.destinationDir })
+}
+
+tasks.hivemqExtensionResources {
+    from("LICENSE")
+    from("README.adoc") { rename { "README.txt" } }
+    from(tasks.asciidoctor)
 }
 
 /* ******************** test ******************** */
@@ -79,29 +104,11 @@ val integrationTest by tasks.registering(Test::class) {
 
 tasks.check { dependsOn(integrationTest) }
 
-/* ******************** protobuf ******************** */
+/* ******************** checks ******************** */
 
-protobuf {
-    protoc {
-        artifact = "com.google.protobuf:protoc:3.15.8"
-    }
-}
-
-/* ******************** resources ******************** */
-
-val prepareAsciidoc by tasks.registering(Sync::class) {
-    from("README.adoc").into({ temporaryDir })
-}
-
-tasks.asciidoctor {
-    dependsOn(prepareAsciidoc)
-    sourceDir(prepareAsciidoc.map { it.destinationDir })
-}
-
-tasks.hivemqExtensionResources {
-    from("LICENSE")
-    from("README.adoc") { rename { "README.txt" } }
-    from(tasks.asciidoctor)
+license {
+    header = projectDir.resolve("HEADER")
+    mapping("java", "SLASHSTAR_STYLE")
 }
 
 /* ******************** debugging ******************** */
@@ -119,11 +126,4 @@ tasks.runHivemqWithExtension {
     debugOptions {
         enabled.set(false)
     }
-}
-
-/* ******************** checks ******************** */
-
-license {
-    header = projectDir.resolve("HEADER")
-    mapping("java", "SLASHSTAR_STYLE")
 }
