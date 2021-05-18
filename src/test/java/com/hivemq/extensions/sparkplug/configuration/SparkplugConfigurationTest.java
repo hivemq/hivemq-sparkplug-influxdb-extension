@@ -162,7 +162,6 @@ public class SparkplugConfigurationTest {
         assertEquals(1, propertiesReader.getReportingInterval());
         assertNull(propertiesReader.getAuth());
         assertNull(propertiesReader.getHost());
-        assertNull(propertiesReader.getPort());
     }
 
     @Test
@@ -185,7 +184,6 @@ public class SparkplugConfigurationTest {
         assertEquals(1, propertiesReader.getReportingInterval());
         assertNull(propertiesReader.getAuth());
         assertNull(propertiesReader.getHost());
-        assertNull(propertiesReader.getPort());
     }
 
     @Test
