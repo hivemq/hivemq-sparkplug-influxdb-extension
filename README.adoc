@@ -9,6 +9,8 @@
 
 image::/img/HiveMQSparkplugExtension.jpg[Logo]
 
+image:https://github.com/hivemq/hivemq-sparkplug-influxdb-extension/actions/workflows/check.yml/badge.svg?branch=master["Build Status", link=https://github.com/hivemq/hivemq-sparkplug-influxdb-extension/actions/workflows/check.yml?query=branch%3Amaster]
+
 *Extension Type*: Monitoring of IIoT data
 
 *Version*: 1.0.0-beta
