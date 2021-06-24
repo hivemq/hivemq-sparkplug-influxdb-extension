@@ -16,12 +16,12 @@ group = "com.hivemq.extensions"
 description = "HiveMQ Sparkplug Extension - an extension to monitor sparkplug data with influxdata."
 
 hivemqExtension {
-    name = "HiveMQ Sparkplug Extension"
-    author = "HiveMQ"
-    priority = 0
-    startPriority = 1000
-    mainClass = "$group.sparkplug.SparkplugExtensionMain"
-    sdkVersion = "${property("hivemq-extension-sdk.version")}"
+    name.set("HiveMQ Sparkplug Extension")
+    author.set("HiveMQ")
+    priority.set(0)
+    startPriority.set(1000)
+    mainClass.set("$group.sparkplug.SparkplugExtensionMain")
+    sdkVersion.set("${property("hivemq-extension-sdk.version")}")
 }
 
 /* ******************** dependencies ******************** */
@@ -56,7 +56,7 @@ tasks.asciidoctor {
     sourceDir(prepareAsciidoc.map { it.destinationDir })
 }
 
-tasks.hivemqExtensionResources {
+hivemqExtension.resources {
     from("LICENSE")
     from("README.adoc") { rename { "README.txt" } }
     from(tasks.asciidoctor)
@@ -72,49 +72,17 @@ dependencies {
     testRuntimeOnly("ch.qos.logback:logback-classic:${property("logback.version")}")
 }
 
-tasks.withType<Test> {
+tasks.withType<Test>().configureEach {
     useJUnitPlatform()
 }
 
 /* ******************** integration test ******************** */
-
-sourceSets.create("integrationTest") {
-    compileClasspath += sourceSets.main.get().output
-    runtimeClasspath += sourceSets.main.get().output
-}
-
-val integrationTestImplementation: Configuration by configurations.getting {
-    extendsFrom(configurations.testImplementation.get())
-}
-val integrationTestRuntimeOnly: Configuration by configurations.getting {
-    extendsFrom(configurations.testRuntimeOnly.get())
-}
 
 dependencies {
     integrationTestImplementation("org.testcontainers:influxdb:${property("testcontainers.version")}")
     integrationTestImplementation("com.hivemq:hivemq-testcontainer-junit5:${property("hivemq-testcontainer.version")}")
     integrationTestImplementation("com.hivemq:hivemq-mqtt-client:${property("hivemq-mqtt-client.version")}")
 }
-
-val prepareExtensionTest by tasks.registering(Sync::class) {
-    group = "hivemq extension"
-    description = "Prepares the extension for integration testing."
-
-    from(tasks.hivemqExtensionZip.map { zipTree(it.archiveFile) })
-    into(buildDir.resolve("hivemq-extension-test"))
-}
-
-val integrationTest by tasks.registering(Test::class) {
-    group = "verification"
-    description = "Runs integration tests."
-
-    testClassesDirs = sourceSets[name].output.classesDirs
-    classpath = sourceSets[name].runtimeClasspath
-    shouldRunAfter(tasks.test)
-    dependsOn(prepareExtensionTest)
-}
-
-tasks.check { dependsOn(integrationTest) }
 
 /* ******************** checks ******************** */
 
@@ -131,7 +99,7 @@ val unzipHivemq by tasks.registering(Sync::class) {
 }
 
 tasks.prepareHivemqHome {
-    hivemqFolder.set(unzipHivemq.map { it.destinationDir.resolve("hivemq-<VERSION>") } as Any)
+    hivemqHomeDirectory.set(layout.dir(unzipHivemq.map { it.destinationDir.resolve("hivemq-<VERSION>") }))
 }
 
 tasks.runHivemqWithExtension {
