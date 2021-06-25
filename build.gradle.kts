@@ -10,8 +10,6 @@ plugins {
     idea
 }
 
-/* ******************** metadata ******************** */
-
 group = "com.hivemq.extensions"
 description = "HiveMQ Sparkplug Extension - an extension to monitor sparkplug data with influxdata."
 
@@ -22,12 +20,6 @@ hivemqExtension {
     startPriority.set(1000)
     mainClass.set("$group.sparkplug.SparkplugExtensionMain")
     sdkVersion.set("${property("hivemq-extension-sdk.version")}")
-}
-
-/* ******************** dependencies ******************** */
-
-repositories {
-    mavenCentral()
 }
 
 dependencies {
