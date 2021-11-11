@@ -25,8 +25,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.slf4j.event.Level;
+import org.testcontainers.utility.DockerImageName;
+import org.testcontainers.utility.MountableFile;
 
-import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -38,8 +39,8 @@ public class SparkplugBInterceptorIT {
 
     @RegisterExtension
     public final @NotNull HiveMQTestContainerExtension container =
-            new HiveMQTestContainerExtension("hivemq/hivemq4", "4.5.3")
-                    .withExtension(new File("build/hivemq-extension-test/hivemq-sparkplug-extension"))
+            new HiveMQTestContainerExtension(DockerImageName.parse("hivemq/hivemq4").withTag("4.5.3"))
+                    .withExtension(MountableFile.forClasspathResource("hivemq-sparkplug-extension"))
                     .waitForExtension("HiveMQ Sparkplug Extension")
                     .withLogLevel(Level.TRACE);
 
