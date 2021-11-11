@@ -33,7 +33,7 @@ dependencies {
 
 protobuf {
     protoc {
-        artifact = "com.google.protobuf:protoc:3.15.8"
+        artifact = "com.google.protobuf:protoc:${property("protobuf.version")}"
     }
 }
 
