@@ -17,7 +17,7 @@ package com.hivemq.extensions.sparkplug;
 
 import com.hivemq.client.mqtt.mqtt5.Mqtt5BlockingClient;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5Client;
-import com.hivemq.client.mqtt.mqtt5.message.connect.Mqtt5Connect;
+import com.hivemq.client.mqtt.mqtt5.message.disconnect.Mqtt5DisconnectReasonCode;
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish;
 import com.hivemq.testcontainer.junit5.HiveMQTestContainerExtension;
 import org.jetbrains.annotations.NotNull;
@@ -33,9 +33,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class SparkplugBInterceptorIT {
+class SparkplugBInterceptorIT {
 
     @RegisterExtension
     public final @NotNull HiveMQTestContainerExtension container =
@@ -67,25 +66,14 @@ public class SparkplugBInterceptorIT {
 
         final CompletableFuture<Mqtt5Publish> publishBIRTH = new CompletableFuture<>();
         final CompletableFuture<Mqtt5Publish> publishDEATH = new CompletableFuture<>();
-
-        assertTrue(subscriber.getState().isConnected());
-
-        subscriber.toAsync().subscribeWith().topicFilter(BIRTH_TOPIC)
-                .callback(publishBIRTH::complete).send().get();
-
-        subscriber.toAsync().subscribeWith().topicFilter(DEATH_TOPIC)
-                .callback(publishDEATH::complete).send().get();
-
+        subscriber.toAsync().subscribeWith().topicFilter(BIRTH_TOPIC).callback(publishBIRTH::complete).send().get();
+        subscriber.toAsync().subscribeWith().topicFilter(DEATH_TOPIC).callback(publishDEATH::complete).send().get();
 
         final Mqtt5Publish will = Mqtt5Publish.builder()
                 .topic(DEATH_TOPIC)
                 .payload("".getBytes(StandardCharsets.UTF_8))
                 .build();
-
-        final Mqtt5Connect connect = Mqtt5Connect.builder().willPublish(will).build();
-        client.connect(connect);
-
-        assertTrue(client.getState().isConnected());
+        client.connectWith().willPublish(will).send();
 
         final Mqtt5Publish birthPublish = Mqtt5Publish.builder()
                 .topic(BIRTH_TOPIC)
@@ -97,8 +85,11 @@ public class SparkplugBInterceptorIT {
         assertEquals(BIRTH_TOPIC, birth.getTopic().toString());
 
         // disconnect triggers a death certificate
-        client.disconnect();
+        client.disconnectWith().reasonCode(Mqtt5DisconnectReasonCode.DISCONNECT_WITH_WILL_MESSAGE).send();
+
+        final Mqtt5Publish death = publishDEATH.get();
+        assertEquals(DEATH_TOPIC, death.getTopic().toString());
+
         subscriber.disconnect();
-        container.close();
     }
 }

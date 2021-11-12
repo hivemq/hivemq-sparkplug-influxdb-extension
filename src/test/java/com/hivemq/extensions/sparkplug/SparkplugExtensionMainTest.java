@@ -15,68 +15,53 @@
  */
 package com.hivemq.extensions.sparkplug;
 
+import com.hivemq.extension.sdk.api.annotations.NotNull;
 import com.hivemq.extension.sdk.api.parameter.ExtensionInformation;
 import com.hivemq.extension.sdk.api.parameter.ExtensionStartInput;
 import com.hivemq.extension.sdk.api.parameter.ExtensionStartOutput;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
-public class SparkplugExtensionMainTest {
+class SparkplugExtensionMainTest {
 
-    @TempDir
-    static Path tempDir;
-    static Path tempFile;
-    @Mock
-    ExtensionStartInput extensionStartInput;
-    @Mock
-    ExtensionStartOutput extensionStartOutput;
-    @Mock
-    ExtensionInformation extensionInformation;
+    private @NotNull SparkplugExtensionMain main;
+    private @NotNull ExtensionStartInput extensionStartInput;
+    private @NotNull ExtensionStartOutput extensionStartOutput;
+    private @NotNull Path file;
 
     @BeforeEach
-    public void set_up() throws IOException {
-        MockitoAnnotations.initMocks(this);
-        if (tempFile == null) {
-            tempFile = Files.createFile(tempDir.resolve("sparkplug.properties"));
-        }
+    void setUp(final @TempDir @NotNull Path tempDir) {
+        main = new SparkplugExtensionMain();
+
+        extensionStartInput = mock(ExtensionStartInput.class);
+        extensionStartOutput = mock(ExtensionStartOutput.class);
+        final ExtensionInformation extensionInformation = mock(ExtensionInformation.class);
+        when(extensionStartInput.getExtensionInformation()).thenReturn(extensionInformation);
+        when(extensionStartInput.getExtensionInformation().getExtensionHomeFolder()).thenReturn(tempDir.toFile());
+
+        file = tempDir.resolve("sparkplug.properties");
     }
 
     @Test
-    public void extensionStart_failed_no_configuration_file() {
-
-        final SparkplugExtensionMain main = new SparkplugExtensionMain();
-        when(extensionStartInput.getExtensionInformation()).thenReturn(extensionInformation);
-        when(extensionStartInput.getExtensionInformation().getExtensionHomeFolder()).thenReturn(tempFile.getRoot().toFile());
+    void extensionStart_whenNoConfigurationFile_thenPreventStartup() {
         main.extensionStart(extensionStartInput, extensionStartOutput);
         verify(extensionStartOutput).preventExtensionStartup(anyString());
     }
 
     @Test
-    public void extensionStart_failed_configuration_file_not_valid() throws IOException {
-
-        final List<String> lines = Arrays.asList("influxdb.host:localhost", "influxdb.port: -3000");
-        Files.write(tempFile, lines, Charset.forName("UTF-8"));
-
-        final SparkplugExtensionMain main = new SparkplugExtensionMain();
-        when(extensionStartInput.getExtensionInformation()).thenReturn(extensionInformation);
-        when(extensionStartInput.getExtensionInformation().getExtensionHomeFolder()).thenReturn(tempFile.getParent().toFile());
+    void extensionStart_whenConfigurationFileNotValid_thenPreventStartup() throws IOException {
+        Files.write(file, List.of("influxdb.host:localhost", "influxdb.port: -3000"));
 
         main.extensionStart(extensionStartInput, extensionStartOutput);
-
         verify(extensionStartOutput).preventExtensionStartup(anyString());
     }
 }
