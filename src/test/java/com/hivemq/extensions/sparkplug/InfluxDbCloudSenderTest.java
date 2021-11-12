@@ -15,10 +15,10 @@
  */
 package com.hivemq.extensions.sparkplug;
 
-import com.github.tomakehurst.wiremock.WireMockServer;
-import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import com.hivemq.extension.sdk.api.annotations.NotNull;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.util.concurrent.TimeUnit;
 
@@ -26,16 +26,14 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
 class InfluxDbCloudSenderTest {
 
+    @RegisterExtension
+    final @NotNull WireMockExtension wireMockExtension = new WireMockExtension();
+
     @Test
-    public void test_write_data() throws Exception {
+    void test_write_data() throws Exception {
+        final InfluxDbCloudSender sender = new InfluxDbCloudSender("http", "localhost", wireMockExtension.getRuntimeInfo().getHttpPort(), "token", TimeUnit.MILLISECONDS, 3000, 3000, "", "testorg", "testbucket");
 
-        final WireMockServer wireMockServer = new WireMockServer(WireMockConfiguration.options().dynamicPort());
-        wireMockServer.start();
-        WireMock.configureFor("localhost", wireMockServer.port());
-
-        final InfluxDbCloudSender sender = new InfluxDbCloudSender("http", "localhost", wireMockServer.port(), "token", TimeUnit.MILLISECONDS, 3000, 3000, "", "testorg", "testbucket");
-
-        wireMockServer.stubFor(post(urlPathEqualTo("/api/v2/write"))
+        wireMockExtension.stubFor(post(urlPathEqualTo("/api/v2/write"))
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withBody("")));
@@ -45,7 +43,5 @@ class InfluxDbCloudSenderTest {
         verify(postRequestedFor(urlEqualTo("/api/v2/write?precision=ms&org=testorg&bucket=testbucket"))
                 .withHeader("Authorization", equalTo("Token token"))
                 .withRequestBody(equalTo("line=line")));
-
-        wireMockServer.stop();
     }
 }
