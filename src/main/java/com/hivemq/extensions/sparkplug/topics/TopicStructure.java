@@ -15,9 +15,8 @@
  */
 package com.hivemq.extensions.sparkplug.topics;
 
-
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import com.hivemq.extension.sdk.api.annotations.NotNull;
+import com.hivemq.extension.sdk.api.annotations.Nullable;
 
 /**
  * Topic structure meta object to create sparkplug structure and
