@@ -26,7 +26,6 @@ dependencies {
     implementation("com.google.protobuf:protobuf-java:${property("protobuf.version")}")
     implementation("com.izettle:dropwizard-metrics-influxdb:${property("dropwizard-metrics-influxdb.version")}")
     implementation("org.apache.commons:commons-lang3:${property("commons-lang3.version")}")
-    implementation("org.jetbrains:annotations:20.1.0")
 }
 
 /* ******************** protobuf ******************** */

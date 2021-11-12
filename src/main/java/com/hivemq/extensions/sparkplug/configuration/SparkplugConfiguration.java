@@ -15,9 +15,9 @@
  */
 package com.hivemq.extensions.sparkplug.configuration;
 
+import com.hivemq.extension.sdk.api.annotations.NotNull;
+import com.hivemq.extension.sdk.api.annotations.Nullable;
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,7 +88,7 @@ public class SparkplugConfiguration extends PropertiesReader {
         }
 
         // check for valid port value
-        final @Nullable String port = getProperty(PORT);
+        final String port = getProperty(PORT);
         try {
             final int intPort = port != null ? Integer.parseInt(port) : -1;
             if (intPort < 0 || intPort > 65535) {
@@ -218,7 +218,7 @@ public class SparkplugConfiguration extends PropertiesReader {
     }
 
     @Override
-    public @org.jetbrains.annotations.NotNull String getFilename() {
+    public @NotNull String getFilename() {
         return "sparkplug.properties";
     }
 

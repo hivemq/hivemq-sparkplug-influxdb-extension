@@ -20,6 +20,8 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.ScheduledReporter;
 import com.google.common.collect.Sets;
 import com.hivemq.extension.sdk.api.ExtensionMain;
+import com.hivemq.extension.sdk.api.annotations.NotNull;
+import com.hivemq.extension.sdk.api.annotations.Nullable;
 import com.hivemq.extension.sdk.api.parameter.ExtensionStartInput;
 import com.hivemq.extension.sdk.api.parameter.ExtensionStartOutput;
 import com.hivemq.extension.sdk.api.parameter.ExtensionStopInput;
@@ -28,8 +30,6 @@ import com.hivemq.extension.sdk.api.services.Services;
 import com.hivemq.extensions.sparkplug.configuration.SparkplugConfiguration;
 import com.hivemq.extensions.sparkplug.metrics.MetricsHolder;
 import com.izettle.metrics.influxdb.*;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,7 +67,7 @@ public class SparkplugExtensionMain implements ExtensionMain {
             if (configuration == null) {
                 return;
             }
-            final @Nullable InfluxDbSender sender = setupSender(configuration);
+            final InfluxDbSender sender = setupSender(configuration);
             if (sender == null) {
                 extensionStartOutput.preventExtensionStartup("Couldn't create an influxdb sender. Please check that the configuration is correct");
                 return;

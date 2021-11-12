@@ -15,9 +15,9 @@
  */
 package com.hivemq.extensions.sparkplug.configuration;
 
+import com.hivemq.extension.sdk.api.annotations.NotNull;
+import com.hivemq.extension.sdk.api.annotations.Nullable;
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,8 +71,7 @@ public abstract class PropertiesReader {
      * @param key The name of the property to look for.
      * @return The property for the value if it exists, <b>null</b> if key or {@link Properties} doesn't exist or the value is an empty string.
      */
-    @Nullable
-    String getProperty(@NotNull final String key) {
+    @Nullable String getProperty(@NotNull final String key) {
         checkNotNull(key, "Key to fetch property for must not be null.");
         if (properties == null) {
             return null;
