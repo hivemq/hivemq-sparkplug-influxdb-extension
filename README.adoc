@@ -10,16 +10,16 @@
 image::/img/HiveMQSparkplugExtension.jpg[Logo]
 
 image:https://img.shields.io/badge/Extension_Type-IIOT_Monitoring-orange?style=for-the-badge[Extension Type]
-//image:https://img.shields.io/github/v/release/hivemq/hivemq-sparkplug-influxdb-extension?style=for-the-badge[GitHub release (latest by date), link=https://github.com/hivemq/hivemq-sparkplug-influxdb-extension/releases/latest]
-image:https://img.shields.io/github/license/hivemq/hivemq-sparkplug-influxdb-extension?style=for-the-badge&color=brightgreen[GitHub, link=LICENSE]
-image:https://img.shields.io/github/workflow/status/hivemq/hivemq-sparkplug-influxdb-extension/CI%20Check/master?style=for-the-badge[GitHub Workflow Status (branch), link=https://github.com/hivemq/hivemq-sparkplug-influxdb-extension/actions/workflows/check.yml?query=branch%3Amaster]
+//image:https://img.shields.io/github/v/release/hivemq/hivemq-sparkplug-influxdb-extension?style=for-the-badge[GitHub release (latest by date),link=https://github.com/hivemq/hivemq-sparkplug-influxdb-extension/releases/latest]
+image:https://img.shields.io/github/license/hivemq/hivemq-sparkplug-influxdb-extension?style=for-the-badge&color=brightgreen[GitHub,link=LICENSE]
+image:https://img.shields.io/github/workflow/status/hivemq/hivemq-sparkplug-influxdb-extension/CI%20Check/master?style=for-the-badge[GitHub Workflow Status (branch),link=https://github.com/hivemq/hivemq-sparkplug-influxdb-extension/actions/workflows/check.yml?query=branch%3Amaster]
 
 == Purpose
 
 The HiveMQ {sparkplug-link}[Sparkplug^] Extension can be leveraged to gather sparkplug metrics from {hivemq-link}[HiveMQ^] and persist them into a {influxdb-link}[InfluxDB^] database.
 This database can be used as the data source for a monitoring dashboard to monitor directly the data from the devices and gateways of a Sparkplug Infrastructure.
 
-#**This extension is not yet ready for production use. **#
+#**This extension is not yet ready for production use.**#
 
 If you want use this in production, please contact HiveMQ contact@hivemq.com
 
@@ -32,13 +32,15 @@ image::/img/HiveMQExtensionFlow.jpg[Flow]
 Installing the extension for HiveMQ is very easy:
 
 . Unzip the downloaded zip file
-. In the folder `hivemq-sparkplug-extension`, modify the `sparkplug.properties` file to fit your needs. Check that the mandatory properties for influx db (host, port) are set
+. In the folder `hivemq-sparkplug-extension`, modify the `sparkplug.properties` file to fit your needs.
+Check that the mandatory properties for influx db (host, port) are set
 . Copy the folder `hivemq-sparkplug-extension` to your `[HIVEMQ_HOME]/extensions` folder
 . Done
 
 == Configuration
 
-The Sparkplug Monitoring extension uses its own configuration file `sparkplug.properties`. The extension won't start if this file is missing or the required properties are not set.
+The Sparkplug Monitoring extension uses its own configuration file `sparkplug.properties`.
+The extension won't start if this file is missing or the required properties are not set.
 
 === Dashboards
 
@@ -57,16 +59,19 @@ image::/img/SparkplugDashboard.jpg[Dashboard]
 |===
 | Config name | Required | Description | Default
 
-| influxdb.mode | no | The mode configured for the InfluxDB sender. Possibilities are: http, tcp, udp, cloud | http
+| influxdb.mode | no | The mode configured for the InfluxDB sender.
+Possibilities are: http, tcp, udp, cloud | http
 | influxdb.host | yes | The host name of the InfluxDB instance. | -
 | influxdb.port | yes | The port number the InfluxDB instance is listening. | 8086
 | influxdb.protocol | no | The protocol the InfluxDB sender uses in http mode. | http
-| influxdb.auth | no | The authorization string to be used to connect to InfluxDB, of format username:password. If mode "cloud" is used, the token must be passed here| -
+| influxdb.auth | no | The authorization string to be used to connect to InfluxDB, of format username:password.
+If mode "cloud" is used, the token must be passed here| -
 | influxdb.prefix | no | The measurement prefix. | -
 | influxdb.database | no | The database name. | hivemq
 | influxdb.reportingInterval | no | The reporting interval in seconds. | 1
 | influxdb.connectTimeout | no | The connect and read timeout in seconds. | 5000
-| influxdb.tags | no | The tags for each metric. Listed as a semicolon ( `;` ) separated list. | -
+| influxdb.tags | no | The tags for each metric.
+Listed as a semicolon ( `;` ) separated list. | -
 | influxdb.organization | only for mode: "cloud" | The organization to push data to | -
 | influxdb.bucket | only for mode: "cloud" | The bucket to push data to | -
 | sparkplug.version | no | The sparkplug version to be used | spBv1.0
@@ -98,9 +103,11 @@ influxdb.tags:host=localhost
 If you don't already have an InfluxDB 2.0 instance set up, here is a instruction how to start and configure an InfluxDB instance with Docker.
 
 . Download and install {docker}[Docker^] for your platform
-. Start an InfluxDB docker container with the command `docker run -p 8086:8086 -v $PWD:/var/lib/influxdb influxdb`. For more information about using InfluxDB with Docker visit the {influxdb-docker}[official Docker repository^] for InfluxDB
+. Start an InfluxDB docker container with the command `docker run -p 8086:8086 -v $PWD:/var/lib/influxdb influxdb`.
+For more information about using InfluxDB with Docker visit the {influxdb-docker}[official Docker repository^] for InfluxDB
 . A local instance of InfluxDB should be running with the port for the database set to 8086
-. The initial setup process for InfluxDB walks through creating a default organization, user, bucket, and Admin authentication token. The setup process is available in both the InfluxDB user interface (UI) and in the influx command line interface (CLI).
+. The initial setup process for InfluxDB walks through creating a default organization, user, bucket, and Admin authentication token.
+The setup process is available in both the InfluxDB user interface (UI) and in the influx command line interface (CLI).
 . UI Setup - With InfluxDB running, visit localhost:8086.
 .. Click Get Started
 .. Set up your initial user
@@ -125,8 +132,7 @@ After the extension is installed and an InfluxDB instance exists.
 
 === Example Deployment
 
-For testing purposes a simple HiveMQ docker file with the sparkplug extension and a compose file for influxDB setup is available in the
-deploy/docker subfolder.
+For testing purposes a simple HiveMQ docker file with the sparkplug extension and a compose file for influxDB setup is available in the deploy/docker subfolder.
 Further a Kubernetes script for deploying hivemq with sparkplug extension setup in Kuberntes is available in the deploy/k8s
 
 === Influx Dashboard
@@ -137,7 +143,8 @@ It also gathered the sparkplug data values from the example devices.
 
 == Need Help?
 
-If you encounter any problems, we are happy to help. The best place to get in contact is our {hivemq-support}[support^].
+If you encounter any problems, we are happy to help.
+The best place to get in contact is our {hivemq-support}[support^].
 
 == Contributing
 
@@ -145,4 +152,5 @@ If you want to contribute to HiveMQ Sparkplug Extension, see the link:CONTRIBUTI
 
 == License
 
-HiveMQ Sparkplug Extension is licensed under the `APACHE LICENSE, VERSION 2.0`. A copy of the license can be found link:LICENSE[here].
+HiveMQ Sparkplug Extension is licensed under the `APACHE LICENSE, VERSION 2.0`.
+A copy of the license can be found link:LICENSE[here].
