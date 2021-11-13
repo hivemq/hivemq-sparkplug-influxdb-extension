@@ -47,16 +47,21 @@ public class SparkplugBInterceptor implements PublishInboundInterceptor {
 
     private static final @NotNull Logger log = LoggerFactory.getLogger(SparkplugBInterceptor.class);
     private final @NotNull MetricsHolder metricsHolder;
-    private final String sparkplugVersion;
-    private final Map<Long, String> aliasToMetric = new HashMap<>();
+    private final @NotNull String sparkplugVersion;
+    private final @NotNull Map<Long, String> aliasToMetric = new HashMap<>();
 
-    public SparkplugBInterceptor(final @NotNull MetricsHolder metricsHolder, final @NotNull SparkplugConfiguration configuration) {
+    public SparkplugBInterceptor(
+            final @NotNull MetricsHolder metricsHolder, final @NotNull SparkplugConfiguration configuration) {
+
         this.metricsHolder = metricsHolder;
         this.sparkplugVersion = configuration.getSparkplugVersion();
     }
 
     @Override
-    public void onInboundPublish(@NotNull PublishInboundInput publishInboundInput, @NotNull PublishInboundOutput publishInboundOutput) {
+    public void onInboundPublish(
+            final @NotNull PublishInboundInput publishInboundInput,
+            final @NotNull PublishInboundOutput publishInboundOutput) {
+
         if (log.isTraceEnabled()) {
             log.trace("Incoming publish from {}", publishInboundInput.getPublishPacket().getTopic());
         }
@@ -72,7 +77,7 @@ public class SparkplugBInterceptor implements PublishInboundInterceptor {
             try {
                 final SparkplugBProto.Payload spPayload = SparkplugBProto.Payload.parseFrom(byteBuffer);
                 final List<SparkplugBProto.Payload.Metric> metricsList = spPayload.getMetricsList();
-                for (SparkplugBProto.Payload.Metric metric : metricsList) {
+                for (final SparkplugBProto.Payload.Metric metric : metricsList) {
                     aliasToMetric.put(metric.getAlias(), metric.getName());
                     if (log.isTraceEnabled()) {
                         log.trace("Add Metric Mapping (Alias={}, MetricName={})", metric.getAlias(), metric.getName());
@@ -80,7 +85,7 @@ public class SparkplugBInterceptor implements PublishInboundInterceptor {
                 }
                 generateMetricsFromMessage(topicStructure, metricsList);
 
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 log.error("Could not parse MQTT payload to protobuf", e);
             }
         } else {
@@ -90,7 +95,10 @@ public class SparkplugBInterceptor implements PublishInboundInterceptor {
         }
     }
 
-    private void generateMetricsFromMessage(final @NotNull TopicStructure topicStructure, final @NotNull List<SparkplugBProto.Payload.Metric> metricsList) {
+    private void generateMetricsFromMessage(
+            final @NotNull TopicStructure topicStructure,
+            final @NotNull List<SparkplugBProto.Payload.Metric> metricsList) {
+
         if (log.isTraceEnabled()) {
             log.trace("Sparkplug Message type & structure {} ", topicStructure);
         }
@@ -102,7 +110,10 @@ public class SparkplugBInterceptor implements PublishInboundInterceptor {
         }
     }
 
-    private void generatMetricForEdgesAndDevices(@NotNull TopicStructure topicStructure, @NotNull List<SparkplugBProto.Payload.Metric> metricsList) {
+    private void generatMetricForEdgesAndDevices(
+            final @NotNull TopicStructure topicStructure,
+            final @NotNull List<SparkplugBProto.Payload.Metric> metricsList) {
+
         if (topicStructure.getEonId() == null) {
             log.error("Edge Node Id is null - Sparkplug Message structure {} ", topicStructure);
             return;
@@ -130,7 +141,7 @@ public class SparkplugBInterceptor implements PublishInboundInterceptor {
             }
             case DDATA:
             case NDATA: {
-                for (SparkplugBProto.Payload.Metric metric : metricsList) {
+                for (final SparkplugBProto.Payload.Metric metric : metricsList) {
                     final long alias = metric.getAlias();
                     final String metricName = aliasToMetric.get(alias);
                     if (metric.hasIntValue()) {
@@ -152,5 +163,4 @@ public class SparkplugBInterceptor implements PublishInboundInterceptor {
             }
         }
     }
-
 }

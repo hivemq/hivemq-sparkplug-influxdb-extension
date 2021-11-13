@@ -25,6 +25,7 @@ import com.hivemq.extension.sdk.api.annotations.Nullable;
  * @author Anja Helmbrecht-Schaar
  */
 public class TopicStructure {
+
     private final int topicLevels;
     private @NotNull String namespace;
     private @NotNull String groupId;
