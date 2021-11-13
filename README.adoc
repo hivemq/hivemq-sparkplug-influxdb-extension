@@ -10,7 +10,7 @@
 image::/img/HiveMQSparkplugExtension.jpg[Logo]
 
 image:https://img.shields.io/badge/Extension_Type-IIOT_Monitoring-orange?style=for-the-badge[Extension Type]
-image:https://img.shields.io/github/v/release/hivemq/hivemq-sparkplug-influxdb-extension?style=for-the-badge[GitHub release (latest by date), link=https://github.com/hivemq/hivemq-sparkplug-influxdb-extension/releases/latest]
+//image:https://img.shields.io/github/v/release/hivemq/hivemq-sparkplug-influxdb-extension?style=for-the-badge[GitHub release (latest by date), link=https://github.com/hivemq/hivemq-sparkplug-influxdb-extension/releases/latest]
 image:https://img.shields.io/github/license/hivemq/hivemq-sparkplug-influxdb-extension?style=for-the-badge&color=brightgreen[GitHub, link=LICENSE]
 image:https://img.shields.io/github/workflow/status/hivemq/hivemq-sparkplug-influxdb-extension/CI%20Check/master?style=for-the-badge[GitHub Workflow Status (branch), link=https://github.com/hivemq/hivemq-sparkplug-influxdb-extension/actions/workflows/check.yml?query=branch%3Amaster]
 
