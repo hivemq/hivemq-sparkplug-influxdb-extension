@@ -59,10 +59,10 @@ public enum MessageType {
      */
     UNKNOWN;
 
-    public static MessageType fromString(@NotNull String s) {
+    public static @NotNull MessageType fromString(final @NotNull String s) {
         try {
-            return MessageType.valueOf(s);
-        } catch (IllegalArgumentException | NullPointerException e) {
+            return valueOf(s);
+        } catch (final IllegalArgumentException | NullPointerException e) {
             return UNKNOWN;
         }
     }

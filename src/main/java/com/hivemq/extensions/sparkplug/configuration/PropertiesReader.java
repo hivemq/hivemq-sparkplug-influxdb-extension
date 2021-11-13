@@ -40,7 +40,7 @@ public abstract class PropertiesReader {
     private final @NotNull File configFilePath;
     @Nullable Properties properties;
 
-    PropertiesReader(@NotNull final File configFilePath) {
+    PropertiesReader(final @NotNull File configFilePath) {
         checkNotNull(configFilePath, "Path to config file must not be null");
         this.configFilePath = configFilePath;
     }
@@ -57,7 +57,7 @@ public abstract class PropertiesReader {
         try {
             loadProperties(file);
 
-        } catch (IOException e) {
+        } catch (final IOException e) {
             log.error("Not able to load configuration file '{}'", file.getAbsolutePath());
             return false;
         }
@@ -71,7 +71,7 @@ public abstract class PropertiesReader {
      * @param key The name of the property to look for.
      * @return The property for the value if it exists, <b>null</b> if key or {@link Properties} doesn't exist or the value is an empty string.
      */
-    @Nullable String getProperty(@NotNull final String key) {
+    @Nullable String getProperty(final @NotNull String key) {
         checkNotNull(key, "Key to fetch property for must not be null.");
         if (properties == null) {
             return null;
@@ -89,7 +89,7 @@ public abstract class PropertiesReader {
      * @param file {@link File} where to load the properties from.
      * @throws IOException If properties could not be read from <b>file</b>.
      */
-    private void loadProperties(@NotNull final File file) throws IOException {
+    private void loadProperties(final @NotNull File file) throws IOException {
         checkNotNull(file, "File that contains properties must not be null");
 
         try (final FileReader in = new FileReader(file)) {

@@ -35,15 +35,24 @@ import java.util.zip.GZIPOutputStream;
  * @author Anja Helmbrecht-Schaar
  */
 public class InfluxDbCloudSender extends InfluxDbHttpSender {
+
     private final @NotNull String authToken;
     private final int connectTimeout;
     private final int readTimeout;
     private final @NotNull URL url;
 
-    public InfluxDbCloudSender(final @NotNull String protocol, final @NotNull String host, final int port,
-                               final @NotNull String authToken, final @NotNull TimeUnit timePrecision,
-                               final int connectTimeout, final int readTimeout, final @Nullable String measurementPrefix,
-                               final @NotNull String organization, final @NotNull String bucket) throws Exception {
+    public InfluxDbCloudSender(
+            final @NotNull String protocol,
+            final @NotNull String host,
+            final int port,
+            final @NotNull String authToken,
+            final @NotNull TimeUnit timePrecision,
+            final int connectTimeout,
+            final int readTimeout,
+            final @Nullable String measurementPrefix,
+            final @NotNull String organization,
+            final @NotNull String bucket) throws Exception {
+
         super(protocol, host, port, "", authToken, timePrecision, connectTimeout, readTimeout, measurementPrefix);
         this.authToken = authToken;
         this.connectTimeout = connectTimeout;
@@ -66,13 +75,13 @@ public class InfluxDbCloudSender extends InfluxDbHttpSender {
         con.setReadTimeout(readTimeout);
         con.setRequestProperty("Content-Encoding", "gzip");
 
-        try (OutputStream out = con.getOutputStream(); final GZIPOutputStream gzipOutputStream = new GZIPOutputStream(out)) {
+        try (final OutputStream out = con.getOutputStream(); final GZIPOutputStream gzipOutputStream = new GZIPOutputStream(out)) {
             gzipOutputStream.write(line);
             gzipOutputStream.flush();
             out.flush();
         }
 
-        int responseCode = con.getResponseCode();
+        final int responseCode = con.getResponseCode();
 
         // Check if non 2XX response code.
         if (responseCode / 100 != 2) {

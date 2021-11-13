@@ -57,9 +57,12 @@ public class SparkplugExtensionMain implements ExtensionMain {
     private @Nullable SparkplugConfiguration configuration;
 
     @Override
-    public void extensionStart(@NotNull final ExtensionStartInput extensionStartInput, @NotNull final ExtensionStartOutput extensionStartOutput) {
+    public void extensionStart(
+            final @NotNull ExtensionStartInput extensionStartInput,
+            final @NotNull ExtensionStartOutput extensionStartOutput) {
+
         try {
-            final @NotNull File extensionHomeFolder = extensionStartInput.getExtensionInformation().getExtensionHomeFolder();
+            final File extensionHomeFolder = extensionStartInput.getExtensionInformation().getExtensionHomeFolder();
             //read & validate configuration
             if (!configurationValidated(extensionStartOutput, extensionHomeFolder)) {
                 return;
@@ -78,20 +81,25 @@ public class SparkplugExtensionMain implements ExtensionMain {
 
             initializeSparkplugMetricsInterceptor();
 
-        } catch (Exception e) {
+        } catch (final Exception e) {
             log.warn("Start failed because of: ", e);
             extensionStartOutput.preventExtensionStartup("Start failed because of an exception");
         }
     }
 
     @Override
-    public void extensionStop(@NotNull final ExtensionStopInput extensionStopInput, @NotNull final ExtensionStopOutput extensionStopOutput) {
+    public void extensionStop(
+            final @NotNull ExtensionStopInput extensionStopInput,
+            final @NotNull ExtensionStopOutput extensionStopOutput) {
+
         if (reporter != null) {
             reporter.stop();
         }
     }
 
-    private boolean configurationValidated(@NotNull final ExtensionStartOutput extensionStartOutput, @NotNull final File extensionHomeFolder) {
+    private boolean configurationValidated(
+            final @NotNull ExtensionStartOutput extensionStartOutput, final @NotNull File extensionHomeFolder) {
+
         configuration = new SparkplugConfiguration(extensionHomeFolder);
 
         if (!configuration.readPropertiesFromFile()) {
@@ -111,8 +119,11 @@ public class SparkplugExtensionMain implements ExtensionMain {
         Services.initializerRegistry().setClientInitializer((initializerInput, clientContext) -> clientContext.addPublishInboundInterceptor(sparkplugBInterceptor));
     }
 
-    @NotNull
-    private ScheduledReporter setupReporter(@NotNull final MetricRegistry metricRegistry, @NotNull final InfluxDbSender sender, @NotNull final SparkplugConfiguration configuration) {
+    private @NotNull ScheduledReporter setupReporter(
+            final @NotNull MetricRegistry metricRegistry,
+            final @NotNull InfluxDbSender sender,
+            final @NotNull SparkplugConfiguration configuration) {
+
         checkNotNull(metricRegistry, "MetricRegistry for influxdb must not be null");
         checkNotNull(sender, "InfluxDbSender for influxdb must not be null");
         checkNotNull(configuration, "Configuration for influxdb must not be null");
@@ -131,8 +142,7 @@ public class SparkplugExtensionMain implements ExtensionMain {
                 .build(sender);
     }
 
-    @Nullable
-    private InfluxDbSender setupSender(@NotNull final SparkplugConfiguration configuration) {
+    private @Nullable InfluxDbSender setupSender(final @NotNull SparkplugConfiguration configuration) {
         checkNotNull(configuration, "Configuration for influxdb must not be null");
 
         final String host = configuration.getHost();
@@ -171,13 +181,11 @@ public class SparkplugExtensionMain implements ExtensionMain {
                     break;
 
             }
-        } catch (Exception ex) {
+        } catch (final Exception ex) {
             log.error("Not able to start InfluxDB sender, please check your configuration: {}", ex.getMessage());
             log.debug("Original Exception: ", ex);
         }
 
         return sender;
     }
-
-
 }
