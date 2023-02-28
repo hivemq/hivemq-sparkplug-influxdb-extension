@@ -1,11 +1,8 @@
-import com.google.protobuf.gradle.protobuf
-import com.google.protobuf.gradle.protoc
-
 plugins {
     id("com.hivemq.extension")
     id("com.google.protobuf")
     id("com.github.hierynomus.license")
-    id("com.github.sgtsilvio.gradle.utf8")
+    id("io.github.sgtsilvio.gradle.defaults")
     id("org.asciidoctor.jvm.convert")
     idea
 }
