@@ -46,8 +46,7 @@ tasks.asciidoctor {
 /* ******************** test ******************** */
 
 dependencies {
-    testImplementation("org.junit.jupiter:junit-jupiter-api:${property("junit-jupiter.version")}")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+    testImplementation("org.junit.jupiter:junit-jupiter:${property("junit-jupiter.version")}")
     testImplementation("org.mockito:mockito-core:${property("mockito.version")}")
     testImplementation("com.github.tomakehurst:wiremock-jre8-standalone:${property("wiremock.version")}")
     testRuntimeOnly("ch.qos.logback:logback-classic:${property("logback.version")}")
@@ -70,6 +69,7 @@ dependencies {
 license {
     header = projectDir.resolve("HEADER")
     mapping("java", "SLASHSTAR_STYLE")
+    exclude("org/eclipse/tahu/protobuf/**")
 }
 
 /* ******************** debugging ******************** */
