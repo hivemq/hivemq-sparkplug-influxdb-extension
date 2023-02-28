@@ -59,8 +59,8 @@ tasks.withType<Test>().configureEach {
 /* ******************** integration test ******************** */
 
 dependencies {
-    integrationTestImplementation("org.testcontainers:influxdb:${property("testcontainers.version")}")
-    integrationTestImplementation("com.hivemq:hivemq-testcontainer-junit5:${property("hivemq-testcontainer.version")}")
+    integrationTestImplementation("org.testcontainers:junit-jupiter:${property("testcontainers.version")}")
+    integrationTestImplementation("org.testcontainers:hivemq:${property("testcontainers.version")}")
     integrationTestImplementation("com.hivemq:hivemq-mqtt-client:${property("hivemq-mqtt-client.version")}")
 }
 
