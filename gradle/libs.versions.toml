@@ -8,7 +8,7 @@ logback = "1.4.5"
 mockito = "5.1.1"
 protobuf = "3.17.3"
 testcontainers = "1.17.6"
-wiremock = "2.35.0"
+wiremock = "3.2.0"
 
 [libraries]
 commonsLang = { module = "org.apache.commons:commons-lang3", version.ref = "commonsLang" }
@@ -19,7 +19,7 @@ mockito = { module = "org.mockito:mockito-core", version.ref = "mockito" }
 protobuf = { module = "com.google.protobuf:protobuf-java", version.ref = "protobuf" }
 testcontainers-hivemq = { module = "org.testcontainers:hivemq", version.ref = "testcontainers" }
 testcontainers-junitJupiter = { module = "org.testcontainers:junit-jupiter", version.ref = "testcontainers" }
-wiremock-jre8-standalone = { module = "com.github.tomakehurst:wiremock-jre8-standalone", version.ref = "wiremock" }
+wiremock = { module = "org.wiremock:wiremock", version.ref = "wiremock" }
 
 [plugins]
 hivemq-extension = { id = "com.hivemq.extension", version = "3.1.0" }
