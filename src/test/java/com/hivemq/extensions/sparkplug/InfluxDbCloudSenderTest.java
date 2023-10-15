@@ -15,25 +15,23 @@
  */
 package com.hivemq.extensions.sparkplug;
 
-import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
+import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import com.hivemq.extension.sdk.api.annotations.NotNull;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.util.concurrent.TimeUnit;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
+@WireMockTest
 class InfluxDbCloudSenderTest {
 
-    @RegisterExtension
-    final @NotNull WireMockExtension wireMockExtension = new WireMockExtension();
-
     @Test
-    void test_write_data() throws Exception {
-        final InfluxDbCloudSender sender = new InfluxDbCloudSender("http", "localhost", wireMockExtension.getRuntimeInfo().getHttpPort(), "token", TimeUnit.MILLISECONDS, 3000, 3000, "", "testorg", "testbucket");
+    void test_write_data(final @NotNull WireMockRuntimeInfo wireMockRuntimeInfo) throws Exception {
+        final InfluxDbCloudSender sender = new InfluxDbCloudSender("http", "localhost", wireMockRuntimeInfo.getHttpPort(), "token", TimeUnit.MILLISECONDS, 3000, 3000, "", "testorg", "testbucket");
 
-        wireMockExtension.stubFor(post(urlPathEqualTo("/api/v2/write"))
+        stubFor(post(urlPathEqualTo("/api/v2/write"))
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withBody("")));
