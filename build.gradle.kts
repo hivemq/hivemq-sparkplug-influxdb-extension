@@ -3,7 +3,6 @@ plugins {
     alias(libs.plugins.protobuf)
     alias(libs.plugins.defaults)
     alias(libs.plugins.license)
-    alias(libs.plugins.asciidoctor)
     idea
 }
 
@@ -20,8 +19,6 @@ hivemqExtension {
 
     resources {
         from("LICENSE")
-        from("README.adoc") { rename { "README.txt" } }
-        from(tasks.asciidoctor)
     }
 }
 
@@ -35,12 +32,6 @@ protobuf {
     protoc {
         artifact = "com.google.protobuf:protoc:" + libs.versions.protobuf.get()
     }
-}
-
-tasks.asciidoctor {
-    sourceDirProperty.set(layout.projectDirectory)
-    sources("README.adoc")
-    secondarySources { exclude("**") }
 }
 
 @Suppress("UnstableApiUsage")
