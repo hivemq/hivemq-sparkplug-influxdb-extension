@@ -1,9 +1,9 @@
 plugins {
-    id("com.hivemq.extension")
-    id("com.google.protobuf")
-    id("com.github.hierynomus.license")
-    id("io.github.sgtsilvio.gradle.defaults")
-    id("org.asciidoctor.jvm.convert")
+    alias(libs.plugins.hivemq.extension)
+    alias(libs.plugins.protobuf)
+    alias(libs.plugins.defaults)
+    alias(libs.plugins.license)
+    alias(libs.plugins.asciidoctor)
     idea
 }
 
@@ -16,7 +16,7 @@ hivemqExtension {
     priority.set(0)
     startPriority.set(1000)
     mainClass.set("$group.sparkplug.SparkplugExtensionMain")
-    sdkVersion.set("${property("hivemq-extension-sdk.version")}")
+    sdkVersion.set(libs.versions.hivemq.extensionSdk)
 
     resources {
         from("LICENSE")
@@ -26,14 +26,14 @@ hivemqExtension {
 }
 
 dependencies {
-    implementation("com.google.protobuf:protobuf-java:${property("protobuf.version")}")
-    implementation("com.izettle:dropwizard-metrics-influxdb:${property("dropwizard-metrics-influxdb.version")}")
-    implementation("org.apache.commons:commons-lang3:${property("commons-lang3.version")}")
+    implementation(libs.protobuf)
+    implementation(libs.dropwizard.metrics.influxdb)
+    implementation(libs.commonsLang)
 }
 
 protobuf {
     protoc {
-        artifact = "com.google.protobuf:protoc:${property("protobuf.version")}"
+        artifact = "com.google.protobuf:protoc:" + libs.versions.protobuf.get()
     }
 }
 
@@ -46,10 +46,10 @@ tasks.asciidoctor {
 /* ******************** test ******************** */
 
 dependencies {
-    testImplementation("org.junit.jupiter:junit-jupiter:${property("junit-jupiter.version")}")
-    testImplementation("org.mockito:mockito-core:${property("mockito.version")}")
-    testImplementation("com.github.tomakehurst:wiremock-jre8-standalone:${property("wiremock.version")}")
-    testRuntimeOnly("ch.qos.logback:logback-classic:${property("logback.version")}")
+    testImplementation(libs.junit.jupiter)
+    testImplementation(libs.mockito)
+    testImplementation(libs.wiremock.jre8.standalone)
+    testRuntimeOnly(libs.logback.classic)
 }
 
 tasks.withType<Test>().configureEach {
@@ -59,10 +59,10 @@ tasks.withType<Test>().configureEach {
 /* ******************** integration test ******************** */
 
 dependencies {
-    integrationTestImplementation("org.testcontainers:junit-jupiter:${property("testcontainers.version")}")
-    integrationTestImplementation("org.testcontainers:hivemq:${property("testcontainers.version")}")
-    integrationTestImplementation("com.hivemq:hivemq-mqtt-client:${property("hivemq-mqtt-client.version")}")
-    integrationTestRuntimeOnly("ch.qos.logback:logback-classic:${property("logback.version")}")
+    integrationTestImplementation(libs.testcontainers.junitJupiter)
+    integrationTestImplementation(libs.testcontainers.hivemq)
+    integrationTestImplementation(libs.hivemq.mqttClient)
+    integrationTestRuntimeOnly(libs.logback.classic)
 }
 
 /* ******************** checks ******************** */
