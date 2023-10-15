@@ -14,7 +14,6 @@ wiremock = "2.35.0"
 commonsLang = { module = "org.apache.commons:commons-lang3", version.ref = "commonsLang" }
 dropwizard-metrics-influxdb = { module = "com.izettle:dropwizard-metrics-influxdb", version.ref = "dropwizard-metrics-influxdb" }
 hivemq-mqttClient = { module = "com.hivemq:hivemq-mqtt-client", version.ref = "hivemq-mqttClient" }
-junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 mockito = { module = "org.mockito:mockito-core", version.ref = "mockito" }
 protobuf = { module = "com.google.protobuf:protobuf-java", version.ref = "protobuf" }
