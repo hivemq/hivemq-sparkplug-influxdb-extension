@@ -72,20 +72,3 @@ license {
     mapping("java", "SLASHSTAR_STYLE")
     exclude("org/eclipse/tahu/protobuf/**")
 }
-
-/* ******************** debugging ******************** */
-
-val unzipHivemq by tasks.registering(Sync::class) {
-    from(zipTree(rootDir.resolve("/your/path/to/hivemq-<VERSION>.zip")))
-    into({ temporaryDir })
-}
-
-tasks.prepareHivemqHome {
-    hivemqHomeDirectory.set(layout.dir(unzipHivemq.map { it.destinationDir.resolve("hivemq-<VERSION>") }))
-}
-
-tasks.runHivemqWithExtension {
-    debugOptions {
-        enabled.set(false)
-    }
-}
