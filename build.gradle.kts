@@ -43,29 +43,29 @@ tasks.asciidoctor {
     secondarySources { exclude("**") }
 }
 
-/* ******************** test ******************** */
-
-dependencies {
-    testImplementation(libs.junit.jupiter)
-    testImplementation(libs.mockito)
-    testImplementation(libs.wiremock.jre8.standalone)
-    testRuntimeOnly(libs.logback.classic)
+@Suppress("UnstableApiUsage")
+testing {
+    suites {
+        withType<JvmTestSuite> {
+            useJUnitJupiter(libs.versions.junit.jupiter)
+        }
+        "test"(JvmTestSuite::class) {
+            dependencies {
+                implementation(libs.mockito)
+                implementation(libs.wiremock.jre8.standalone)
+                runtimeOnly(libs.logback.classic)
+            }
+        }
+        "integrationTest"(JvmTestSuite::class) {
+            dependencies {
+                implementation(libs.testcontainers.junitJupiter)
+                implementation(libs.testcontainers.hivemq)
+                implementation(libs.hivemq.mqttClient)
+                runtimeOnly(libs.logback.classic)
+            }
+        }
+    }
 }
-
-tasks.withType<Test>().configureEach {
-    useJUnitPlatform()
-}
-
-/* ******************** integration test ******************** */
-
-dependencies {
-    integrationTestImplementation(libs.testcontainers.junitJupiter)
-    integrationTestImplementation(libs.testcontainers.hivemq)
-    integrationTestImplementation(libs.hivemq.mqttClient)
-    integrationTestRuntimeOnly(libs.logback.classic)
-}
-
-/* ******************** checks ******************** */
 
 license {
     header = projectDir.resolve("HEADER")
