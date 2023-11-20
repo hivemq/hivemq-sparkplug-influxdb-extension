@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hivemq.extensions.sparkplug;
+package com.hivemq.extensions.sparkplug.influxdb;
 
 import com.hivemq.extension.sdk.api.annotations.NotNull;
 import com.hivemq.extension.sdk.api.interceptor.publish.PublishInboundInterceptor;
 import com.hivemq.extension.sdk.api.interceptor.publish.parameter.PublishInboundInput;
 import com.hivemq.extension.sdk.api.interceptor.publish.parameter.PublishInboundOutput;
 import com.hivemq.extension.sdk.api.packets.publish.PublishPacket;
-import com.hivemq.extensions.sparkplug.configuration.SparkplugConfiguration;
-import com.hivemq.extensions.sparkplug.metrics.MetricsHolder;
-import com.hivemq.extensions.sparkplug.topics.TopicStructure;
+import com.hivemq.extensions.sparkplug.influxdb.configuration.SparkplugConfiguration;
+import com.hivemq.extensions.sparkplug.influxdb.metrics.MetricsHolder;
+import com.hivemq.extensions.sparkplug.influxdb.topics.TopicStructure;
 import org.eclipse.tahu.protobuf.SparkplugBProto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.hivemq.extensions.sparkplug.topics.MessageType.STATE;
+import static com.hivemq.extensions.sparkplug.influxdb.topics.MessageType.STATE;
 
 /**
  * Interceptor for incoming publishes
