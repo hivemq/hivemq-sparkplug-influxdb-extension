@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hivemq.extensions.sparkplug.metrics;
+package com.hivemq.extensions.sparkplug.influxdb.metrics;
 
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.Metric;
@@ -22,33 +22,32 @@ import com.hivemq.extension.sdk.api.annotations.NotNull;
 /**
  * <p>
  * Works like a Gauge, but rather than getting its value from a callback, the value
- * is set when needed.
+ * is set when needed.  This can be somewhat convienent, but direct use of a Gauge is likely better
  * </p>
  * <p>
  * Usage example:
  * <pre>{@code
  *       MetricRegister metricRegistry;
- *       SettableLongGauge settable = metricRegistry.register("metric.name", new SettableLongGauge());
+ *       SettableDoubleGauge settable = metricRegistry.register("metric.name", new SettableDoubleGauge());
  *       // ...
- *       settable.setValue(100);
+ *       settable.setValue(1.234);
  *       // ...
- *       settable.setValue(200);
+ *       settable.setValue(3.156);
  *     }
- *
  *     </pre>
  */
-public class SettableLongGauge implements Metric, Gauge<Long> {
+public class SettableDoubleGauge implements Metric, Gauge<Double> {
     /**
      * Current value.  Assignment will be atomic.  <a href="http://docs.oracle.com/javase/specs/jls/se7/html/jls-17.html#jls-17.7">See 17.7</a>
      */
-    private volatile long value = 0;
+    private volatile double value;
 
     /**
-     * The last value set by {@link #setValue(long)}}
+     * The last value set by {@link #setValue(double)}}
      *
      * @return Last set value, or zero.
      */
-    public @NotNull Long getValue() {
+    public @NotNull Double getValue() {
         return value;
     }
 
@@ -58,7 +57,7 @@ public class SettableLongGauge implements Metric, Gauge<Long> {
      * @param value last set value
      * @return itself
      */
-    public @NotNull SettableLongGauge setValue(final long value) {
+    public @NotNull SettableDoubleGauge setValue(final double value) {
         this.value = value;
         return this;
     }

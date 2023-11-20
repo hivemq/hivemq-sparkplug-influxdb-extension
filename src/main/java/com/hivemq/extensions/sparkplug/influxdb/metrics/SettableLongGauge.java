@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hivemq.extensions.sparkplug.metrics;
+package com.hivemq.extensions.sparkplug.influxdb.metrics;
 
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.Metric;
@@ -28,7 +28,7 @@ import com.hivemq.extension.sdk.api.annotations.NotNull;
  * Usage example:
  * <pre>{@code
  *       MetricRegister metricRegistry;
- *       SettableLongGauge settable = metricRegistry.register("metric.name", new SettableIntGauge());
+ *       SettableLongGauge settable = metricRegistry.register("metric.name", new SettableLongGauge());
  *       // ...
  *       settable.setValue(100);
  *       // ...
@@ -37,18 +37,18 @@ import com.hivemq.extension.sdk.api.annotations.NotNull;
  *
  *     </pre>
  */
-public class SettableIntGauge implements Metric, Gauge<Integer> {
+public class SettableLongGauge implements Metric, Gauge<Long> {
     /**
      * Current value.  Assignment will be atomic.  <a href="http://docs.oracle.com/javase/specs/jls/se7/html/jls-17.html#jls-17.7">See 17.7</a>
      */
-    private volatile int value = 0;
+    private volatile long value = 0;
 
     /**
-     * The last value set by {@link #setValue(int)}}
+     * The last value set by {@link #setValue(long)}}
      *
      * @return Last set value, or zero.
      */
-    public @NotNull Integer getValue() {
+    public @NotNull Long getValue() {
         return value;
     }
 
@@ -58,7 +58,7 @@ public class SettableIntGauge implements Metric, Gauge<Integer> {
      * @param value last set value
      * @return itself
      */
-    public @NotNull SettableIntGauge setValue(final int value) {
+    public @NotNull SettableLongGauge setValue(final long value) {
         this.value = value;
         return this;
     }

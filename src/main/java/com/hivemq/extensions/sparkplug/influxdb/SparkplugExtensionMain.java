@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hivemq.extensions.sparkplug;
+package com.hivemq.extensions.sparkplug.influxdb;
 
 import com.codahale.metrics.MetricFilter;
 import com.codahale.metrics.MetricRegistry;
@@ -27,8 +27,8 @@ import com.hivemq.extension.sdk.api.parameter.ExtensionStartOutput;
 import com.hivemq.extension.sdk.api.parameter.ExtensionStopInput;
 import com.hivemq.extension.sdk.api.parameter.ExtensionStopOutput;
 import com.hivemq.extension.sdk.api.services.Services;
-import com.hivemq.extensions.sparkplug.configuration.SparkplugConfiguration;
-import com.hivemq.extensions.sparkplug.metrics.MetricsHolder;
+import com.hivemq.extensions.sparkplug.influxdb.configuration.SparkplugConfiguration;
+import com.hivemq.extensions.sparkplug.influxdb.metrics.MetricsHolder;
 import com.izettle.metrics.influxdb.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
