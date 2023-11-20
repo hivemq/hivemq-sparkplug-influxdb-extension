@@ -14,7 +14,6 @@ hivemqExtension {
     author.set("HiveMQ")
     priority.set(0)
     startPriority.set(1000)
-    mainClass.set("$group.sparkplug.SparkplugExtensionMain")
     sdkVersion.set(libs.versions.hivemq.extensionSdk)
 
     resources {
