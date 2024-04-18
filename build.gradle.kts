@@ -10,11 +10,11 @@ group = "com.hivemq.extensions"
 description = "HiveMQ Sparkplug Extension - an extension to monitor sparkplug data with influxdata."
 
 hivemqExtension {
-    name.set("HiveMQ Sparkplug Extension")
-    author.set("HiveMQ")
-    priority.set(0)
-    startPriority.set(1000)
-    sdkVersion.set(libs.versions.hivemq.extensionSdk)
+    name = "HiveMQ Sparkplug Extension"
+    author = "HiveMQ"
+    priority = 0
+    startPriority = 1000
+    sdkVersion = libs.versions.hivemq.extensionSdk
 
     resources {
         from("LICENSE")
