@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.hivemq.extension)
     alias(libs.plugins.protobuf)
     alias(libs.plugins.defaults)
+    alias(libs.plugins.oci)
     alias(libs.plugins.license)
     idea
 }
@@ -33,6 +34,14 @@ protobuf {
     }
 }
 
+oci {
+    registries {
+        dockerHub {
+            optionalCredentials()
+        }
+    }
+}
+
 @Suppress("UnstableApiUsage")
 testing {
     suites {
@@ -50,8 +59,12 @@ testing {
             dependencies {
                 implementation(libs.testcontainers.junitJupiter)
                 implementation(libs.testcontainers.hivemq)
+                implementation(libs.gradleOci.junitJupiter)
                 implementation(libs.hivemq.mqttClient)
                 runtimeOnly(libs.logback.classic)
+            }
+            ociImageDependencies {
+                runtime("hivemq:hivemq4:4.5.3").tag("latest")
             }
         }
     }
