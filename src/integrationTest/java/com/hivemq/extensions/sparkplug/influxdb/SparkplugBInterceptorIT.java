@@ -19,6 +19,7 @@ import com.hivemq.client.mqtt.mqtt5.Mqtt5BlockingClient;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5Client;
 import com.hivemq.client.mqtt.mqtt5.message.disconnect.Mqtt5DisconnectReasonCode;
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish;
+import io.github.sgtsilvio.gradle.oci.junit.jupiter.OciImages;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
@@ -26,7 +27,6 @@ import org.slf4j.event.Level;
 import org.testcontainers.hivemq.HiveMQContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.DockerImageName;
 import org.testcontainers.utility.MountableFile;
 
 import java.nio.charset.StandardCharsets;
@@ -40,7 +40,7 @@ class SparkplugBInterceptorIT {
 
     @Container
     final @NotNull HiveMQContainer container =
-            new HiveMQContainer(DockerImageName.parse("hivemq/hivemq4").withTag("4.5.3"))
+            new HiveMQContainer(OciImages.getImageName("hivemq/hivemq4"))
                     .withExtension(MountableFile.forClasspathResource("hivemq-sparkplug-extension"))
                     .waitForExtension("HiveMQ Sparkplug Extension")
                     .withLogLevel(Level.TRACE);
