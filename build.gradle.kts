@@ -63,8 +63,10 @@ testing {
                 implementation(libs.hivemq.mqttClient)
                 runtimeOnly(libs.logback.classic)
             }
-            ociImageDependencies {
-                runtime("hivemq:hivemq4:4.5.3").tag("latest")
+            oci.of(this) {
+                imageDependencies {
+                    runtime("hivemq:hivemq4:4.5.3").tag("latest")
+                }
             }
         }
     }
