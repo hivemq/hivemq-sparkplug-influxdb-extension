@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.hivemq.extension)
     alias(libs.plugins.protobuf)
     alias(libs.plugins.defaults)
+    alias(libs.plugins.oci)
     alias(libs.plugins.license)
     idea
 }
@@ -12,8 +13,6 @@ description = "HiveMQ Sparkplug Extension - an extension to monitor sparkplug da
 hivemqExtension {
     name = "HiveMQ Sparkplug Extension"
     author = "HiveMQ"
-    priority = 0
-    startPriority = 1000
     sdkVersion = libs.versions.hivemq.extensionSdk
 
     resources {
@@ -30,6 +29,14 @@ dependencies {
 protobuf {
     protoc {
         artifact = "com.google.protobuf:protoc:" + libs.versions.protobuf.get()
+    }
+}
+
+oci {
+    registries {
+        dockerHub {
+            optionalCredentials()
+        }
     }
 }
 
@@ -50,8 +57,14 @@ testing {
             dependencies {
                 implementation(libs.testcontainers.junitJupiter)
                 implementation(libs.testcontainers.hivemq)
+                implementation(libs.gradleOci.junitJupiter)
                 implementation(libs.hivemq.mqttClient)
                 runtimeOnly(libs.logback.classic)
+            }
+            oci.of(this) {
+                imageDependencies {
+                    runtime("hivemq:hivemq4:4.5.3").tag("latest")
+                }
             }
         }
     }
