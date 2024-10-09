@@ -13,8 +13,6 @@ description = "HiveMQ Sparkplug Extension - an extension to monitor sparkplug da
 hivemqExtension {
     name = "HiveMQ Sparkplug Extension"
     author = "HiveMQ"
-    priority = 0
-    startPriority = 1000
     sdkVersion = libs.versions.hivemq.extensionSdk
 
     resources {
