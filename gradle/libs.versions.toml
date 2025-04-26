@@ -7,7 +7,7 @@ hivemq-mqttClient = "1.3.5"
 junit-jupiter = "5.10.0"
 logback = "1.5.18"
 mockito = "5.17.0"
-protobuf = "3.25.6"
+protobuf = "3.25.7"
 testcontainers = "1.20.6"
 wiremock = "3.12.1"
 
