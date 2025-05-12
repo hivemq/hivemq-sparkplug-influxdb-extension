@@ -20,6 +20,12 @@ hivemqExtension {
     }
 }
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(11)
+    }
+}
+
 dependencies {
     implementation(libs.protobuf)
     implementation(libs.dropwizard.metrics.influxdb)
