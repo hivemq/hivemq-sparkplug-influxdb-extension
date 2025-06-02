@@ -39,16 +39,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class SparkplugBInterceptorIT {
 
     @Container
-    final @NotNull HiveMQContainer container =
-            new HiveMQContainer(OciImages.getImageName("hivemq/hivemq4"))
-                    .withExtension(MountableFile.forClasspathResource("hivemq-sparkplug-extension"))
-                    .waitForExtension("HiveMQ Sparkplug Extension")
-                    .withLogLevel(Level.TRACE);
+    final @NotNull HiveMQContainer container = new HiveMQContainer(OciImages.getImageName("hivemq/hivemq4")) //
+            .withExtension(MountableFile.forClasspathResource("hivemq-sparkplug-extension"))
+            .waitForExtension("HiveMQ Sparkplug Extension")
+            .withLogLevel(Level.TRACE);
 
     @Test
     @Timeout(value = 3, unit = TimeUnit.MINUTES)
     void test_DBIRTH() throws Exception {
-
         final String DEATH_TOPIC = "spBv1.0/group1/NDEATH/eon1";
         final String BIRTH_TOPIC = "spBv1.0/group1/NBIRTH/eon1";
 
@@ -71,16 +69,12 @@ class SparkplugBInterceptorIT {
         subscriber.toAsync().subscribeWith().topicFilter(BIRTH_TOPIC).callback(publishBIRTH::complete).send().get();
         subscriber.toAsync().subscribeWith().topicFilter(DEATH_TOPIC).callback(publishDEATH::complete).send().get();
 
-        final Mqtt5Publish will = Mqtt5Publish.builder()
-                .topic(DEATH_TOPIC)
-                .payload("".getBytes(StandardCharsets.UTF_8))
-                .build();
+        final Mqtt5Publish will =
+                Mqtt5Publish.builder().topic(DEATH_TOPIC).payload("".getBytes(StandardCharsets.UTF_8)).build();
         client.connectWith().willPublish(will).send();
 
-        final Mqtt5Publish birthPublish = Mqtt5Publish.builder()
-                .topic(BIRTH_TOPIC)
-                .payload("".getBytes(StandardCharsets.UTF_8))
-                .build();
+        final Mqtt5Publish birthPublish =
+                Mqtt5Publish.builder().topic(BIRTH_TOPIC).payload("".getBytes(StandardCharsets.UTF_8)).build();
         client.publish(birthPublish);
 
         final Mqtt5Publish birth = publishBIRTH.get();

@@ -38,8 +38,10 @@ import com.hivemq.extension.sdk.api.annotations.NotNull;
  *     </pre>
  */
 public class SettableIntGauge implements Metric, Gauge<Integer> {
+
     /**
-     * Current value.  Assignment will be atomic.  <a href="http://docs.oracle.com/javase/specs/jls/se7/html/jls-17.html#jls-17.7">See 17.7</a>
+     * Current value.  Assignment will be atomic.  <a
+     * href="http://docs.oracle.com/javase/specs/jls/se7/html/jls-17.html#jls-17.7">See 17.7</a>
      */
     private volatile int value = 0;
 

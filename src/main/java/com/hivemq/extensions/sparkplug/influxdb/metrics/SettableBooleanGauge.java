@@ -20,6 +20,7 @@ import com.codahale.metrics.Metric;
 import com.hivemq.extension.sdk.api.annotations.NotNull;
 
 public class SettableBooleanGauge implements Metric, Gauge<Boolean> {
+
     private volatile boolean value = false;
 
     public @NotNull Boolean getValue() {

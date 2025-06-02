@@ -24,18 +24,22 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PropertiesReaderTest {
 
     @Test
     void readPropertiesFromFile_file_null() {
-        assertThrows(NullPointerException.class, () -> new PropertiesReader(null) {
+        assertThatThrownBy(() -> new PropertiesReader(null) {
             @Override
             public @NotNull String getFilename() {
                 return "test";
             }
-        });
+        }).isInstanceOf(NullPointerException.class);
     }
 
     @Test
@@ -46,12 +50,12 @@ class PropertiesReaderTest {
                 return "test";
             }
         };
-        assertFalse(propertiesReader.readPropertiesFromFile());
+        assertThat(propertiesReader.readPropertiesFromFile()).isFalse();
     }
 
     @Test
     void readPropertiesFromFile_file_does_exist(final @TempDir @NotNull Path tempDir) throws IOException {
-        assertTrue(tempDir.resolve("test").toFile().createNewFile());
+        assertThat(tempDir.resolve("test").toFile().createNewFile()).isTrue();
 
         final PropertiesReader propertiesReader = new PropertiesReader(tempDir.toFile()) {
             @Override
@@ -59,13 +63,13 @@ class PropertiesReaderTest {
                 return "test";
             }
         };
-        assertTrue(propertiesReader.readPropertiesFromFile());
+        assertThat(propertiesReader.readPropertiesFromFile()).isTrue();
     }
 
     @Test
     void getProperty_key_null(final @TempDir @NotNull Path tempDir) throws IOException {
         final Path file = tempDir.resolve("test");
-        assertTrue(file.toFile().createNewFile());
+        assertThat(file.toFile().createNewFile()).isTrue();
         Files.write(file, List.of("key:value"));
 
         final PropertiesReader propertiesReader = new PropertiesReader(tempDir.toFile()) {
@@ -74,16 +78,16 @@ class PropertiesReaderTest {
                 return "test";
             }
         };
-        assertTrue(propertiesReader.readPropertiesFromFile());
-        assertEquals("value", propertiesReader.getProperty("key"));
+        assertThat(propertiesReader.readPropertiesFromFile()).isTrue();
+        assertThat(propertiesReader.getProperty("key")).isEqualTo("value");
 
-        assertThrows(NullPointerException.class, () -> propertiesReader.getProperty(null));
+        assertThatThrownBy(() -> propertiesReader.getProperty(null)).isInstanceOf(NullPointerException.class);
     }
 
     @Test
     void getProperty_key_doesnt_exist(final @TempDir @NotNull Path tempDir) throws IOException {
         final Path file = tempDir.resolve("test");
-        assertTrue(file.toFile().createNewFile());
+        assertThat(file.toFile().createNewFile()).isTrue();
         Files.write(file, List.of("key:value"));
 
         final PropertiesReader propertiesReader = new PropertiesReader(tempDir.toFile()) {
@@ -92,16 +96,16 @@ class PropertiesReaderTest {
                 return "test";
             }
         };
-        assertTrue(propertiesReader.readPropertiesFromFile());
-        assertEquals("value", propertiesReader.getProperty("key"));
+        assertThat(propertiesReader.readPropertiesFromFile()).isTrue();
+        assertThat(propertiesReader.getProperty("key")).isEqualTo("value");
 
-        assertNull(propertiesReader.getProperty("unknown"));
+        assertThat(propertiesReader.getProperty("unknown")).isNull();
     }
 
     @Test
     void getProperty_key_exists(final @TempDir @NotNull Path tempDir) throws IOException {
         final Path file = tempDir.resolve("test");
-        assertTrue(file.toFile().createNewFile());
+        assertThat(file.toFile().createNewFile()).isTrue();
         Files.write(file, List.of("key:value"));
 
         final PropertiesReader propertiesReader = new PropertiesReader(tempDir.toFile()) {
@@ -110,14 +114,14 @@ class PropertiesReaderTest {
                 return "test";
             }
         };
-        assertTrue(propertiesReader.readPropertiesFromFile());
-        assertEquals("value", propertiesReader.getProperty("key"));
+        assertThat(propertiesReader.readPropertiesFromFile()).isTrue();
+        assertThat(propertiesReader.getProperty("key")).isEqualTo("value");
     }
 
     @Test
     void getProperty_before_loading_properties(final @TempDir @NotNull Path tempDir) throws IOException {
         final Path file = tempDir.resolve("test");
-        assertTrue(file.toFile().createNewFile());
+        assertThat(file.toFile().createNewFile()).isTrue();
         Files.write(file, List.of("key:value"));
 
         final PropertiesReader propertiesReader = new PropertiesReader(tempDir.toFile()) {
@@ -126,6 +130,6 @@ class PropertiesReaderTest {
                 return "test";
             }
         };
-        assertNull(propertiesReader.getProperty("key"));
+        assertThat(propertiesReader.getProperty("key")).isNull();
     }
 }

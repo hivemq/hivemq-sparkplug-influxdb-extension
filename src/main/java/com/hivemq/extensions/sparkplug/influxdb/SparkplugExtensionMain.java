@@ -29,7 +29,11 @@ import com.hivemq.extension.sdk.api.parameter.ExtensionStopOutput;
 import com.hivemq.extension.sdk.api.services.Services;
 import com.hivemq.extensions.sparkplug.influxdb.configuration.SparkplugConfiguration;
 import com.hivemq.extensions.sparkplug.influxdb.metrics.MetricsHolder;
-import com.izettle.metrics.influxdb.*;
+import com.izettle.metrics.influxdb.InfluxDbHttpSender;
+import com.izettle.metrics.influxdb.InfluxDbReporter;
+import com.izettle.metrics.influxdb.InfluxDbSender;
+import com.izettle.metrics.influxdb.InfluxDbTcpSender;
+import com.izettle.metrics.influxdb.InfluxDbUdpSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,38 +53,49 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class SparkplugExtensionMain implements ExtensionMain {
 
+    private static final @NotNull HashSet<String> METER_FIELDS =
+            Sets.newHashSet("count", "m1_rate", "m5_rate", "m15_rate", "mean_rate");
+    private static final @NotNull HashSet<String> TIMER_FIELDS = Sets.newHashSet("count",
+            "min",
+            "max",
+            "mean",
+            "stddev",
+            "p50",
+            "p75",
+            "p95",
+            "p98",
+            "p99",
+            "p999",
+            "m1_rate",
+            "m5_rate",
+            "m15_rate",
+            "mean_rate");
+
     private static final @NotNull Logger log = LoggerFactory.getLogger(SparkplugExtensionMain.class);
-    private static final @NotNull HashSet<String> METER_FIELDS = Sets.newHashSet("count", "m1_rate", "m5_rate", "m15_rate", "mean_rate");
-    private static final @NotNull HashSet<String> TIMER_FIELDS = Sets.newHashSet("count", "min", "max", "mean", "stddev", "p50", "p75", "p95", "p98", "p99", "p999", "m1_rate", "m5_rate", "m15_rate", "mean_rate");
 
     private @Nullable ScheduledReporter reporter;
-    private @Nullable SparkplugConfiguration configuration;
 
     @Override
     public void extensionStart(
             final @NotNull ExtensionStartInput extensionStartInput,
             final @NotNull ExtensionStartOutput extensionStartOutput) {
-
         try {
             final File extensionHomeFolder = extensionStartInput.getExtensionInformation().getExtensionHomeFolder();
-            //read & validate configuration
-            if (!configurationValidated(extensionStartOutput, extensionHomeFolder)) {
-                return;
-            }
+            // read & validate configuration
+            final SparkplugConfiguration configuration =
+                    configurationValidated(extensionStartOutput, extensionHomeFolder);
             if (configuration == null) {
                 return;
             }
             final InfluxDbSender sender = setupSender(configuration);
             if (sender == null) {
-                extensionStartOutput.preventExtensionStartup("Couldn't create an influxdb sender. Please check that the configuration is correct");
+                extensionStartOutput.preventExtensionStartup(
+                        "Couldn't create an influxdb sender. Please check that the configuration is correct");
                 return;
             }
-
             reporter = setupReporter(Services.metricRegistry(), sender, configuration);
             reporter.start(configuration.getReportingInterval(), TimeUnit.SECONDS);
-
-            initializeSparkplugMetricsInterceptor();
-
+            initializeSparkplugMetricsInterceptor(configuration);
         } catch (final Exception e) {
             log.warn("Start failed because of: ", e);
             extensionStartOutput.preventExtensionStartup("Start failed because of an exception");
@@ -91,45 +106,41 @@ public class SparkplugExtensionMain implements ExtensionMain {
     public void extensionStop(
             final @NotNull ExtensionStopInput extensionStopInput,
             final @NotNull ExtensionStopOutput extensionStopOutput) {
-
         if (reporter != null) {
             reporter.stop();
         }
     }
 
-    private boolean configurationValidated(
-            final @NotNull ExtensionStartOutput extensionStartOutput, final @NotNull File extensionHomeFolder) {
-
-        configuration = new SparkplugConfiguration(extensionHomeFolder);
-
+    private @Nullable SparkplugConfiguration configurationValidated(
+            final @NotNull ExtensionStartOutput extensionStartOutput,
+            final @NotNull File extensionHomeFolder) {
+        final SparkplugConfiguration configuration = new SparkplugConfiguration(extensionHomeFolder);
         if (!configuration.readPropertiesFromFile()) {
             extensionStartOutput.preventExtensionStartup("Could not read influxdb properties");
-            return false;
+            return null;
         }
         if (!configuration.validateConfiguration()) {
             extensionStartOutput.preventExtensionStartup("At least one mandatory property not set");
-            return false;
+            return null;
         }
-        return true;
+        return configuration;
     }
 
-    private void initializeSparkplugMetricsInterceptor() {
+    private void initializeSparkplugMetricsInterceptor(final @NotNull SparkplugConfiguration configuration) {
         final MetricsHolder metricsHolder = new MetricsHolder(Services.metricRegistry());
         final SparkplugBInterceptor sparkplugBInterceptor = new SparkplugBInterceptor(metricsHolder, configuration);
-        Services.initializerRegistry().setClientInitializer((initializerInput, clientContext) -> clientContext.addPublishInboundInterceptor(sparkplugBInterceptor));
+        Services.initializerRegistry()
+                .setClientInitializer((initializerInput, clientContext) -> clientContext.addPublishInboundInterceptor(
+                        sparkplugBInterceptor));
     }
 
     private @NotNull ScheduledReporter setupReporter(
             final @NotNull MetricRegistry metricRegistry,
             final @NotNull InfluxDbSender sender,
             final @NotNull SparkplugConfiguration configuration) {
-
         checkNotNull(metricRegistry, "MetricRegistry for influxdb must not be null");
         checkNotNull(sender, "InfluxDbSender for influxdb must not be null");
-        checkNotNull(configuration, "Configuration for influxdb must not be null");
-
         final Map<String, String> tags = configuration.getTags();
-
         return InfluxDbReporter.forRegistry(metricRegistry)
                 .withTags(tags)
                 .convertRatesTo(TimeUnit.SECONDS)
@@ -143,8 +154,6 @@ public class SparkplugExtensionMain implements ExtensionMain {
     }
 
     private @Nullable InfluxDbSender setupSender(final @NotNull SparkplugConfiguration configuration) {
-        checkNotNull(configuration, "Configuration for influxdb must not be null");
-
         final String host = configuration.getHost();
         final int port = configuration.getPort();
         final String protocol = configuration.getProtocol();
@@ -163,7 +172,15 @@ public class SparkplugExtensionMain implements ExtensionMain {
             switch (configuration.getMode()) {
                 case "http":
                     log.info("Creating InfluxDB HTTP sender for server {}:{} and database {}", host, port, database);
-                    sender = new InfluxDbHttpSender(protocol, host, port, database, auth, TimeUnit.SECONDS, connectTimeout, connectTimeout, prefix);
+                    sender = new InfluxDbHttpSender(protocol,
+                            host,
+                            port,
+                            database,
+                            auth,
+                            TimeUnit.SECONDS,
+                            connectTimeout,
+                            connectTimeout,
+                            prefix);
                     break;
                 case "tcp":
                     log.info("Creating InfluxDB TCP sender for server {}:{} and database {}", host, port, database);
@@ -174,10 +191,22 @@ public class SparkplugExtensionMain implements ExtensionMain {
                     sender = new InfluxDbUdpSender(host, port, connectTimeout, database, prefix);
                     break;
                 case "cloud":
-                    log.info("Creating InfluxDB Cloud sender for endpoint {}, bucket {}, organization {}", host, bucket, organization);
+                    log.info("Creating InfluxDB Cloud sender for endpoint {}, bucket {}, organization {}",
+                            host,
+                            bucket,
+                            organization);
                     checkNotNull(bucket, "Bucket name must be defined in cloud mode");
                     checkNotNull(organization, "Organization must be defined in cloud mode");
-                    sender = new InfluxDbCloudSender(protocol, host, port, auth, TimeUnit.SECONDS, connectTimeout, connectTimeout, prefix, organization, bucket);
+                    sender = new InfluxDbCloudSender(protocol,
+                            host,
+                            port,
+                            auth,
+                            TimeUnit.SECONDS,
+                            connectTimeout,
+                            connectTimeout,
+                            prefix,
+                            organization,
+                            bucket);
                     break;
 
             }

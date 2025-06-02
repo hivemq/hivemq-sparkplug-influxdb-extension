@@ -51,7 +51,7 @@ public class SparkplugConfiguration extends PropertiesReader {
     private static final @NotNull String CONNECT_TIMEOUT = DB + "connectTimeout";
     private static final @NotNull String AUTH = DB + "auth";
     private static final @NotNull String TAGS = DB + "tags";
-    //InfluxDB Cloud
+    // InfluxDB Cloud
     private static final @NotNull String BUCKET = DB + "bucket";
     private static final @NotNull String ORGANIZATION = DB + "organization";
 
@@ -67,7 +67,6 @@ public class SparkplugConfiguration extends PropertiesReader {
 
     private static final @NotNull HashMap<String, String> TAGS_DEFAULT = new HashMap<>();
 
-
     public SparkplugConfiguration(@NotNull final File configFilePath) {
         super(configFilePath);
     }
@@ -79,10 +78,8 @@ public class SparkplugConfiguration extends PropertiesReader {
      */
     public boolean validateConfiguration() {
         int countError = 0;
-
         countError += checkMandatoryProperty(HOST);
         countError += checkMandatoryProperty(PORT);
-
         if (countError != 0) {
             return false;
         }
@@ -117,7 +114,6 @@ public class SparkplugConfiguration extends PropertiesReader {
      */
     private int checkMandatoryProperty(@NotNull final String property) {
         checkNotNull(property, "Mandatory property must not be null");
-
         final String value = getProperty(property);
         if (value == null) {
             log.error("Mandatory property {} is not set.", property);
@@ -126,32 +122,25 @@ public class SparkplugConfiguration extends PropertiesReader {
         return 0;
     }
 
-
-    @NotNull
-    public String getMode() {
+    public @NotNull String getMode() {
         return validateStringProperty(MODE, MODE_DEFAULT);
     }
 
-    @Nullable
-    public String getHost() {
+    public @Nullable String getHost() {
         return getProperty(HOST);
     }
 
-    @NotNull
-    public String getDatabase() {
+    public @NotNull String getDatabase() {
         return validateStringProperty(DATABASE, DATABASE_DEFAULT);
     }
 
-    @Nullable
-    public Integer getPort() {
-        final int port;
+    public @Nullable Integer getPort() {
         try {
-            port = Integer.parseInt(Objects.requireNonNull(getProperty(PORT)));
+            return Integer.parseInt(Objects.requireNonNull(getProperty(PORT)));
         } catch (final NumberFormatException e) {
             log.error("Value for {} is not a number", PORT);
             return null;
         }
-        return port;
     }
 
     public int getReportingInterval() {
@@ -162,8 +151,7 @@ public class SparkplugConfiguration extends PropertiesReader {
         return validateIntProperty(CONNECT_TIMEOUT, CONNECT_TIMEOUT_DEFAULT, false, false);
     }
 
-    @NotNull
-    public String getProtocol() {
+    public @NotNull String getProtocol() {
         final @Nullable String protocol = getProperty(PROTOCOL);
         if (protocol == null) {
             log.warn("No protocol configured for InfluxDb, using default: {}", PROTOCOL_DEFAULT);
@@ -172,48 +160,37 @@ public class SparkplugConfiguration extends PropertiesReader {
         return protocol;
     }
 
-    @NotNull
-    public String getPrefix() {
+    public @NotNull String getPrefix() {
         return validateStringProperty(PREFIX, PREFIX_DEFAULT);
     }
 
-    @Nullable
-    public String getAuth() {
+    public @Nullable String getAuth() {
         return getProperty(AUTH);
     }
 
-    @NotNull
-    public Map<String, String> getTags() {
-
+    public @NotNull Map<String, String> getTags() {
         final String tags = getProperty(TAGS);
         if (tags == null) {
             return TAGS_DEFAULT;
         }
-
         final String[] split = StringUtils.splitPreserveAllTokens(tags, ";");
-
         final HashMap<String, String> tagMap = new HashMap<>();
-
         for (final String tag : split) {
             final String[] tagPair = StringUtils.split(tag, "=");
-            if (tagPair.length != 2 || tagPair[0].length() < 1 || tagPair[1].length() < 1) {
+            if (tagPair.length != 2 || tagPair[0].isEmpty() || tagPair[1].isEmpty()) {
                 log.warn("Invalid tag format {} for InfluxDB", tag);
                 continue;
             }
-
             tagMap.put(tagPair[0], tagPair[1]);
         }
-
         return tagMap;
     }
 
-    @Nullable
-    public String getBucket() {
+    public @Nullable String getBucket() {
         return getProperty(BUCKET);
     }
 
-    @Nullable
-    public String getOrganization() {
+    public @Nullable String getOrganization() {
         return getProperty(ORGANIZATION);
     }
 
@@ -223,7 +200,8 @@ public class SparkplugConfiguration extends PropertiesReader {
     }
 
     /**
-     * Fetch property with given <b>key</b>. If the fetched {@link String} is <b>null</b> the <b>defaultValue</b> will be returned.
+     * Fetch property with given <b>key</b>. If the fetched {@link String} is <b>null</b> the <b>defaultValue</b> will
+     * be returned.
      *
      * @param key          Key of the property.
      * @param defaultValue Default value as fallback, if property has no value.
@@ -244,7 +222,8 @@ public class SparkplugConfiguration extends PropertiesReader {
 
     /**
      * Fetch property with given <b>key</b>.
-     * If the fetched {@link String} value is not <b>null</b> convert the value to an int and check validation constraints if given flags are <b>false</b> before returning the value.
+     * If the fetched {@link String} value is not <b>null</b> convert the value to an int and check validation
+     * constraints if given flags are <b>false</b> before returning the value.
      *
      * @param key             Key of the property
      * @param defaultValue    Default value as fallback, if property has no value
@@ -252,33 +231,35 @@ public class SparkplugConfiguration extends PropertiesReader {
      * @param negativeAllowed use <b>true</b> is property can be negative int
      * @return the actual value of the property if it is set and valid, else the <b>defaultValue</b>
      */
-    private int validateIntProperty(@NotNull final String key, final int defaultValue, final boolean zeroAllowed, final boolean negativeAllowed) {
+    private int validateIntProperty(
+            final @NotNull String key,
+            final int defaultValue,
+            final boolean zeroAllowed,
+            final boolean negativeAllowed) {
         checkNotNull(key, "Key to fetch property must not be null");
-
         final String value = properties != null ? properties.getProperty(key) : null;
         if (value == null) {
             log.warn("No '{}' configured, using default: {}", key, defaultValue);
             return defaultValue;
         }
-
         final int valueAsInt;
         try {
             valueAsInt = Integer.parseInt(value);
         } catch (final NumberFormatException e) {
-            log.warn("Value for the property '{}' is not a number, original value {}. Using default: {}", key, value, defaultValue);
+            log.warn("Value for the property '{}' is not a number, original value {}. Using default: {}",
+                    key,
+                    value,
+                    defaultValue);
             return defaultValue;
         }
-
         if (!zeroAllowed && valueAsInt == 0) {
             log.warn("Value for the property '{}' can't be zero. Using default: {}", key, defaultValue);
             return defaultValue;
         }
-
         if (!negativeAllowed && valueAsInt < 0) {
             log.warn("Value for the property '{}' can't be negative. Using default: {}", key, defaultValue);
             return defaultValue;
         }
-
         return valueAsInt;
     }
 
