@@ -18,7 +18,7 @@ package com.hivemq.extensions.sparkplug.influxdb.topics;
 import com.hivemq.extension.sdk.api.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class TopicStructureTest {
 
@@ -28,53 +28,52 @@ class TopicStructureTest {
     void test_isValid() {
         final String topic = "spBv1.0/location/NBIRTH/eon1";
         final TopicStructure structure = new TopicStructure(topic);
-        assertSame(structure.getMessageType(), MessageType.NBIRTH);
-        assertTrue(structure.getEonId().matches("eon1"));
-
-        assertTrue(structure.isValid(version), "topic structure is valid");
+        assertThat(structure.getMessageType()).isEqualTo(MessageType.NBIRTH);
+        assertThat(structure.getEonId()).matches("eon1");
+        assertThat(structure.isValid(version)).as("topic structure is valid").isTrue();
     }
 
     @Test
     void test_isValidDevice() {
         final String topic = "spBv1.0/location/DBIRTH/eon1/dev1";
         final TopicStructure structure = new TopicStructure(topic);
-        assertTrue(structure.getEonId().matches("eon1"));
-        assertTrue(structure.getDeviceId().matches("dev1"));
-        assertTrue(structure.isValid(version), "topic structure is valid");
+        assertThat(structure.getEonId()).matches("eon1");
+        assertThat(structure.getDeviceId()).matches("dev1");
+        assertThat(structure.isValid(version)).as("topic structure is valid").isTrue();
     }
 
     @Test
     void test_isValidMessageType() {
         final String topic = "spBv1.0/location/DBIRTH/eon1";
         final TopicStructure structure = new TopicStructure(topic);
-        assertTrue(structure.getEonId().matches("eon1"));
-        assertSame(structure.getMessageType(), MessageType.DBIRTH);
-        assertTrue(structure.isValid(version), "topic structure is not valid");
+        assertThat(structure.getEonId()).matches("eon1");
+        assertThat(structure.getMessageType()).isEqualTo(MessageType.DBIRTH);
+        assertThat(structure.isValid(version)).as("topic structure is valid").isTrue();
     }
 
     @Test
     void test_isNotValidMessageType() {
         final String topic = "spBv1.0/location/ABC/eon1";
         final TopicStructure structure = new TopicStructure(topic);
-        assertTrue(structure.getEonId().matches("eon1"));
-        assertSame(structure.getMessageType(), MessageType.UNKNOWN);
-        assertFalse(structure.isValid(version), "topic structure is not valid");
+        assertThat(structure.getEonId()).matches("eon1");
+        assertThat(structure.getMessageType()).isEqualTo(MessageType.UNKNOWN);
+        assertThat(structure.isValid(version)).as("topic structure is not valid").isFalse();
     }
 
     @Test
     void test_isNotValidNamespace() {
         final String topic = "spXY/location/DBIRTH/eon1";
         final TopicStructure structure = new TopicStructure(topic);
-        assertTrue(structure.getNamespace().matches("spXY"));
-        assertFalse(structure.isValid(version), "topic structure is not valid");
+        assertThat(structure.getNamespace()).matches("spXY");
+        assertThat(structure.isValid(version)).as("topic structure is not valid").isFalse();
     }
 
     @Test
     void test_isNotEnoughTopicLevels() {
         final String topic = "spBv1.0/location/eon1";
         final TopicStructure structure = new TopicStructure(topic);
-        assertNull(structure.getMessageType());
-        assertNull(structure.getEonId());
-        assertFalse(structure.isValid(version), "topic structure is not valid");
+        assertThat(structure.getMessageType()).isNull();
+        assertThat(structure.getEonId()).isNull();
+        assertThat(structure.isValid(version)).as("topic structure is not valid").isFalse();
     }
 }

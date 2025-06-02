@@ -33,12 +33,13 @@ import static com.google.common.base.Preconditions.checkNotNull;
  *
  * @author Anja Helmbrecht-Schaar
  */
-public abstract class PropertiesReader {
+abstract class PropertiesReader {
 
     private static final @NotNull Logger log = LoggerFactory.getLogger(PropertiesReader.class);
 
+    protected @Nullable Properties properties;
+
     private final @NotNull File configFilePath;
-    @Nullable Properties properties;
 
     PropertiesReader(final @NotNull File configFilePath) {
         checkNotNull(configFilePath, "Path to config file must not be null");
@@ -51,27 +52,24 @@ public abstract class PropertiesReader {
      * @return <b>true</b> if properties are loaded, else <b>false</b>.
      */
     public boolean readPropertiesFromFile() {
-
         final File file = new File(configFilePath + File.separator + getFilename());
-
         try {
             loadProperties(file);
-
+            return true;
         } catch (final IOException e) {
             log.error("Not able to load configuration file '{}'", file.getAbsolutePath());
             return false;
         }
-
-        return true;
     }
 
     /**
      * Fetch a property with given key from {@link Properties}.
      *
      * @param key The name of the property to look for.
-     * @return The property for the value if it exists, <b>null</b> if key or {@link Properties} doesn't exist or the value is an empty string.
+     * @return The property for the value if it exists, <b>null</b> if key or {@link Properties} doesn't exist or the
+     *         value is an empty string.
      */
-    @Nullable String getProperty(final @NotNull String key) {
+    protected @Nullable String getProperty(final @NotNull String key) {
         checkNotNull(key, "Key to fetch property for must not be null.");
         if (properties == null) {
             return null;
@@ -91,7 +89,6 @@ public abstract class PropertiesReader {
      */
     private void loadProperties(final @NotNull File file) throws IOException {
         checkNotNull(file, "File that contains properties must not be null");
-
         try (final FileReader in = new FileReader(file)) {
             properties = new Properties();
             properties.load(in);

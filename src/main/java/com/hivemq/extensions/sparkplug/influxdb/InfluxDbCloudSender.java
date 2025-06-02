@@ -52,7 +52,6 @@ public class InfluxDbCloudSender extends InfluxDbHttpSender {
             final @Nullable String measurementPrefix,
             final @NotNull String organization,
             final @NotNull String bucket) throws Exception {
-
         super(protocol, host, port, "", authToken, timePrecision, connectTimeout, readTimeout, measurementPrefix);
         this.authToken = authToken;
         this.connectTimeout = connectTimeout;
@@ -75,7 +74,8 @@ public class InfluxDbCloudSender extends InfluxDbHttpSender {
         con.setReadTimeout(readTimeout);
         con.setRequestProperty("Content-Encoding", "gzip");
 
-        try (final OutputStream out = con.getOutputStream(); final GZIPOutputStream gzipOutputStream = new GZIPOutputStream(out)) {
+        try (final OutputStream out = con.getOutputStream();
+             final GZIPOutputStream gzipOutputStream = new GZIPOutputStream(out)) {
             gzipOutputStream.write(line);
             gzipOutputStream.flush();
             out.flush();
@@ -83,11 +83,15 @@ public class InfluxDbCloudSender extends InfluxDbHttpSender {
 
         final int responseCode = con.getResponseCode();
 
-        // Check if non 2XX response code.
+        // check if non 2XX response code
         if (responseCode / 100 != 2) {
-            throw new IOException(
-                    "Server returned HTTP response code: " + responseCode + " for URL: " + url + " with content :'"
-                            + con.getResponseMessage() + "'");
+            throw new IOException("Server returned HTTP response code: " +
+                    responseCode +
+                    " for URL: " +
+                    url +
+                    " with content :'" +
+                    con.getResponseMessage() +
+                    "'");
         }
         return responseCode;
     }

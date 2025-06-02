@@ -30,8 +30,10 @@ import org.slf4j.LoggerFactory;
 
 public class MetricsHolder {
 
+    public static final @NotNull String METRIC_ROOT = "sparkplug";
+
     private static final @NotNull Logger log = LoggerFactory.getLogger(MetricsHolder.class);
-    public final @NotNull String METRIC_ROOT = "sparkplug";
+
     private final @NotNull MetricRegistry metricRegistry;
 
     public MetricsHolder(final @NotNull MetricRegistry registry) {
@@ -43,13 +45,14 @@ public class MetricsHolder {
     }
 
     public @NotNull SettableDoubleGauge getStatusMetrics(final @NotNull String eonId, final @Nullable String deviceId) {
-        final @NotNull String metricName = getMetricName(eonId, deviceId, "status");
+        final String metricName = getMetricName(eonId, deviceId, "status");
         return getSettableDoubleGauge(metricName);
     }
 
     private @NotNull String getMetricName(
-            final @NotNull String eonId, final @Nullable String deviceId, final @Nullable String postfix) {
-
+            final @NotNull String eonId,
+            final @Nullable String deviceId,
+            final @Nullable String postfix) {
         String metricName = METRIC_ROOT + "." + eonId + ".";
         if (deviceId != null) {
             metricName += deviceId + ".";
@@ -59,15 +62,17 @@ public class MetricsHolder {
     }
 
     public @NotNull SettableDoubleGauge getDeviceInformationMetricsDouble(
-            final @NotNull String eonId, final @Nullable String deviceId, final @Nullable String information) {
-
+            final @NotNull String eonId,
+            final @Nullable String deviceId,
+            final @Nullable String information) {
         final String metricName = getMetricName(eonId, deviceId, information);
         return getSettableDoubleGauge(metricName);
     }
 
     public @NotNull SettableIntGauge getDeviceInformationMetricsInt(
-            final @NotNull String eonId, final @Nullable String deviceId, final @Nullable String information) {
-
+            final @NotNull String eonId,
+            final @Nullable String deviceId,
+            final @Nullable String information) {
         final String metricName = getMetricName(eonId, deviceId, information);
         if (getMetricRegistry().getMetrics().containsKey(metricName)) {
             return (SettableIntGauge) getMetricRegistry().getMetrics().get(metricName);
@@ -77,8 +82,9 @@ public class MetricsHolder {
     }
 
     public @NotNull SettableLongGauge getDeviceInformationMetricsLong(
-            final @NotNull String eonId, final @Nullable String deviceId, final @Nullable String information) {
-
+            final @NotNull String eonId,
+            final @Nullable String deviceId,
+            final @Nullable String information) {
         final String metricName = getMetricName(eonId, deviceId, information);
         if (getMetricRegistry().getMetrics().containsKey(metricName)) {
             return (SettableLongGauge) getMetricRegistry().getMetrics().get(metricName);
@@ -88,8 +94,9 @@ public class MetricsHolder {
     }
 
     public @NotNull SettableBooleanGauge getDeviceInformationMetricsBoolean(
-            final @NotNull String eonId, final @Nullable String deviceId, final @Nullable String information) {
-
+            final @NotNull String eonId,
+            final @Nullable String deviceId,
+            final @Nullable String information) {
         final String metricName = getMetricName(eonId, deviceId, information);
         if (getMetricRegistry().getMetrics().containsKey(metricName)) {
             return (SettableBooleanGauge) getMetricRegistry().getMetrics().get(metricName);
@@ -107,8 +114,9 @@ public class MetricsHolder {
     }
 
     public @NotNull SettableDoubleGauge getDeviceDataMetrics(
-            final @NotNull String eonId, final @Nullable String deviceId, final @NotNull String metric) {
-
+            final @NotNull String eonId,
+            final @Nullable String deviceId,
+            final @NotNull String metric) {
         final String metricName = getMetricName(eonId, deviceId, metric);
         return getSettableDoubleGauge(metricName);
     }

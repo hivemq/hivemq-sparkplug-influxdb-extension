@@ -54,6 +54,7 @@ testing {
         }
         "test"(JvmTestSuite::class) {
             dependencies {
+                implementation(libs.assertj)
                 implementation(libs.mockito)
                 implementation(libs.wiremock)
                 runtimeOnly(libs.logback.classic)
@@ -69,7 +70,7 @@ testing {
             }
             oci.of(this) {
                 imageDependencies {
-                    runtime("hivemq:hivemq4:4.5.3").tag("latest")
+                    runtime("hivemq:hivemq4:4.40.0").tag("latest")
                 }
             }
         }

@@ -51,7 +51,8 @@ public class SparkplugBInterceptor implements PublishInboundInterceptor {
     private final @NotNull Map<Long, String> aliasToMetric = new HashMap<>();
 
     public SparkplugBInterceptor(
-            final @NotNull MetricsHolder metricsHolder, final @NotNull SparkplugConfiguration configuration) {
+            final @NotNull MetricsHolder metricsHolder,
+            final @NotNull SparkplugConfiguration configuration) {
 
         this.metricsHolder = metricsHolder;
         this.sparkplugVersion = configuration.getSparkplugVersion();
@@ -61,18 +62,15 @@ public class SparkplugBInterceptor implements PublishInboundInterceptor {
     public void onInboundPublish(
             final @NotNull PublishInboundInput publishInboundInput,
             final @NotNull PublishInboundOutput publishInboundOutput) {
-
         if (log.isTraceEnabled()) {
             log.trace("Incoming publish from {}", publishInboundInput.getPublishPacket().getTopic());
         }
-
         final PublishPacket publishPacket = publishInboundInput.getPublishPacket();
         final String topic = publishPacket.getTopic();
         final Optional<ByteBuffer> payload = publishPacket.getPayload();
         final TopicStructure topicStructure = new TopicStructure(topic);
-
         if (payload.isPresent() && topicStructure.isValid(sparkplugVersion)) {
-            //it is a sparkplug publish
+            // it's a Sparkplug publish
             final ByteBuffer byteBuffer = payload.get();
             try {
                 final SparkplugBProto.Payload spPayload = SparkplugBProto.Payload.parseFrom(byteBuffer);
@@ -98,22 +96,19 @@ public class SparkplugBInterceptor implements PublishInboundInterceptor {
     private void generateMetricsFromMessage(
             final @NotNull TopicStructure topicStructure,
             final @NotNull List<SparkplugBProto.Payload.Metric> metricsList) {
-
         if (log.isTraceEnabled()) {
             log.trace("Sparkplug Message type & structure {} ", topicStructure);
         }
-
         if (topicStructure.getScadaId() != null && STATE == topicStructure.getMessageType()) {
             metricsHolder.getStatusMetrics(topicStructure.getScadaId(), null).setValue(1);
         } else {
-            generatMetricForEdgesAndDevices(topicStructure, metricsList);
+            generateMetricForEdgesAndDevices(topicStructure, metricsList);
         }
     }
 
-    private void generatMetricForEdgesAndDevices(
+    private void generateMetricForEdgesAndDevices(
             final @NotNull TopicStructure topicStructure,
             final @NotNull List<SparkplugBProto.Payload.Metric> metricsList) {
-
         if (topicStructure.getEonId() == null) {
             log.error("Edge Node Id is null - Sparkplug Message structure {} ", topicStructure);
             return;
@@ -145,15 +140,25 @@ public class SparkplugBInterceptor implements PublishInboundInterceptor {
                     final long alias = metric.getAlias();
                     final String metricName = aliasToMetric.get(alias);
                     if (metric.hasIntValue()) {
-                        metricsHolder.getDeviceInformationMetricsInt(topicStructure.getEonId(), topicStructure.getDeviceId(), metricName).setValue(metric.getIntValue());
+                        metricsHolder.getDeviceInformationMetricsInt(topicStructure.getEonId(),
+                                topicStructure.getDeviceId(),
+                                metricName).setValue(metric.getIntValue());
                     } else if (metric.hasLongValue()) {
-                        metricsHolder.getDeviceInformationMetricsLong(topicStructure.getEonId(), topicStructure.getDeviceId(), metricName).setValue(metric.getLongValue());
+                        metricsHolder.getDeviceInformationMetricsLong(topicStructure.getEonId(),
+                                topicStructure.getDeviceId(),
+                                metricName).setValue(metric.getLongValue());
                     } else if (metric.hasDoubleValue()) {
-                        metricsHolder.getDeviceInformationMetricsDouble(topicStructure.getEonId(), topicStructure.getDeviceId(), metricName).setValue(metric.getDoubleValue());
+                        metricsHolder.getDeviceInformationMetricsDouble(topicStructure.getEonId(),
+                                topicStructure.getDeviceId(),
+                                metricName).setValue(metric.getDoubleValue());
                     } else if (metric.hasBooleanValue()) {
-                        metricsHolder.getDeviceInformationMetricsBoolean(topicStructure.getEonId(), topicStructure.getDeviceId(), metricName).setValue(metric.getBooleanValue());
+                        metricsHolder.getDeviceInformationMetricsBoolean(topicStructure.getEonId(),
+                                topicStructure.getDeviceId(),
+                                metricName).setValue(metric.getBooleanValue());
                     } else if (metric.hasFloatValue()) {
-                        metricsHolder.getDeviceDataMetrics(topicStructure.getEonId(), topicStructure.getDeviceId(), metricName).setValue(metric.getFloatValue());
+                        metricsHolder.getDeviceDataMetrics(topicStructure.getEonId(),
+                                topicStructure.getDeviceId(),
+                                metricName).setValue(metric.getFloatValue());
                     }
                 }
                 break;

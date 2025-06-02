@@ -30,14 +30,12 @@ class InfluxDbCloudSenderTest {
     @Test
     void test_write_data(final @NotNull WireMockRuntimeInfo wireMockRuntimeInfo) throws Exception {
         final InfluxDbCloudSender sender = new InfluxDbCloudSender("http", "localhost", wireMockRuntimeInfo.getHttpPort(), "token", TimeUnit.MILLISECONDS, 3000, 3000, "", "testorg", "testbucket");
-
         stubFor(post(urlPathEqualTo("/api/v2/write"))
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withBody("")));
 
         sender.writeData("line=line".getBytes());
-
         verify(postRequestedFor(urlEqualTo("/api/v2/write?precision=ms&org=testorg&bucket=testbucket"))
                 .withHeader("Authorization", equalTo("Token token"))
                 .withRequestBody(equalTo("line=line")));

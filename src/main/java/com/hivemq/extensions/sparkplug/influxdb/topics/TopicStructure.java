@@ -27,9 +27,10 @@ import com.hivemq.extension.sdk.api.annotations.Nullable;
 public class TopicStructure {
 
     private final int topicLevels;
+
     private @NotNull String namespace;
     private @NotNull String groupId;
-    private @NotNull MessageType messageType;
+    private @Nullable MessageType messageType;
     private @Nullable String eonId;
     private @Nullable String scadaId;
     private @Nullable String deviceId;
@@ -64,7 +65,7 @@ public class TopicStructure {
         return namespace;
     }
 
-    public @NotNull MessageType getMessageType() {
+    public @Nullable MessageType getMessageType() {
         return messageType;
     }
 
@@ -81,21 +82,33 @@ public class TopicStructure {
     }
 
     public boolean isValid(final @NotNull String sparkplugVersion) {
-        return topicLevels > 3
-                && isValidNamespace(sparkplugVersion)
-                && isValidMessageType()
-                && (scadaId != null || eonId != null);
+        return topicLevels > 3 &&
+                isValidNamespace(sparkplugVersion) &&
+                isValidMessageType() &&
+                (scadaId != null || eonId != null);
     }
 
     @Override
     public @NotNull String toString() {
         return "TopicStructure{" +
-                "namespace='" + namespace + '\'' +
-                ", groupId='" + groupId + '\'' +
-                ", messageType='" + messageType + '\'' +
-                ", eonId='" + eonId + '\'' +
-                ", deviceId='" + deviceId + '\'' +
-                ", scadaId='" + scadaId + '\'' +
+                "namespace='" +
+                namespace +
+                '\'' +
+                ", groupId='" +
+                groupId +
+                '\'' +
+                ", messageType='" +
+                messageType +
+                '\'' +
+                ", eonId='" +
+                eonId +
+                '\'' +
+                ", deviceId='" +
+                deviceId +
+                '\'' +
+                ", scadaId='" +
+                scadaId +
+                '\'' +
                 '}';
     }
 }

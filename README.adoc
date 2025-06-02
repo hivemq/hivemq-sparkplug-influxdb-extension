@@ -21,7 +21,7 @@ This database can be used as the data source for a monitoring dashboard to monit
 
 #**This extension is not yet ready for production use.**#
 
-If you want use this in production, please contact HiveMQ contact@hivemq.com
+If you want to use this in production, please contact HiveMQ contact@hivemq.com.
 
 == Flow
 
