@@ -17,8 +17,8 @@ package com.hivemq.extensions.sparkplug.influxdb.metrics;
 
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
-import com.hivemq.extension.sdk.api.annotations.NotNull;
-import com.hivemq.extension.sdk.api.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +45,7 @@ public class MetricsHolder {
     }
 
     public @NotNull SettableDoubleGauge getStatusMetrics(final @NotNull String eonId, final @Nullable String deviceId) {
-        final String metricName = getMetricName(eonId, deviceId, "status");
+        final var metricName = getMetricName(eonId, deviceId, "status");
         return getSettableDoubleGauge(metricName);
     }
 
@@ -53,7 +53,7 @@ public class MetricsHolder {
             final @NotNull String eonId,
             final @Nullable String deviceId,
             final @Nullable String postfix) {
-        String metricName = METRIC_ROOT + "." + eonId + ".";
+        var metricName = METRIC_ROOT + "." + eonId + ".";
         if (deviceId != null) {
             metricName += deviceId + ".";
         }
@@ -65,7 +65,7 @@ public class MetricsHolder {
             final @NotNull String eonId,
             final @Nullable String deviceId,
             final @Nullable String information) {
-        final String metricName = getMetricName(eonId, deviceId, information);
+        final var metricName = getMetricName(eonId, deviceId, information);
         return getSettableDoubleGauge(metricName);
     }
 
@@ -73,7 +73,7 @@ public class MetricsHolder {
             final @NotNull String eonId,
             final @Nullable String deviceId,
             final @Nullable String information) {
-        final String metricName = getMetricName(eonId, deviceId, information);
+        final var metricName = getMetricName(eonId, deviceId, information);
         if (getMetricRegistry().getMetrics().containsKey(metricName)) {
             return (SettableIntGauge) getMetricRegistry().getMetrics().get(metricName);
         }
@@ -85,7 +85,7 @@ public class MetricsHolder {
             final @NotNull String eonId,
             final @Nullable String deviceId,
             final @Nullable String information) {
-        final String metricName = getMetricName(eonId, deviceId, information);
+        final var metricName = getMetricName(eonId, deviceId, information);
         if (getMetricRegistry().getMetrics().containsKey(metricName)) {
             return (SettableLongGauge) getMetricRegistry().getMetrics().get(metricName);
         }
@@ -97,7 +97,7 @@ public class MetricsHolder {
             final @NotNull String eonId,
             final @Nullable String deviceId,
             final @Nullable String information) {
-        final String metricName = getMetricName(eonId, deviceId, information);
+        final var metricName = getMetricName(eonId, deviceId, information);
         if (getMetricRegistry().getMetrics().containsKey(metricName)) {
             return (SettableBooleanGauge) getMetricRegistry().getMetrics().get(metricName);
         }
@@ -117,7 +117,7 @@ public class MetricsHolder {
             final @NotNull String eonId,
             final @Nullable String deviceId,
             final @NotNull String metric) {
-        final String metricName = getMetricName(eonId, deviceId, metric);
+        final var metricName = getMetricName(eonId, deviceId, metric);
         return getSettableDoubleGauge(metricName);
     }
 

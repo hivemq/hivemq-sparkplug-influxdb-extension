@@ -17,7 +17,7 @@ package com.hivemq.extensions.sparkplug.influxdb.metrics;
 
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.Metric;
-import com.hivemq.extension.sdk.api.annotations.NotNull;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * <p>

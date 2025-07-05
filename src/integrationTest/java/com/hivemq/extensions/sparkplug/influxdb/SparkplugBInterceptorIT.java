@@ -15,7 +15,6 @@
  */
 package com.hivemq.extensions.sparkplug.influxdb;
 
-import com.hivemq.client.mqtt.mqtt5.Mqtt5BlockingClient;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5Client;
 import com.hivemq.client.mqtt.mqtt5.message.disconnect.Mqtt5DisconnectReasonCode;
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish;
@@ -47,16 +46,16 @@ class SparkplugBInterceptorIT {
     @Test
     @Timeout(value = 3, unit = TimeUnit.MINUTES)
     void test_DBIRTH() throws Exception {
-        final String DEATH_TOPIC = "spBv1.0/group1/NDEATH/eon1";
-        final String BIRTH_TOPIC = "spBv1.0/group1/NBIRTH/eon1";
+        final var deathTopic = "spBv1.0/group1/NDEATH/eon1";
+        final var birthTopic = "spBv1.0/group1/NBIRTH/eon1";
 
-        final Mqtt5BlockingClient client = Mqtt5Client.builder()
+        final var client = Mqtt5Client.builder()
                 .serverHost("localhost")
                 .serverPort(container.getMqttPort())
                 .identifier("EON1")
                 .buildBlocking();
 
-        final Mqtt5BlockingClient subscriber = Mqtt5Client.builder()
+        final var subscriber = Mqtt5Client.builder()
                 .serverHost("localhost")
                 .serverPort(container.getMqttPort())
                 .identifier("SCADA")
@@ -64,27 +63,26 @@ class SparkplugBInterceptorIT {
 
         subscriber.connect();
 
-        final CompletableFuture<Mqtt5Publish> publishBIRTH = new CompletableFuture<>();
-        final CompletableFuture<Mqtt5Publish> publishDEATH = new CompletableFuture<>();
-        subscriber.toAsync().subscribeWith().topicFilter(BIRTH_TOPIC).callback(publishBIRTH::complete).send().get();
-        subscriber.toAsync().subscribeWith().topicFilter(DEATH_TOPIC).callback(publishDEATH::complete).send().get();
+        final var publishBIRTH = new CompletableFuture<Mqtt5Publish>();
+        final var publishDEATH = new CompletableFuture<Mqtt5Publish>();
+        subscriber.toAsync().subscribeWith().topicFilter(birthTopic).callback(publishBIRTH::complete).send().get();
+        subscriber.toAsync().subscribeWith().topicFilter(deathTopic).callback(publishDEATH::complete).send().get();
 
-        final Mqtt5Publish will =
-                Mqtt5Publish.builder().topic(DEATH_TOPIC).payload("".getBytes(StandardCharsets.UTF_8)).build();
+        final var will = Mqtt5Publish.builder().topic(deathTopic).payload("".getBytes(StandardCharsets.UTF_8)).build();
         client.connectWith().willPublish(will).send();
 
-        final Mqtt5Publish birthPublish =
-                Mqtt5Publish.builder().topic(BIRTH_TOPIC).payload("".getBytes(StandardCharsets.UTF_8)).build();
+        final var birthPublish =
+                Mqtt5Publish.builder().topic(birthTopic).payload("".getBytes(StandardCharsets.UTF_8)).build();
         client.publish(birthPublish);
 
-        final Mqtt5Publish birth = publishBIRTH.get();
-        assertEquals(BIRTH_TOPIC, birth.getTopic().toString());
+        final var birth = publishBIRTH.get();
+        assertEquals(birthTopic, birth.getTopic().toString());
 
         // disconnect triggers a death certificate
         client.disconnectWith().reasonCode(Mqtt5DisconnectReasonCode.DISCONNECT_WITH_WILL_MESSAGE).send();
 
-        final Mqtt5Publish death = publishDEATH.get();
-        assertEquals(DEATH_TOPIC, death.getTopic().toString());
+        final var death = publishDEATH.get();
+        assertEquals(deathTopic, death.getTopic().toString());
 
         subscriber.disconnect();
     }

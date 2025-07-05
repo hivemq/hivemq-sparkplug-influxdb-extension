@@ -15,8 +15,8 @@
  */
 package com.hivemq.extensions.sparkplug.influxdb.topics;
 
-import com.hivemq.extension.sdk.api.annotations.NotNull;
-import com.hivemq.extension.sdk.api.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Topic structure meta object to create sparkplug structure and
@@ -31,12 +31,12 @@ public class TopicStructure {
     private @NotNull String namespace;
     private @NotNull String groupId;
     private @Nullable MessageType messageType;
-    private @Nullable String eonId;
     private @Nullable String scadaId;
+    private @Nullable String eonId;
     private @Nullable String deviceId;
 
     public TopicStructure(final @NotNull String topic) {
-        final String[] arr = topic.split("/");
+        final var arr = topic.split("/");
         topicLevels = arr.length;
         if (topicLevels >= 4) {
             namespace = arr[0];
@@ -69,12 +69,12 @@ public class TopicStructure {
         return messageType;
     }
 
-    public @Nullable String getEonId() {
-        return eonId;
-    }
-
     public @Nullable String getScadaId() {
         return scadaId;
+    }
+
+    public @Nullable String getEonId() {
+        return eonId;
     }
 
     public @Nullable String getDeviceId() {
@@ -93,22 +93,16 @@ public class TopicStructure {
         return "TopicStructure{" +
                 "namespace='" +
                 namespace +
-                '\'' +
-                ", groupId='" +
+                "', groupId='" +
                 groupId +
-                '\'' +
-                ", messageType='" +
+                "', messageType='" +
                 messageType +
-                '\'' +
-                ", eonId='" +
+                "', eonId='" +
                 eonId +
-                '\'' +
-                ", deviceId='" +
+                "', deviceId='" +
                 deviceId +
-                '\'' +
-                ", scadaId='" +
+                "', scadaId='" +
                 scadaId +
-                '\'' +
-                '}';
+                "'}";
     }
 }

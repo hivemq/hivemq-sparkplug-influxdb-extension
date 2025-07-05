@@ -17,27 +17,40 @@ package com.hivemq.extensions.sparkplug.influxdb;
 
 import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
-import com.hivemq.extension.sdk.api.annotations.NotNull;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.TimeUnit;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 
 @WireMockTest
 class InfluxDbCloudSenderTest {
 
     @Test
     void test_write_data(final @NotNull WireMockRuntimeInfo wireMockRuntimeInfo) throws Exception {
-        final InfluxDbCloudSender sender = new InfluxDbCloudSender("http", "localhost", wireMockRuntimeInfo.getHttpPort(), "token", TimeUnit.MILLISECONDS, 3000, 3000, "", "testorg", "testbucket");
-        stubFor(post(urlPathEqualTo("/api/v2/write"))
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withBody("")));
+        final var sender = new InfluxDbCloudSender("http",
+                "localhost",
+                wireMockRuntimeInfo.getHttpPort(),
+                "token",
+                TimeUnit.MILLISECONDS,
+                3000,
+                3000,
+                "",
+                "testorg",
+                "testbucket");
+        stubFor(post(urlPathEqualTo("/api/v2/write")).willReturn(aResponse().withStatus(200).withBody("")));
 
         sender.writeData("line=line".getBytes());
-        verify(postRequestedFor(urlEqualTo("/api/v2/write?precision=ms&org=testorg&bucket=testbucket"))
-                .withHeader("Authorization", equalTo("Token token"))
-                .withRequestBody(equalTo("line=line")));
+        verify(postRequestedFor(urlEqualTo("/api/v2/write?precision=ms&org=testorg&bucket=testbucket")).withHeader(
+                "Authorization",
+                equalTo("Token token")).withRequestBody(equalTo("line=line")));
     }
 }

@@ -16,7 +16,6 @@
 package com.hivemq.extensions.sparkplug.influxdb;
 
 import com.hivemq.extension.sdk.api.annotations.NotNull;
-import com.hivemq.extension.sdk.api.parameter.ExtensionInformation;
 import com.hivemq.extension.sdk.api.parameter.ExtensionStartInput;
 import com.hivemq.extension.sdk.api.parameter.ExtensionStartOutput;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,22 +34,19 @@ import static org.mockito.Mockito.when;
 
 class SparkplugExtensionMainTest {
 
-    private @NotNull SparkplugExtensionMain main;
-    private @NotNull ExtensionStartInput extensionStartInput;
-    private @NotNull ExtensionStartOutput extensionStartOutput;
-    private @NotNull Path file;
+    private final @NotNull ExtensionStartInput extensionStartInput = mock();
+    private final @NotNull ExtensionStartOutput extensionStartOutput = mock();
+
+    private final @NotNull SparkplugExtensionMain main = new SparkplugExtensionMain();
+
+    private @NotNull Path properties;
 
     @BeforeEach
     void setUp(final @TempDir @NotNull Path tempDir) {
-        main = new SparkplugExtensionMain();
-
-        extensionStartInput = mock(ExtensionStartInput.class);
-        extensionStartOutput = mock(ExtensionStartOutput.class);
-        final ExtensionInformation extensionInformation = mock(ExtensionInformation.class);
-        when(extensionStartInput.getExtensionInformation()).thenReturn(extensionInformation);
+        when(extensionStartInput.getExtensionInformation()).thenReturn(mock());
         when(extensionStartInput.getExtensionInformation().getExtensionHomeFolder()).thenReturn(tempDir.toFile());
 
-        file = tempDir.resolve("sparkplug.properties");
+        properties = tempDir.resolve("sparkplug.properties");
     }
 
     @Test
@@ -61,7 +57,7 @@ class SparkplugExtensionMainTest {
 
     @Test
     void extensionStart_whenConfigurationFileNotValid_thenPreventStartup() throws IOException {
-        Files.write(file, List.of("influxdb.host:localhost", "influxdb.port: -3000"));
+        Files.write(properties, List.of("influxdb.host:localhost", "influxdb.port: -3000"));
 
         main.extensionStart(extensionStartInput, extensionStartOutput);
         verify(extensionStartOutput).preventExtensionStartup(anyString());

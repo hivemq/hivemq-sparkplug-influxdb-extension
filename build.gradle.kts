@@ -27,6 +27,7 @@ java {
 }
 
 dependencies {
+    compileOnly(libs.jetbrains.annotations)
     implementation(libs.protobuf)
     implementation(libs.dropwizard.metrics.influxdb)
     implementation(libs.commonsLang)
@@ -54,6 +55,7 @@ testing {
         }
         "test"(JvmTestSuite::class) {
             dependencies {
+                compileOnly(libs.jetbrains.annotations)
                 implementation(libs.assertj)
                 implementation(libs.mockito)
                 implementation(libs.wiremock)
@@ -62,6 +64,7 @@ testing {
         }
         "integrationTest"(JvmTestSuite::class) {
             dependencies {
+                compileOnly(libs.jetbrains.annotations)
                 implementation(libs.testcontainers.junitJupiter)
                 implementation(libs.testcontainers.hivemq)
                 implementation(libs.gradleOci.junitJupiter)

@@ -15,23 +15,20 @@
  */
 package com.hivemq.extensions.sparkplug.influxdb;
 
-import com.hivemq.extension.sdk.api.annotations.NotNull;
 import com.hivemq.extension.sdk.api.interceptor.publish.PublishInboundInterceptor;
 import com.hivemq.extension.sdk.api.interceptor.publish.parameter.PublishInboundInput;
 import com.hivemq.extension.sdk.api.interceptor.publish.parameter.PublishInboundOutput;
-import com.hivemq.extension.sdk.api.packets.publish.PublishPacket;
 import com.hivemq.extensions.sparkplug.influxdb.configuration.SparkplugConfiguration;
 import com.hivemq.extensions.sparkplug.influxdb.metrics.MetricsHolder;
 import com.hivemq.extensions.sparkplug.influxdb.topics.TopicStructure;
 import org.eclipse.tahu.protobuf.SparkplugBProto;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import static com.hivemq.extensions.sparkplug.influxdb.topics.MessageType.STATE;
 
@@ -53,7 +50,6 @@ public class SparkplugBInterceptor implements PublishInboundInterceptor {
     public SparkplugBInterceptor(
             final @NotNull MetricsHolder metricsHolder,
             final @NotNull SparkplugConfiguration configuration) {
-
         this.metricsHolder = metricsHolder;
         this.sparkplugVersion = configuration.getSparkplugVersion();
     }
@@ -65,24 +61,23 @@ public class SparkplugBInterceptor implements PublishInboundInterceptor {
         if (log.isTraceEnabled()) {
             log.trace("Incoming publish from {}", publishInboundInput.getPublishPacket().getTopic());
         }
-        final PublishPacket publishPacket = publishInboundInput.getPublishPacket();
-        final String topic = publishPacket.getTopic();
-        final Optional<ByteBuffer> payload = publishPacket.getPayload();
-        final TopicStructure topicStructure = new TopicStructure(topic);
+        final var publishPacket = publishInboundInput.getPublishPacket();
+        final var topic = publishPacket.getTopic();
+        final var payload = publishPacket.getPayload();
+        final var topicStructure = new TopicStructure(topic);
         if (payload.isPresent() && topicStructure.isValid(sparkplugVersion)) {
             // it's a Sparkplug publish
-            final ByteBuffer byteBuffer = payload.get();
+            final var byteBuffer = payload.get();
             try {
-                final SparkplugBProto.Payload spPayload = SparkplugBProto.Payload.parseFrom(byteBuffer);
-                final List<SparkplugBProto.Payload.Metric> metricsList = spPayload.getMetricsList();
-                for (final SparkplugBProto.Payload.Metric metric : metricsList) {
+                final var spPayload = SparkplugBProto.Payload.parseFrom(byteBuffer);
+                final var metricsList = spPayload.getMetricsList();
+                for (final var metric : metricsList) {
                     aliasToMetric.put(metric.getAlias(), metric.getName());
                     if (log.isTraceEnabled()) {
                         log.trace("Add Metric Mapping (Alias={}, MetricName={})", metric.getAlias(), metric.getName());
                     }
                 }
                 generateMetricsFromMessage(topicStructure, metricsList);
-
             } catch (final Exception e) {
                 log.error("Could not parse MQTT payload to protobuf", e);
             }
@@ -136,9 +131,9 @@ public class SparkplugBInterceptor implements PublishInboundInterceptor {
             }
             case DDATA:
             case NDATA: {
-                for (final SparkplugBProto.Payload.Metric metric : metricsList) {
-                    final long alias = metric.getAlias();
-                    final String metricName = aliasToMetric.get(alias);
+                for (final var metric : metricsList) {
+                    final var alias = metric.getAlias();
+                    final var metricName = aliasToMetric.get(alias);
                     if (metric.hasIntValue()) {
                         metricsHolder.getDeviceInformationMetricsInt(topicStructure.getEonId(),
                                 topicStructure.getDeviceId(),

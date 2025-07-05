@@ -18,10 +18,7 @@ package com.hivemq.extensions.sparkplug.influxdb;
 import com.codahale.metrics.MetricFilter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.ScheduledReporter;
-import com.google.common.collect.Sets;
 import com.hivemq.extension.sdk.api.ExtensionMain;
-import com.hivemq.extension.sdk.api.annotations.NotNull;
-import com.hivemq.extension.sdk.api.annotations.Nullable;
 import com.hivemq.extension.sdk.api.parameter.ExtensionStartInput;
 import com.hivemq.extension.sdk.api.parameter.ExtensionStartOutput;
 import com.hivemq.extension.sdk.api.parameter.ExtensionStopInput;
@@ -34,15 +31,15 @@ import com.izettle.metrics.influxdb.InfluxDbReporter;
 import com.izettle.metrics.influxdb.InfluxDbSender;
 import com.izettle.metrics.influxdb.InfluxDbTcpSender;
 import com.izettle.metrics.influxdb.InfluxDbUdpSender;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Main entrypoint for sparkplug extension
@@ -53,9 +50,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class SparkplugExtensionMain implements ExtensionMain {
 
-    private static final @NotNull HashSet<String> METER_FIELDS =
-            Sets.newHashSet("count", "m1_rate", "m5_rate", "m15_rate", "mean_rate");
-    private static final @NotNull HashSet<String> TIMER_FIELDS = Sets.newHashSet("count",
+    private static final @NotNull Set<String> METER_FIELDS =
+            Set.of("count", "m1_rate", "m5_rate", "m15_rate", "mean_rate");
+    private static final @NotNull Set<String> TIMER_FIELDS = Set.of("count",
             "min",
             "max",
             "mean",
@@ -80,14 +77,13 @@ public class SparkplugExtensionMain implements ExtensionMain {
             final @NotNull ExtensionStartInput extensionStartInput,
             final @NotNull ExtensionStartOutput extensionStartOutput) {
         try {
-            final File extensionHomeFolder = extensionStartInput.getExtensionInformation().getExtensionHomeFolder();
+            final var extensionHomeFolder = extensionStartInput.getExtensionInformation().getExtensionHomeFolder();
             // read & validate configuration
-            final SparkplugConfiguration configuration =
-                    configurationValidated(extensionStartOutput, extensionHomeFolder);
+            final var configuration = configurationValidated(extensionStartOutput, extensionHomeFolder);
             if (configuration == null) {
                 return;
             }
-            final InfluxDbSender sender = setupSender(configuration);
+            final var sender = setupSender(configuration);
             if (sender == null) {
                 extensionStartOutput.preventExtensionStartup(
                         "Couldn't create an influxdb sender. Please check that the configuration is correct");
@@ -114,7 +110,7 @@ public class SparkplugExtensionMain implements ExtensionMain {
     private @Nullable SparkplugConfiguration configurationValidated(
             final @NotNull ExtensionStartOutput extensionStartOutput,
             final @NotNull File extensionHomeFolder) {
-        final SparkplugConfiguration configuration = new SparkplugConfiguration(extensionHomeFolder);
+        final var configuration = new SparkplugConfiguration(extensionHomeFolder);
         if (!configuration.readPropertiesFromFile()) {
             extensionStartOutput.preventExtensionStartup("Could not read influxdb properties");
             return null;
@@ -127,8 +123,8 @@ public class SparkplugExtensionMain implements ExtensionMain {
     }
 
     private void initializeSparkplugMetricsInterceptor(final @NotNull SparkplugConfiguration configuration) {
-        final MetricsHolder metricsHolder = new MetricsHolder(Services.metricRegistry());
-        final SparkplugBInterceptor sparkplugBInterceptor = new SparkplugBInterceptor(metricsHolder, configuration);
+        final var metricsHolder = new MetricsHolder(Services.metricRegistry());
+        final var sparkplugBInterceptor = new SparkplugBInterceptor(metricsHolder, configuration);
         Services.initializerRegistry()
                 .setClientInitializer((initializerInput, clientContext) -> clientContext.addPublishInboundInterceptor(
                         sparkplugBInterceptor));
@@ -138,11 +134,10 @@ public class SparkplugExtensionMain implements ExtensionMain {
             final @NotNull MetricRegistry metricRegistry,
             final @NotNull InfluxDbSender sender,
             final @NotNull SparkplugConfiguration configuration) {
-        checkNotNull(metricRegistry, "MetricRegistry for influxdb must not be null");
-        checkNotNull(sender, "InfluxDbSender for influxdb must not be null");
-        final Map<String, String> tags = configuration.getTags();
+        Objects.requireNonNull(metricRegistry, "MetricRegistry for influxdb must not be null");
+        Objects.requireNonNull(sender, "InfluxDbSender for influxdb must not be null");
         return InfluxDbReporter.forRegistry(metricRegistry)
-                .withTags(tags)
+                .withTags(configuration.getTags())
                 .convertRatesTo(TimeUnit.SECONDS)
                 .convertDurationsTo(TimeUnit.MILLISECONDS)
                 .filter(MetricFilter.ALL)
@@ -154,20 +149,19 @@ public class SparkplugExtensionMain implements ExtensionMain {
     }
 
     private @Nullable InfluxDbSender setupSender(final @NotNull SparkplugConfiguration configuration) {
-        final String host = configuration.getHost();
-        final int port = configuration.getPort();
-        final String protocol = configuration.getProtocol();
-        final String database = configuration.getDatabase();
-        final String auth = configuration.getAuth();
-        final int connectTimeout = configuration.getConnectTimeout();
-        final String prefix = configuration.getPrefix();
+        final var host = configuration.getHost();
+        final var port = configuration.getPort();
+        final var protocol = configuration.getProtocol();
+        final var database = configuration.getDatabase();
+        final var auth = configuration.getAuth();
+        final var connectTimeout = configuration.getConnectTimeout();
+        final var prefix = configuration.getPrefix();
 
         // cloud
-        final String bucket = configuration.getBucket();
-        final String organization = configuration.getOrganization();
+        final var bucket = configuration.getBucket();
+        final var organization = configuration.getOrganization();
 
         InfluxDbSender sender = null;
-
         try {
             switch (configuration.getMode()) {
                 case "http":
@@ -195,8 +189,8 @@ public class SparkplugExtensionMain implements ExtensionMain {
                             host,
                             bucket,
                             organization);
-                    checkNotNull(bucket, "Bucket name must be defined in cloud mode");
-                    checkNotNull(organization, "Organization must be defined in cloud mode");
+                    Objects.requireNonNull(bucket, "Bucket name must be defined in cloud mode");
+                    Objects.requireNonNull(organization, "Organization must be defined in cloud mode");
                     sender = new InfluxDbCloudSender(protocol,
                             host,
                             port,
@@ -210,11 +204,10 @@ public class SparkplugExtensionMain implements ExtensionMain {
                     break;
 
             }
-        } catch (final Exception ex) {
-            log.error("Not able to start InfluxDB sender, please check your configuration: {}", ex.getMessage());
-            log.debug("Original Exception: ", ex);
+        } catch (final Exception e) {
+            log.error("Not able to start InfluxDB sender, please check your configuration: {}", e.getMessage());
+            log.debug("Original Exception: ", e);
         }
-
         return sender;
     }
 }

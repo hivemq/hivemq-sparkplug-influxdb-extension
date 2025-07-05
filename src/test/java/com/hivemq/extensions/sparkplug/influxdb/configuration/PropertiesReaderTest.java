@@ -15,7 +15,7 @@
  */
 package com.hivemq.extensions.sparkplug.influxdb.configuration;
 
-import com.hivemq.extension.sdk.api.annotations.NotNull;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -26,14 +26,12 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PropertiesReaderTest {
 
     @Test
     void readPropertiesFromFile_file_null() {
+        //noinspection DataFlowIssue
         assertThatThrownBy(() -> new PropertiesReader(null) {
             @Override
             public @NotNull String getFilename() {
@@ -44,7 +42,7 @@ class PropertiesReaderTest {
 
     @Test
     void readPropertiesFromFile_file_does_not_exist(final @TempDir @NotNull Path tempDir) {
-        final PropertiesReader propertiesReader = new PropertiesReader(tempDir.toFile()) {
+        final var propertiesReader = new PropertiesReader(tempDir.toFile()) {
             @Override
             public @NotNull String getFilename() {
                 return "test";
@@ -57,7 +55,7 @@ class PropertiesReaderTest {
     void readPropertiesFromFile_file_does_exist(final @TempDir @NotNull Path tempDir) throws IOException {
         assertThat(tempDir.resolve("test").toFile().createNewFile()).isTrue();
 
-        final PropertiesReader propertiesReader = new PropertiesReader(tempDir.toFile()) {
+        final var propertiesReader = new PropertiesReader(tempDir.toFile()) {
             @Override
             public @NotNull String getFilename() {
                 return "test";
@@ -68,11 +66,11 @@ class PropertiesReaderTest {
 
     @Test
     void getProperty_key_null(final @TempDir @NotNull Path tempDir) throws IOException {
-        final Path file = tempDir.resolve("test");
+        final var file = tempDir.resolve("test");
         assertThat(file.toFile().createNewFile()).isTrue();
         Files.write(file, List.of("key:value"));
 
-        final PropertiesReader propertiesReader = new PropertiesReader(tempDir.toFile()) {
+        final var propertiesReader = new PropertiesReader(tempDir.toFile()) {
             @Override
             public @NotNull String getFilename() {
                 return "test";
@@ -81,16 +79,17 @@ class PropertiesReaderTest {
         assertThat(propertiesReader.readPropertiesFromFile()).isTrue();
         assertThat(propertiesReader.getProperty("key")).isEqualTo("value");
 
+        //noinspection DataFlowIssue
         assertThatThrownBy(() -> propertiesReader.getProperty(null)).isInstanceOf(NullPointerException.class);
     }
 
     @Test
     void getProperty_key_doesnt_exist(final @TempDir @NotNull Path tempDir) throws IOException {
-        final Path file = tempDir.resolve("test");
+        final var file = tempDir.resolve("test");
         assertThat(file.toFile().createNewFile()).isTrue();
         Files.write(file, List.of("key:value"));
 
-        final PropertiesReader propertiesReader = new PropertiesReader(tempDir.toFile()) {
+        final var propertiesReader = new PropertiesReader(tempDir.toFile()) {
             @Override
             public @NotNull String getFilename() {
                 return "test";
@@ -104,11 +103,11 @@ class PropertiesReaderTest {
 
     @Test
     void getProperty_key_exists(final @TempDir @NotNull Path tempDir) throws IOException {
-        final Path file = tempDir.resolve("test");
+        final var file = tempDir.resolve("test");
         assertThat(file.toFile().createNewFile()).isTrue();
         Files.write(file, List.of("key:value"));
 
-        final PropertiesReader propertiesReader = new PropertiesReader(tempDir.toFile()) {
+        final var propertiesReader = new PropertiesReader(tempDir.toFile()) {
             @Override
             public @NotNull String getFilename() {
                 return "test";
@@ -120,11 +119,11 @@ class PropertiesReaderTest {
 
     @Test
     void getProperty_before_loading_properties(final @TempDir @NotNull Path tempDir) throws IOException {
-        final Path file = tempDir.resolve("test");
+        final var file = tempDir.resolve("test");
         assertThat(file.toFile().createNewFile()).isTrue();
         Files.write(file, List.of("key:value"));
 
-        final PropertiesReader propertiesReader = new PropertiesReader(tempDir.toFile()) {
+        final var propertiesReader = new PropertiesReader(tempDir.toFile()) {
             @Override
             public @NotNull String getFilename() {
                 return "test";
