@@ -32,4 +32,4 @@ defaults = { id = "io.github.sgtsilvio.gradle.defaults", version = "0.2.0" }
 hivemq-extension = { id = "com.hivemq.extension", version = "4.0.0" }
 license = { id = "com.github.hierynomus.license", version = "0.16.1" }
 oci = { id = "io.github.sgtsilvio.gradle.oci", version = "0.24.0" }
-protobuf = { id = "com.google.protobuf", version = "0.9.4" }
+protobuf = { id = "com.google.protobuf", version = "0.9.5" }
