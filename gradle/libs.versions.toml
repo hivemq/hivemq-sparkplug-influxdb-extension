@@ -10,7 +10,7 @@ junit-jupiter = "5.10.0"
 logback = "1.5.21"
 mockito = "5.20.0"
 protobuf = "3.25.8"
-testcontainers = "1.21.3"
+testcontainers = "2.0.2"
 wiremock = "3.13.2"
 
 [libraries]
@@ -23,8 +23,9 @@ hivemq-mqttClient = { module = "com.hivemq:hivemq-mqtt-client", version.ref = "h
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 mockito = { module = "org.mockito:mockito-core", version.ref = "mockito" }
 protobuf = { module = "com.google.protobuf:protobuf-java", version.ref = "protobuf" }
-testcontainers-hivemq = { module = "org.testcontainers:hivemq", version.ref = "testcontainers" }
-testcontainers-junitJupiter = { module = "org.testcontainers:junit-jupiter", version.ref = "testcontainers" }
+testcontainers = { module = "org.testcontainers:testcontainers", version.ref = "testcontainers" }
+testcontainers-hivemq = { module = "org.testcontainers:testcontainers-hivemq", version.ref = "testcontainers" }
+testcontainers-junitJupiter = { module = "org.testcontainers:testcontainers-junit-jupiter", version.ref = "testcontainers" }
 wiremock = { module = "org.wiremock:wiremock", version.ref = "wiremock" }
 
 [plugins]

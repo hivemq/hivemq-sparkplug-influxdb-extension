@@ -65,8 +65,9 @@ testing {
         "integrationTest"(JvmTestSuite::class) {
             dependencies {
                 compileOnly(libs.jetbrains.annotations)
-                implementation(libs.testcontainers.junitJupiter)
+                implementation(libs.testcontainers)
                 implementation(libs.testcontainers.hivemq)
+                implementation(libs.testcontainers.junitJupiter)
                 implementation(libs.gradleOci.junitJupiter)
                 implementation(libs.hivemq.mqttClient)
                 runtimeOnly(libs.logback.classic)

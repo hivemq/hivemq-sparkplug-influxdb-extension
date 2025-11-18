@@ -41,7 +41,8 @@ class SparkplugBInterceptorIT {
     final @NotNull HiveMQContainer container = new HiveMQContainer(OciImages.getImageName("hivemq/hivemq4")) //
             .withExtension(MountableFile.forClasspathResource("hivemq-sparkplug-extension"))
             .waitForExtension("HiveMQ Sparkplug Extension")
-            .withLogLevel(Level.TRACE);
+            .withLogLevel(Level.TRACE)
+            .withEnv("HIVEMQ_DISABLE_STATISTICS", "true");
 
     @Test
     @Timeout(value = 3, unit = TimeUnit.MINUTES)
