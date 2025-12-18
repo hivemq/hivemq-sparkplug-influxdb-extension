@@ -25,7 +25,6 @@ import org.junit.jupiter.api.io.TempDir;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -36,13 +35,15 @@ class SparkplugExtensionMainTest {
 
     private final @NotNull ExtensionStartInput extensionStartInput = mock();
     private final @NotNull ExtensionStartOutput extensionStartOutput = mock();
-
     private final @NotNull SparkplugExtensionMain main = new SparkplugExtensionMain();
 
     private @NotNull Path properties;
 
+    @TempDir
+    private @NotNull Path tempDir;
+
     @BeforeEach
-    void setUp(final @TempDir @NotNull Path tempDir) {
+    void setUp() {
         when(extensionStartInput.getExtensionInformation()).thenReturn(mock());
         when(extensionStartInput.getExtensionInformation().getExtensionHomeFolder()).thenReturn(tempDir.toFile());
 
@@ -57,7 +58,10 @@ class SparkplugExtensionMainTest {
 
     @Test
     void extensionStart_whenConfigurationFileNotValid_thenPreventStartup() throws IOException {
-        Files.write(properties, List.of("influxdb.host:localhost", "influxdb.port: -3000"));
+        Files.write(properties, """
+                influxdb.host:localhost
+                influxdb.port: -3000
+                """.lines().toList());
 
         main.extensionStart(extensionStartInput, extensionStartOutput);
         verify(extensionStartOutput).preventExtensionStartup(anyString());

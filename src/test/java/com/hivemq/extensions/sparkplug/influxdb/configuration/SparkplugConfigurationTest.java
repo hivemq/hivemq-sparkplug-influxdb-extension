@@ -32,8 +32,11 @@ class SparkplugConfigurationTest {
     private @NotNull SparkplugConfiguration sparkplugConfiguration;
     private @NotNull Path file;
 
+    @TempDir
+    private @NotNull Path tempDir;
+
     @BeforeEach
-    void setUp(final @TempDir @NotNull Path tempDir) {
+    void setUp() {
         sparkplugConfiguration = new SparkplugConfiguration(tempDir.toFile());
         file = tempDir.resolve("sparkplug.properties");
     }
@@ -92,17 +95,18 @@ class SparkplugConfigurationTest {
 
     @Test
     void all_properties_empty() throws Exception {
-        Files.write(file,
-                List.of("influxdb.mode:",
-                        "influxdb.host:",
-                        "influxdb.port:",
-                        "influxdb.tags:",
-                        "influxdb.prefix:",
-                        "influxdb.protocol:",
-                        "influxdb.database:",
-                        "influxdb.connectTimeout:",
-                        "influxdb.reportingInterval:",
-                        "influxdb.auth:"));
+        Files.write(file, """
+                influxdb.mode:
+                influxdb.host:
+                influxdb.port:
+                influxdb.tags:
+                influxdb.prefix:
+                influxdb.protocol:
+                influxdb.database:
+                influxdb.connectTimeout:
+                influxdb.reportingInterval:
+                influxdb.auth:
+                """.lines().toList());
 
         assertThat(sparkplugConfiguration.readPropertiesFromFile()).isTrue();
         assertThat(sparkplugConfiguration.validateConfiguration()).isFalse();
@@ -138,17 +142,18 @@ class SparkplugConfigurationTest {
 
     @Test
     void all_properties_have_correct_values() throws Exception {
-        Files.write(file,
-                List.of("influxdb.mode:tcp",
-                        "influxdb.host:hivemq.monitoring.com",
-                        "influxdb.port:3000",
-                        "influxdb.tags:host=hivemq1;version=3.4.1",
-                        "influxdb.prefix:node1",
-                        "influxdb.protocol:tcp",
-                        "influxdb.database:test-hivemq",
-                        "influxdb.connectTimeout:10000",
-                        "influxdb.reportingInterval:5",
-                        "influxdb.auth:username:password"));
+        Files.write(file, """
+                influxdb.mode:tcp
+                influxdb.host:hivemq.monitoring.com
+                influxdb.port:3000
+                influxdb.tags:host=hivemq1;version=3.4.1
+                influxdb.prefix:node1
+                influxdb.protocol:tcp
+                influxdb.database:test-hivemq
+                influxdb.connectTimeout:10000
+                influxdb.reportingInterval:5
+                influxdb.auth:username:password
+                """.lines().toList());
 
         assertThat(sparkplugConfiguration.readPropertiesFromFile()).isTrue();
         assertThat(sparkplugConfiguration.validateConfiguration()).isTrue();
@@ -211,11 +216,12 @@ class SparkplugConfigurationTest {
 
     @Test
     void properties_that_are_numbers_have_invalid_string() throws Exception {
-        Files.write(file,
-                List.of("host:test",
-                        "influxdb.port:800000",
-                        "influxdb.reportingInterval:0",
-                        "influxdb.connectTimeout:-1"));
+        Files.write(file, """
+                host:test
+                influxdb.port:800000
+                influxdb.reportingInterval:0
+                influxdb.connectTimeout:-1
+                """.lines().toList());
 
         assertThat(sparkplugConfiguration.readPropertiesFromFile()).isTrue();
         // false because port is out of range
@@ -244,11 +250,12 @@ class SparkplugConfigurationTest {
 
     @Test
     void validateConfiguration_cloud_ok() throws Exception {
-        Files.write(file,
-                List.of("influxdb.mode:cloud",
-                        "influxdb.host:localhost",
-                        "influxdb.token:mytoken",
-                        "influxdb.bucket:mybucket"));
+        Files.write(file, """
+                influxdb.mode:cloud
+                influxdb.host:localhost
+                influxdb.token:mytoken
+                influxdb.bucket:mybucket
+                """.lines().toList());
 
         assertThat(sparkplugConfiguration.readPropertiesFromFile()).isTrue();
         assertThat(sparkplugConfiguration.validateConfiguration()).isFalse();

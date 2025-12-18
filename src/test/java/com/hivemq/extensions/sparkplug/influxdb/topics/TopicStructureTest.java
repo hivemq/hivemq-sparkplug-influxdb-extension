@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class TopicStructureTest {
 
-    private final @NotNull String VERSION = "spBv1.0";
+    private static final @NotNull String VERSION = "spBv1.0";
 
     @Test
     void test_isValid() {
