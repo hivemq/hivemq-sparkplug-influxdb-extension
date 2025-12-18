@@ -28,6 +28,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class PropertiesReaderTest {
+    
+    @TempDir
+    private @NotNull Path tempDir;
 
     @Test
     void readPropertiesFromFile_file_null() {
@@ -41,7 +44,7 @@ class PropertiesReaderTest {
     }
 
     @Test
-    void readPropertiesFromFile_file_does_not_exist(final @TempDir @NotNull Path tempDir) {
+    void readPropertiesFromFile_file_does_not_exist() {
         final var propertiesReader = new PropertiesReader(tempDir.toFile()) {
             @Override
             public @NotNull String getFilename() {
@@ -52,7 +55,7 @@ class PropertiesReaderTest {
     }
 
     @Test
-    void readPropertiesFromFile_file_does_exist(final @TempDir @NotNull Path tempDir) throws IOException {
+    void readPropertiesFromFile_file_does_exist() throws IOException {
         assertThat(tempDir.resolve("test").toFile().createNewFile()).isTrue();
 
         final var propertiesReader = new PropertiesReader(tempDir.toFile()) {
@@ -65,7 +68,7 @@ class PropertiesReaderTest {
     }
 
     @Test
-    void getProperty_key_null(final @TempDir @NotNull Path tempDir) throws IOException {
+    void getProperty_key_null() throws IOException {
         final var file = tempDir.resolve("test");
         assertThat(file.toFile().createNewFile()).isTrue();
         Files.write(file, List.of("key:value"));
@@ -84,7 +87,7 @@ class PropertiesReaderTest {
     }
 
     @Test
-    void getProperty_key_doesnt_exist(final @TempDir @NotNull Path tempDir) throws IOException {
+    void getProperty_key_doesnt_exist() throws IOException {
         final var file = tempDir.resolve("test");
         assertThat(file.toFile().createNewFile()).isTrue();
         Files.write(file, List.of("key:value"));
@@ -102,7 +105,7 @@ class PropertiesReaderTest {
     }
 
     @Test
-    void getProperty_key_exists(final @TempDir @NotNull Path tempDir) throws IOException {
+    void getProperty_key_exists() throws IOException {
         final var file = tempDir.resolve("test");
         assertThat(file.toFile().createNewFile()).isTrue();
         Files.write(file, List.of("key:value"));
@@ -118,7 +121,7 @@ class PropertiesReaderTest {
     }
 
     @Test
-    void getProperty_before_loading_properties(final @TempDir @NotNull Path tempDir) throws IOException {
+    void getProperty_before_loading_properties() throws IOException {
         final var file = tempDir.resolve("test");
         assertThat(file.toFile().createNewFile()).isTrue();
         Files.write(file, List.of("key:value"));

@@ -69,11 +69,16 @@ class SparkplugBInterceptorIT {
         subscriber.toAsync().subscribeWith().topicFilter(birthTopic).callback(publishBIRTH::complete).send().get();
         subscriber.toAsync().subscribeWith().topicFilter(deathTopic).callback(publishDEATH::complete).send().get();
 
-        final var will = Mqtt5Publish.builder().topic(deathTopic).payload("".getBytes(StandardCharsets.UTF_8)).build();
+        final var will = Mqtt5Publish.builder()
+                .topic(deathTopic)
+                .payload("".getBytes(StandardCharsets.UTF_8))
+                .build();
         client.connectWith().willPublish(will).send();
 
-        final var birthPublish =
-                Mqtt5Publish.builder().topic(birthTopic).payload("".getBytes(StandardCharsets.UTF_8)).build();
+        final var birthPublish = Mqtt5Publish.builder()
+                .topic(birthTopic)
+                .payload("".getBytes(StandardCharsets.UTF_8))
+                .build();
         client.publish(birthPublish);
 
         final var birth = publishBIRTH.get();
