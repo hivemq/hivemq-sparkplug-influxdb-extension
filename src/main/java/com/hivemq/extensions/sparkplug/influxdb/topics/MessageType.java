@@ -17,6 +17,27 @@ package com.hivemq.extensions.sparkplug.influxdb.topics;
 
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Enumeration of Sparkplug message types as defined in the Sparkplug specification.
+ * <p>
+ * Sparkplug defines specific message types for lifecycle management, data transmission,
+ * and command execution within an Industrial IoT infrastructure:
+ * <ul>
+ *     <li><b>BIRTH messages</b> - Announce availability and publish metrics/metadata</li>
+ *     <li><b>DEATH messages</b> - Announce disconnection or unavailability</li>
+ *     <li><b>DATA messages</b> - Publish metric data updates</li>
+ *     <li><b>CMD messages</b> - Receive commands from SCADA host applications</li>
+ *     <li><b>STATE messages</b> - SCADA host availability status</li>
+ * </ul>
+ * <p>
+ * Message types are prefixed with:
+ * <ul>
+ *     <li><b>N</b> - Node (Edge of Network node)</li>
+ *     <li><b>D</b> - Device (under an edge node)</li>
+ * </ul>
+ *
+ * @author David Sondermann
+ */
 public enum MessageType {
     /**
      * THE BIRTH certificate message of a device
@@ -35,23 +56,23 @@ public enum MessageType {
      */
     NDEATH,
     /**
-     * THE DATA message message from a device
+     * THE DATA message from a device
      */
     DDATA,
     /**
-     * THE DATA message message from an edge node
+     * THE DATA message from an edge node
      */
     NDATA,
     /**
-     * THE Command message message from a SCADA host for a device
+     * THE Command message from an SCADA host for a device
      */
     DCMD,
     /**
-     * THE Command message message from a SCADA host for an edge node
+     * THE Command message from an SCADA host for an edge node
      */
     NCMD,
     /**
-     * THE Command message message from a SCADA host
+     * THE Command message from an SCADA host
      */
     STATE,
     /**

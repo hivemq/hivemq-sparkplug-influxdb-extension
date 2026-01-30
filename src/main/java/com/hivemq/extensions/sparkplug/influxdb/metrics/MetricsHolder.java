@@ -23,16 +23,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Metric holder for all generic sparkplug metrics
+ * Metric holder for all generic Sparkplug metrics
  *
- * @author Anja Helmbrecht-Schaar
+ * @author David Sondermann
  */
-
 public class MetricsHolder {
 
     public static final @NotNull String METRIC_ROOT = "sparkplug";
 
-    private static final @NotNull Logger log = LoggerFactory.getLogger(MetricsHolder.class);
+    private static final @NotNull Logger LOG = LoggerFactory.getLogger(MetricsHolder.class);
 
     private final @NotNull MetricRegistry metricRegistry;
 
@@ -77,7 +76,7 @@ public class MetricsHolder {
         if (getMetricRegistry().getMetrics().containsKey(metricName)) {
             return (SettableIntGauge) getMetricRegistry().getMetrics().get(metricName);
         }
-        log.debug("Register SettableIntGauge metric for: {} ", metricName);
+        LOG.debug("Register SettableIntGauge metric for: {} ", metricName);
         return getMetricRegistry().register(metricName, new SettableIntGauge());
     }
 
@@ -89,7 +88,7 @@ public class MetricsHolder {
         if (getMetricRegistry().getMetrics().containsKey(metricName)) {
             return (SettableLongGauge) getMetricRegistry().getMetrics().get(metricName);
         }
-        log.debug("Register SettableLongGauge metric for: {} ", metricName);
+        LOG.debug("Register SettableLongGauge metric for: {} ", metricName);
         return getMetricRegistry().register(metricName, new SettableLongGauge());
     }
 
@@ -101,7 +100,7 @@ public class MetricsHolder {
         if (getMetricRegistry().getMetrics().containsKey(metricName)) {
             return (SettableBooleanGauge) getMetricRegistry().getMetrics().get(metricName);
         }
-        log.debug("Register SettableBooleanGauge metric for: {} ", metricName);
+        LOG.debug("Register SettableBooleanGauge metric for: {} ", metricName);
         return getMetricRegistry().register(metricName, new SettableBooleanGauge());
     }
 
@@ -125,7 +124,7 @@ public class MetricsHolder {
         if (getMetricRegistry().getMetrics().containsKey(metricName)) {
             return (SettableDoubleGauge) getMetricRegistry().getMetrics().get(metricName);
         }
-        log.debug("Register SettableDoubleGauge metric for: {} ", metricName);
+        LOG.debug("Register SettableDoubleGauge metric for: {} ", metricName);
         return getMetricRegistry().register(metricName, new SettableDoubleGauge());
     }
 }
