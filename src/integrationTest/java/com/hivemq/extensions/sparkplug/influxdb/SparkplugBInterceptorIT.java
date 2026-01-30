@@ -15,76 +15,161 @@
  */
 package com.hivemq.extensions.sparkplug.influxdb;
 
+import com.hivemq.client.mqtt.mqtt5.Mqtt5BlockingClient;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5Client;
-import com.hivemq.client.mqtt.mqtt5.message.disconnect.Mqtt5DisconnectReasonCode;
-import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish;
+import com.influxdb.client.InfluxDBClient;
+import com.influxdb.client.InfluxDBClientFactory;
+import com.influxdb.client.domain.InfluxQLQuery;
 import io.github.sgtsilvio.gradle.oci.junit.jupiter.OciImages;
+import org.eclipse.tahu.protobuf.SparkplugBProto;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
-import org.slf4j.event.Level;
+import org.testcontainers.containers.InfluxDBContainer;
+import org.testcontainers.containers.Network;
 import org.testcontainers.hivemq.HiveMQContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.MountableFile;
 
-import java.nio.charset.StandardCharsets;
-import java.util.concurrent.CompletableFuture;
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.awaitility.Awaitility.await;
 
+@SuppressWarnings("resource")
 @Testcontainers
 class SparkplugBInterceptorIT {
 
+    private static final @NotNull String SPARKPLUG_VERSION = "spBv1.0";
+    private static final @NotNull String GROUP_ID = "testGroup";
+    private static final @NotNull String EDGE_NODE_ID = "testEdgeNode";
+    private static final @NotNull String DEVICE_ID = "testDevice";
+    private static final @NotNull String INFLUXDB_DATABASE = "hivemq";
+
+    private final @NotNull Network network = Network.newNetwork();
+
     @Container
-    final @NotNull HiveMQContainer container = new HiveMQContainer(OciImages.getImageName("hivemq/hivemq4")) //
-            .withExtension(MountableFile.forClasspathResource("hivemq-sparkplug-extension"))
-            .waitForExtension("HiveMQ Sparkplug Extension")
-            .withLogLevel(Level.TRACE)
-            .withEnv("HIVEMQ_DISABLE_STATISTICS", "true");
+    private final @NotNull InfluxDBContainer<?> influxDB =
+            new InfluxDBContainer<>(OciImages.getImageName("influxdb")).withAuthEnabled(false)
+                    .withNetwork(network)
+                    .withNetworkAliases("influxdb");
+
+    @Container
+    private final @NotNull HiveMQContainer hivemq =
+            new HiveMQContainer(OciImages.getImageName("hivemq/extensions/hivemq-sparkplug-extension")
+                    .asCompatibleSubstituteFor("hivemq/hivemq4")) //
+                    .withNetwork(network)
+                    .withHiveMQConfig(MountableFile.forClasspathResource("config.xml"))
+                    .withCopyToContainer(MountableFile.forClasspathResource("sparkplug.properties"),
+                            "/opt/hivemq/extensions/hivemq-sparkplug-extension/sparkplug.properties")
+                    .withLogConsumer(outputFrame -> System.out.print("HiveMQ: " + outputFrame.getUtf8String()))
+                    .withEnv("HIVEMQ_DISABLE_STATISTICS", "true");
+
+    private Mqtt5BlockingClient mqttClient;
+
+    @BeforeEach
+    void setUp() {
+        try (final var influxDBClient = InfluxDBClientFactory.create(influxDB.getUrl())) {
+            final var createDbQuery = new InfluxQLQuery("CREATE DATABASE \"%s\"".formatted(INFLUXDB_DATABASE), "");
+            influxDBClient.getInfluxQLQueryApi().query(createDbQuery);
+        }
+
+        mqttClient = Mqtt5Client.builder()
+                .serverHost(hivemq.getHost())
+                .serverPort(hivemq.getMappedPort(1883))
+                .identifier("sparkplug-publisher")
+                .buildBlocking();
+        mqttClient.connect();
+    }
+
+    @AfterEach
+    void tearDown() {
+        if (mqttClient != null) {
+            mqttClient.disconnect();
+        }
+        network.close();
+    }
 
     @Test
-    @Timeout(value = 3, unit = TimeUnit.MINUTES)
-    void test_DBIRTH() throws Exception {
-        final var deathTopic = "spBv1.0/group1/NDEATH/eon1";
-        final var birthTopic = "spBv1.0/group1/NBIRTH/eon1";
+    @Timeout(value = 2, unit = TimeUnit.MINUTES)
+    void test_nbirth_metrics_forwarded_to_influxdb() {
+        final var nbirthTopic = SPARKPLUG_VERSION + "/" + GROUP_ID + "/NBIRTH/" + EDGE_NODE_ID;
 
-        final var client = Mqtt5Client.builder()
-                .serverHost("localhost")
-                .serverPort(container.getMqttPort())
-                .identifier("EON1")
-                .buildBlocking();
+        final var payload = SparkplugBProto.Payload.newBuilder()
+                .addMetrics(SparkplugBProto.Payload.Metric.newBuilder().setName("testMetric").setAlias(1).build())
+                .build();
 
-        final var subscriber = Mqtt5Client.builder()
-                .serverHost("localhost")
-                .serverPort(container.getMqttPort())
-                .identifier("SCADA")
-                .buildBlocking();
+        mqttClient.publishWith().topic(nbirthTopic).payload(payload.toByteArray()).send();
 
-        subscriber.connect();
+        try (final var influxDBClient = InfluxDBClientFactory.create(influxDB.getUrl())) {
+            await().atMost(Duration.ofSeconds(30))
+                    .until(() -> getMetricMaxValue(influxDBClient, "sparkplug.testEdgeNode.status") == 1);
+            await().atMost(Duration.ofSeconds(30))
+                    .until(() -> getMetricMaxCount(influxDBClient, "sparkplug.eons.current.count") == 1);
+        }
+    }
 
-        final var publishBIRTH = new CompletableFuture<Mqtt5Publish>();
-        final var publishDEATH = new CompletableFuture<Mqtt5Publish>();
-        subscriber.toAsync().subscribeWith().topicFilter(birthTopic).callback(publishBIRTH::complete).send().get();
-        subscriber.toAsync().subscribeWith().topicFilter(deathTopic).callback(publishDEATH::complete).send().get();
+    @Test
+    @Timeout(value = 2, unit = TimeUnit.MINUTES)
+    void test_dbirth_metrics_forwarded_to_influxdb() {
+        final var dbirthTopic = SPARKPLUG_VERSION + "/" + GROUP_ID + "/DBIRTH/" + EDGE_NODE_ID + "/" + DEVICE_ID;
 
-        final var will = Mqtt5Publish.builder().topic(deathTopic).payload("".getBytes(StandardCharsets.UTF_8)).build();
-        client.connectWith().willPublish(will).send();
+        final var payload = SparkplugBProto.Payload.newBuilder()
+                .addMetrics(SparkplugBProto.Payload.Metric.newBuilder().setName("testMetric").setAlias(1).build())
+                .build();
 
-        final var birthPublish =
-                Mqtt5Publish.builder().topic(birthTopic).payload("".getBytes(StandardCharsets.UTF_8)).build();
-        client.publish(birthPublish);
+        mqttClient.publishWith().topic(dbirthTopic).payload(payload.toByteArray()).send();
 
-        final var birth = publishBIRTH.get();
-        assertEquals(birthTopic, birth.getTopic().toString());
+        try (final var influxDBClient = InfluxDBClientFactory.create(influxDB.getUrl())) {
+            await().atMost(Duration.ofSeconds(30))
+                    .until(() -> getMetricMaxValue(influxDBClient, "sparkplug.testEdgeNode.testDevice.status") == 1);
+            await().atMost(Duration.ofSeconds(30))
+                    .until(() -> getMetricMaxCount(influxDBClient, "sparkplug.devices.current.count") == 1);
+        }
+    }
 
-        // disconnect triggers a death certificate
-        client.disconnectWith().reasonCode(Mqtt5DisconnectReasonCode.DISCONNECT_WITH_WILL_MESSAGE).send();
+    private static long getMetricMaxValue(final @NotNull InfluxDBClient client, final @NotNull String metric) {
+        return getMetricMax(client, metric, "value");
+    }
 
-        final var death = publishDEATH.get();
-        assertEquals(deathTopic, death.getTopic().toString());
+    private static long getMetricMaxCount(final @NotNull InfluxDBClient client, final @NotNull String metric) {
+        return getMetricMax(client, metric, "count");
+    }
 
-        subscriber.disconnect();
+    private static long getMetricMax(
+            final @NotNull InfluxDBClient client,
+            final @NotNull String metric,
+            final @NotNull String field) {
+        final var influxQL = String.format("SELECT MAX(%s) FROM \"%s\"", field, metric);
+        final var query = new InfluxQLQuery(influxQL, INFLUXDB_DATABASE);
+        final var result = client.getInfluxQLQueryApi().query(query);
+        long max = 0;
+        for (final var queryResult : result.getResults()) {
+            for (final var series : queryResult.getSeries()) {
+                for (final var record : series.getValues()) {
+                    final var value = getValue(record.getValueByKey("max"));
+                    if (value > max) {
+                        max = value;
+                    }
+                }
+            }
+        }
+        return max;
+    }
+
+    private static long getValue(final @Nullable Object valueField) {
+        if (valueField instanceof Number) {
+            return ((Number) valueField).longValue();
+        } else if (valueField != null) {
+            try {
+                return (long) Double.parseDouble(valueField.toString());
+            } catch (final NumberFormatException ignored) {
+            }
+        }
+        return Long.MIN_VALUE;
     }
 }

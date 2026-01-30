@@ -54,6 +54,27 @@ oci {
             optionalCredentials()
         }
     }
+    imageMapping {
+        mapModule("com.hivemq", "hivemq-enterprise") {
+            toImage("hivemq/hivemq4")
+        }
+    }
+    imageDefinitions.register("main") {
+        allPlatforms {
+            dependencies {
+                runtime("com.hivemq:hivemq-enterprise:latest") { isChanging = true }
+            }
+            layer("main") {
+                contents {
+                    permissions("opt/hivemq/", 0b111_111_101)
+                    permissions("opt/hivemq/extensions/", 0b111_111_101)
+                    into("opt/hivemq/extensions") {
+                        from(zipTree(tasks.hivemqExtensionZip.flatMap { it.archiveFile }))
+                    }
+                }
+            }
+        }
+    }
 }
 
 @Suppress("UnstableApiUsage")
@@ -74,16 +95,23 @@ testing {
         "integrationTest"(JvmTestSuite::class) {
             dependencies {
                 compileOnly(libs.jetbrains.annotations)
+                implementation(project())
+                implementation(libs.assertj)
+                implementation(libs.awaitility)
+                implementation(libs.hivemq.mqttClient)
+                implementation(libs.influxdb.client)
+                implementation(libs.protobuf)
                 implementation(libs.testcontainers)
                 implementation(libs.testcontainers.hivemq)
+                implementation(libs.testcontainers.influxdb)
                 implementation(libs.testcontainers.junitJupiter)
                 implementation(libs.gradleOci.junitJupiter)
-                implementation(libs.hivemq.mqttClient)
                 runtimeOnly(libs.logback.classic)
             }
             oci.of(this) {
                 imageDependencies {
-                    runtime("hivemq:hivemq4:4.40.0").tag("latest")
+                    runtime(project).tag("latest")
+                    runtime("library:influxdb:1.4.3").name("influxdb").tag("latest")
                 }
             }
         }
