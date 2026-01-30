@@ -29,17 +29,59 @@ import java.util.concurrent.TimeUnit;
 import java.util.zip.GZIPOutputStream;
 
 /**
- * Sender for InfluxDB Cloud.
+ * HTTP sender implementation for InfluxDB Cloud using the InfluxDB 2.x API.
+ * <p>
+ * This sender extends {@link InfluxDbHttpSender} to support InfluxDB Cloud's authentication
+ * and API requirements:
+ * <ul>
+ *     <li>Uses the {@code /api/v2/write} endpoint instead of the legacy write endpoint</li>
+ *     <li>Authenticates using Bearer tokens via the {@code Authorization} header</li>
+ *     <li>Supports organization and bucket parameters required by InfluxDB 2.x</li>
+ *     <li>Compresses data using GZIP for efficient transmission</li>
+ * </ul>
+ * <p>
+ * The sender is thread-safe and can be used concurrently by multiple threads.
  *
- * @author Anja Helmbrecht-Schaar
+ * @author David Sondermann
+ * @see InfluxDbHttpSender
  */
 public class InfluxDbCloudSender extends InfluxDbHttpSender {
 
+    /**
+     * The authentication token for InfluxDB Cloud.
+     */
     private final @NotNull String authToken;
+
+    /**
+     * Connection timeout in milliseconds.
+     */
     private final int connectTimeout;
+
+    /**
+     * Read timeout in milliseconds.
+     */
     private final int readTimeout;
+
+    /**
+     * The fully constructed URL for the InfluxDB Cloud write endpoint.
+     */
     private final @NotNull URL url;
 
+    /**
+     * Constructs a new InfluxDbCloudSender for sending metrics to InfluxDB Cloud.
+     *
+     * @param protocol          the protocol to use (http or https)
+     * @param host              the InfluxDB Cloud host
+     * @param port              the port number
+     * @param authToken         the authentication token for InfluxDB Cloud
+     * @param timePrecision     the time precision for timestamps
+     * @param connectTimeout    the connection timeout in milliseconds
+     * @param readTimeout       the read timeout in milliseconds
+     * @param measurementPrefix optional prefix for all measurements (may be {@code null})
+     * @param organization      the InfluxDB Cloud organization name
+     * @param bucket            the InfluxDB Cloud bucket name
+     * @throws Exception if the URL cannot be constructed
+     */
     public InfluxDbCloudSender(
             final @NotNull String protocol,
             final @NotNull String host,
@@ -63,6 +105,16 @@ public class InfluxDbCloudSender extends InfluxDbHttpSender {
         this.url = new URL(endpoint + "?" + queryPrecision + "&" + orgParameter + "&" + bucketParameter);
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Writes the data to InfluxDB Cloud using the v2 API with token authentication.
+     * The data is compressed using GZIP before sending.
+     *
+     * @param line the line protocol data to write
+     * @return the HTTP response code (2xx indicates success)
+     * @throws Exception if the write fails or the server returns a non-2xx response
+     */
     @Override
     protected int writeData(final byte @NotNull [] line) throws Exception {
         final var con = (HttpURLConnection) url.openConnection();
@@ -80,13 +132,10 @@ public class InfluxDbCloudSender extends InfluxDbHttpSender {
         // check if non 2XX response code
         final var responseCode = con.getResponseCode();
         if (responseCode / 100 != 2) {
-            throw new IOException("Server returned HTTP response code: " +
-                    responseCode +
-                    " for URL: " +
-                    url +
-                    " with content :'" +
-                    con.getResponseMessage() +
-                    "'");
+            throw new IOException(String.format("Server returned HTTP response code: %d for URL: %s with content: '%s'",
+                    responseCode,
+                    url,
+                    con.getResponseMessage()));
         }
         return responseCode;
     }

@@ -33,20 +33,49 @@ import java.util.Map;
 import static com.hivemq.extensions.sparkplug.influxdb.topics.MessageType.STATE;
 
 /**
- * Interceptor for incoming publishes
- * validates the topic structure as sparkplug topic
- * parses sparkplug payload
- * creates or add a metric via metricRegistry from sparkplug metric data object
+ * Interceptor for incoming MQTT publish messages that processes Sparkplug B payloads.
+ * <p>
+ * This interceptor is responsible for:
+ * <ul>
+ *     <li>Validating incoming MQTT topics against the Sparkplug topic structure</li>
+ *     <li>Parsing Sparkplug B protobuf payloads to extract metrics</li>
+ *     <li>Maintaining an alias-to-metric-name mapping for efficient data transmission</li>
+ *     <li>Registering metrics in the {@link MetricsHolder} for reporting to InfluxDB</li>
+ * </ul>
+ * <p>
+ * The interceptor handles all Sparkplug message types including BIRTH, DEATH, DATA,
+ * and STATE messages, updating metrics accordingly.
  *
- * @author Anja Helmbrecht-Schaar
+ * @author David Sondermann
+ * @see TopicStructure
+ * @see MetricsHolder
  */
 public class SparkplugBInterceptor implements PublishInboundInterceptor {
 
-    private static final @NotNull Logger log = LoggerFactory.getLogger(SparkplugBInterceptor.class);
-    private final @NotNull MetricsHolder metricsHolder;
-    private final @NotNull String sparkplugVersion;
+    private static final @NotNull Logger LOG = LoggerFactory.getLogger(SparkplugBInterceptor.class);
+
+    /**
+     * Maps Sparkplug metric aliases to their full metric names.
+     * Sparkplug uses aliases to reduce message size after initial BIRTH messages.
+     */
     private final @NotNull Map<Long, String> aliasToMetric = new HashMap<>();
 
+    /**
+     * Holder for managing and accessing Sparkplug metrics.
+     */
+    private final @NotNull MetricsHolder metricsHolder;
+
+    /**
+     * The expected Sparkplug version namespace (e.g., "spBv1.0").
+     */
+    private final @NotNull String sparkplugVersion;
+
+    /**
+     * Constructs a new SparkplugBInterceptor.
+     *
+     * @param metricsHolder the holder for managing Sparkplug metrics
+     * @param configuration the extension configuration containing the Sparkplug version
+     */
     public SparkplugBInterceptor(
             final @NotNull MetricsHolder metricsHolder,
             final @NotNull SparkplugConfiguration configuration) {
@@ -54,12 +83,21 @@ public class SparkplugBInterceptor implements PublishInboundInterceptor {
         this.sparkplugVersion = configuration.getSparkplugVersion();
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Processes incoming publish messages and extracts Sparkplug B metrics.
+     * <p>
+     * If the topic matches the configured Sparkplug version namespace and has a valid
+     * Sparkplug topic structure, the protobuf payload is parsed and metrics are extracted
+     * and registered with the metrics holder.
+     */
     @Override
     public void onInboundPublish(
             final @NotNull PublishInboundInput publishInboundInput,
             final @NotNull PublishInboundOutput publishInboundOutput) {
-        if (log.isTraceEnabled()) {
-            log.trace("Incoming publish from {}", publishInboundInput.getPublishPacket().getTopic());
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Incoming publish from {}", publishInboundInput.getPublishPacket().getTopic());
         }
         final var publishPacket = publishInboundInput.getPublishPacket();
         final var topic = publishPacket.getTopic();
@@ -73,26 +111,35 @@ public class SparkplugBInterceptor implements PublishInboundInterceptor {
                 final var metricsList = spPayload.getMetricsList();
                 for (final var metric : metricsList) {
                     aliasToMetric.put(metric.getAlias(), metric.getName());
-                    if (log.isTraceEnabled()) {
-                        log.trace("Add Metric Mapping (Alias={}, MetricName={})", metric.getAlias(), metric.getName());
+                    if (LOG.isTraceEnabled()) {
+                        LOG.trace("Add Metric Mapping (Alias={}, MetricName={})", metric.getAlias(), metric.getName());
                     }
                 }
                 generateMetricsFromMessage(topicStructure, metricsList);
             } catch (final Exception e) {
-                log.error("Could not parse MQTT payload to protobuf", e);
+                LOG.error("Could not parse MQTT payload to protobuf", e);
             }
         } else {
-            if (log.isTraceEnabled()) {
-                log.trace("This might not be a sparkplug topic structure: {}", topicStructure);
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("This might not be a Sparkplug topic structure: {}", topicStructure);
             }
         }
     }
 
+    /**
+     * Generates metrics from a Sparkplug message based on its type.
+     * <p>
+     * For STATE messages, updates the SCADA host status metric.
+     * For all other message types, delegates to {@link #generateMetricForEdgesAndDevices}.
+     *
+     * @param topicStructure the parsed Sparkplug topic structure
+     * @param metricsList    the list of metrics from the Sparkplug payload
+     */
     private void generateMetricsFromMessage(
             final @NotNull TopicStructure topicStructure,
             final @NotNull List<SparkplugBProto.Payload.Metric> metricsList) {
-        if (log.isTraceEnabled()) {
-            log.trace("Sparkplug Message type & structure {} ", topicStructure);
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Sparkplug Message type & structure {} ", topicStructure);
         }
         if (topicStructure.getScadaId() != null && STATE == topicStructure.getMessageType()) {
             metricsHolder.getStatusMetrics(topicStructure.getScadaId(), null).setValue(1);
@@ -101,11 +148,26 @@ public class SparkplugBInterceptor implements PublishInboundInterceptor {
         }
     }
 
+    /**
+     * Generates metrics for edge nodes and devices based on the Sparkplug message type.
+     * <p>
+     * Handles the following message types:
+     * <ul>
+     *     <li><b>NBIRTH</b> - Sets edge node status to online and increments online counter</li>
+     *     <li><b>NDEATH</b> - Sets edge node status to offline and decrements online counter</li>
+     *     <li><b>DBIRTH</b> - Sets device status to online and increments device counter</li>
+     *     <li><b>DDEATH</b> - Sets device status to offline and decrements device counter</li>
+     *     <li><b>NDATA/DDATA</b> - Extracts and registers individual metric values</li>
+     * </ul>
+     *
+     * @param topicStructure the parsed Sparkplug topic structure containing edge node and device IDs
+     * @param metricsList    the list of metrics from the Sparkplug payload
+     */
     private void generateMetricForEdgesAndDevices(
             final @NotNull TopicStructure topicStructure,
             final @NotNull List<SparkplugBProto.Payload.Metric> metricsList) {
         if (topicStructure.getEonId() == null) {
-            log.error("Edge Node Id is null - Sparkplug Message structure {} ", topicStructure);
+            LOG.error("Edge Node Id is null - Sparkplug Message structure {} ", topicStructure);
             return;
         }
         switch (topicStructure.getMessageType()) {
@@ -159,7 +221,7 @@ public class SparkplugBInterceptor implements PublishInboundInterceptor {
                 break;
             }
             default: {
-                log.error("Unknown Sparkplug Message Type: {} ", topicStructure);
+                LOG.error("Unknown Sparkplug Message Type: {} ", topicStructure);
             }
         }
     }

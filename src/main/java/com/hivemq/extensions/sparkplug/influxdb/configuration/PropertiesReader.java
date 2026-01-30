@@ -29,15 +29,15 @@ import java.util.Properties;
 /**
  * Load the content of a {@link File} into {@link Properties}.
  *
- * @author Anja Helmbrecht-Schaar
+ * @author David Sondermann
  */
-abstract class PropertiesReader {
+public abstract class PropertiesReader {
 
-    private static final @NotNull Logger log = LoggerFactory.getLogger(PropertiesReader.class);
-
-    protected @Nullable Properties properties;
+    private static final @NotNull Logger LOG = LoggerFactory.getLogger(PropertiesReader.class);
 
     private final @NotNull File configFilePath;
+
+    @Nullable Properties properties;
 
     PropertiesReader(final @NotNull File configFilePath) {
         Objects.requireNonNull(configFilePath, "Path to config file must not be null");
@@ -53,11 +53,12 @@ abstract class PropertiesReader {
         final var file = new File(configFilePath + File.separator + getFilename());
         try {
             loadProperties(file);
-            return true;
         } catch (final IOException e) {
-            log.error("Not able to load configuration file '{}'", file.getAbsolutePath());
+            LOG.error("Not able to load configuration file '{}'", file.getAbsolutePath());
             return false;
         }
+
+        return true;
     }
 
     /**
@@ -67,7 +68,7 @@ abstract class PropertiesReader {
      * @return The property for the value if it exists, <b>null</b> if key or {@link Properties} doesn't exist or the
      *         value is an empty string.
      */
-    protected @Nullable String getProperty(final @NotNull String key) {
+    @Nullable String getProperty(final @NotNull String key) {
         Objects.requireNonNull(key, "Key to fetch property for must not be null.");
         if (properties == null) {
             return null;
