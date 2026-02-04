@@ -32,14 +32,14 @@ image::/img/HiveMQExtensionFlow.jpg[Flow]
 Installing the extension for HiveMQ is very easy:
 
 . Unzip the downloaded zip file
-. In the folder `hivemq-sparkplug-extension`, modify the `sparkplug.properties` file to fit your needs.
+. In the folder `hivemq-sparkplug-extension`, modify the `conf/config.properties` file to fit your needs.
 Check that the mandatory properties for influx db (host, port) are set
 . Copy the folder `hivemq-sparkplug-extension` to your `[HIVEMQ_HOME]/extensions` folder
 . Done
 
 == Configuration
 
-The Sparkplug Monitoring extension uses its own configuration file `sparkplug.properties`.
+The Sparkplug Monitoring extension uses its own configuration file `conf/config.properties`.
 The extension won't start if this file is missing or the required properties are not set.
 
 === Dashboards

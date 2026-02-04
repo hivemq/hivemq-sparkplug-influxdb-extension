@@ -36,9 +36,11 @@ class SparkplugConfigurationTest {
     private @NotNull Path tempDir;
 
     @BeforeEach
-    void setUp() {
-        sparkplugConfiguration = new SparkplugConfiguration(tempDir.toFile());
-        file = tempDir.resolve("sparkplug.properties");
+    void setUp() throws Exception {
+        final var confDir = tempDir.resolve("conf");
+        Files.createDirectories(confDir);
+        file = confDir.resolve("config.properties");
+        sparkplugConfiguration = new SparkplugConfiguration(file.toFile());
     }
 
     @Test

@@ -24,6 +24,7 @@ import com.hivemq.extension.sdk.api.parameter.ExtensionStartOutput;
 import com.hivemq.extension.sdk.api.parameter.ExtensionStopInput;
 import com.hivemq.extension.sdk.api.parameter.ExtensionStopOutput;
 import com.hivemq.extension.sdk.api.services.Services;
+import com.hivemq.extensions.sparkplug.influxdb.configuration.ConfigResolver;
 import com.hivemq.extensions.sparkplug.influxdb.configuration.SparkplugConfiguration;
 import com.hivemq.extensions.sparkplug.influxdb.metrics.MetricsHolder;
 import com.izettle.metrics.influxdb.InfluxDbHttpSender;
@@ -110,7 +111,11 @@ public class SparkplugExtensionMain implements ExtensionMain {
     private @Nullable SparkplugConfiguration configurationValidated(
             final @NotNull ExtensionStartOutput extensionStartOutput,
             final @NotNull File extensionHomeFolder) {
-        final var configuration = new SparkplugConfiguration(extensionHomeFolder);
+        final var configResolver = new ConfigResolver(extensionHomeFolder.toPath(),
+                "HiveMQ Sparkplug InfluxDB Extension",
+                "conf/config.properties",
+                "sparkplug.properties");
+        final var configuration = new SparkplugConfiguration(configResolver.get().toFile());
         if (!configuration.readPropertiesFromFile()) {
             extensionStartOutput.preventExtensionStartup("Could not read InfluxDB properties");
             return null;

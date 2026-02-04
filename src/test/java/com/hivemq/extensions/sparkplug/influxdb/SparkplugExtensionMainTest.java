@@ -37,8 +37,6 @@ class SparkplugExtensionMainTest {
     private final @NotNull ExtensionStartOutput extensionStartOutput = mock();
     private final @NotNull SparkplugExtensionMain main = new SparkplugExtensionMain();
 
-    private @NotNull Path properties;
-
     @TempDir
     private @NotNull Path tempDir;
 
@@ -46,8 +44,6 @@ class SparkplugExtensionMainTest {
     void setUp() {
         when(extensionStartInput.getExtensionInformation()).thenReturn(mock());
         when(extensionStartInput.getExtensionInformation().getExtensionHomeFolder()).thenReturn(tempDir.toFile());
-
-        properties = tempDir.resolve("sparkplug.properties");
     }
 
     @Test
@@ -58,7 +54,20 @@ class SparkplugExtensionMainTest {
 
     @Test
     void extensionStart_whenConfigurationFileNotValid_thenPreventStartup() throws IOException {
-        Files.write(properties, """
+        final var confDir = tempDir.resolve("conf");
+        Files.createDirectories(confDir);
+        Files.write(confDir.resolve("config.properties"), """
+                influxdb.host:localhost
+                influxdb.port: -3000
+                """.lines().toList());
+
+        main.extensionStart(extensionStartInput, extensionStartOutput);
+        verify(extensionStartOutput).preventExtensionStartup(anyString());
+    }
+
+    @Test
+    void extensionStart_whenLegacyConfigurationFileNotValid_thenPreventStartup() throws IOException {
+        Files.write(tempDir.resolve("sparkplug.properties"), """
                 influxdb.host:localhost
                 influxdb.port: -3000
                 """.lines().toList());

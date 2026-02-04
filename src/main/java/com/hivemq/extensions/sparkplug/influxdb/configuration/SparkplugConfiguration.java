@@ -65,8 +65,8 @@ public class SparkplugConfiguration extends PropertiesReader {
 
     private static final @NotNull Logger LOG = LoggerFactory.getLogger(SparkplugConfiguration.class);
 
-    public SparkplugConfiguration(@NotNull final File configFilePath) {
-        super(configFilePath);
+    public SparkplugConfiguration(final @NotNull File configFile) {
+        super(configFile);
     }
 
     /**
@@ -187,11 +187,6 @@ public class SparkplugConfiguration extends PropertiesReader {
 
     public @Nullable String getOrganization() {
         return getProperty(ORGANIZATION);
-    }
-
-    @Override
-    public @NotNull String getFilename() {
-        return "sparkplug.properties";
     }
 
     /**
