@@ -64,8 +64,8 @@ class SparkplugBInterceptorIT {
                     .asCompatibleSubstituteFor("hivemq/hivemq4")) //
                     .withNetwork(network)
                     .withHiveMQConfig(MountableFile.forClasspathResource("config.xml"))
-                    .withCopyToContainer(MountableFile.forClasspathResource("sparkplug.properties"),
-                            "/opt/hivemq/extensions/hivemq-sparkplug-extension/sparkplug.properties")
+                    .withCopyToContainer(MountableFile.forClasspathResource("config.properties"),
+                            "/opt/hivemq/extensions/hivemq-sparkplug-extension/conf/config.properties")
                     .withLogConsumer(outputFrame -> System.out.print("HiveMQ: " + outputFrame.getUtf8String()))
                     .withEnv("HIVEMQ_DISABLE_STATISTICS", "true");
 

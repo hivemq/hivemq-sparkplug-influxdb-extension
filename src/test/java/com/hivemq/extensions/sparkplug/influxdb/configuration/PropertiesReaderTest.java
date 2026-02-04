@@ -35,35 +35,21 @@ class PropertiesReaderTest {
     @Test
     void readPropertiesFromFile_file_null() {
         //noinspection DataFlowIssue
-        assertThatThrownBy(() -> new PropertiesReader(null) {
-            @Override
-            public @NotNull String getFilename() {
-                return "test";
-            }
-        }).isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(() -> new PropertiesReader(null)).isInstanceOf(NullPointerException.class);
     }
 
     @Test
     void readPropertiesFromFile_file_does_not_exist() {
-        final var propertiesReader = new PropertiesReader(tempDir.toFile()) {
-            @Override
-            public @NotNull String getFilename() {
-                return "test";
-            }
-        };
+        final var propertiesReader = new PropertiesReader(tempDir.resolve("test").toFile());
         assertThat(propertiesReader.readPropertiesFromFile()).isFalse();
     }
 
     @Test
     void readPropertiesFromFile_file_does_exist() throws IOException {
-        assertThat(tempDir.resolve("test").toFile().createNewFile()).isTrue();
+        final var file = tempDir.resolve("test");
+        assertThat(file.toFile().createNewFile()).isTrue();
 
-        final var propertiesReader = new PropertiesReader(tempDir.toFile()) {
-            @Override
-            public @NotNull String getFilename() {
-                return "test";
-            }
-        };
+        final var propertiesReader = new PropertiesReader(file.toFile());
         assertThat(propertiesReader.readPropertiesFromFile()).isTrue();
     }
 
@@ -73,12 +59,7 @@ class PropertiesReaderTest {
         assertThat(file.toFile().createNewFile()).isTrue();
         Files.write(file, List.of("key:value"));
 
-        final var propertiesReader = new PropertiesReader(tempDir.toFile()) {
-            @Override
-            public @NotNull String getFilename() {
-                return "test";
-            }
-        };
+        final var propertiesReader = new PropertiesReader(file.toFile());
         assertThat(propertiesReader.readPropertiesFromFile()).isTrue();
         assertThat(propertiesReader.getProperty("key")).isEqualTo("value");
 
@@ -92,12 +73,7 @@ class PropertiesReaderTest {
         assertThat(file.toFile().createNewFile()).isTrue();
         Files.write(file, List.of("key:value"));
 
-        final var propertiesReader = new PropertiesReader(tempDir.toFile()) {
-            @Override
-            public @NotNull String getFilename() {
-                return "test";
-            }
-        };
+        final var propertiesReader = new PropertiesReader(file.toFile());
         assertThat(propertiesReader.readPropertiesFromFile()).isTrue();
         assertThat(propertiesReader.getProperty("key")).isEqualTo("value");
 
@@ -110,12 +86,7 @@ class PropertiesReaderTest {
         assertThat(file.toFile().createNewFile()).isTrue();
         Files.write(file, List.of("key:value"));
 
-        final var propertiesReader = new PropertiesReader(tempDir.toFile()) {
-            @Override
-            public @NotNull String getFilename() {
-                return "test";
-            }
-        };
+        final var propertiesReader = new PropertiesReader(file.toFile());
         assertThat(propertiesReader.readPropertiesFromFile()).isTrue();
         assertThat(propertiesReader.getProperty("key")).isEqualTo("value");
     }
@@ -126,12 +97,7 @@ class PropertiesReaderTest {
         assertThat(file.toFile().createNewFile()).isTrue();
         Files.write(file, List.of("key:value"));
 
-        final var propertiesReader = new PropertiesReader(tempDir.toFile()) {
-            @Override
-            public @NotNull String getFilename() {
-                return "test";
-            }
-        };
+        final var propertiesReader = new PropertiesReader(file.toFile());
         assertThat(propertiesReader.getProperty("key")).isNull();
     }
 }

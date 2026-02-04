@@ -1,3 +1,6 @@
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
+
 plugins {
     alias(libs.plugins.hivemq.extension)
     alias(libs.plugins.protobuf)
@@ -89,7 +92,25 @@ testing {
                 implementation(libs.assertj)
                 implementation(libs.mockito)
                 implementation(libs.wiremock)
-                runtimeOnly(libs.logback.classic)
+                implementation(libs.logback.classic)
+            }
+            targets.configureEach {
+                testTask {
+                    testLogging {
+                        events = setOf(
+                            TestLogEvent.STARTED,
+                            TestLogEvent.PASSED,
+                            TestLogEvent.SKIPPED,
+                            TestLogEvent.FAILED,
+                            TestLogEvent.STANDARD_ERROR,
+                        )
+                        exceptionFormat = TestExceptionFormat.FULL
+                        showStandardStreams = true
+                    }
+                    reports {
+                        junitXml.isOutputPerTestCase = true
+                    }
+                }
             }
         }
         "integrationTest"(JvmTestSuite::class) {
