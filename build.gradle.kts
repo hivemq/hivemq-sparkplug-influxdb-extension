@@ -6,7 +6,7 @@ plugins {
     alias(libs.plugins.protobuf)
     alias(libs.plugins.defaults)
     alias(libs.plugins.oci)
-    alias(libs.plugins.license)
+    alias(libs.plugins.spotless)
     idea
 }
 
@@ -139,10 +139,11 @@ testing {
     }
 }
 
-license {
-    header = projectDir.resolve("HEADER")
-    mapping("java", "SLASHSTAR_STYLE")
-    exclude("org/eclipse/tahu/protobuf/**")
+spotless {
+    java {
+        targetExclude("build/generated/**")
+        licenseHeaderFile(rootDir.resolve("HEADER"))
+    }
 }
 
 // configure reproducible builds
