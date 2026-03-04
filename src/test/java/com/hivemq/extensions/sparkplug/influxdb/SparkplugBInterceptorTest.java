@@ -159,10 +159,10 @@ class SparkplugBInterceptorTest {
         publishWith("spBv1.0/group/NDATA/edgeNode", dataPayload);
 
         assertThat(metricRegistry.getMetrics()).containsKey("sparkplug.edgeNode.temperature");
-        assertThat(metricRegistry.getMetrics()
-                .get("sparkplug.edgeNode.temperature")).isInstanceOf(SettableIntGauge.class);
-        assertThat(((SettableIntGauge) metricRegistry.getMetrics()
-                .get("sparkplug.edgeNode.temperature")).getValue()).isEqualTo(42);
+        assertThat(metricRegistry.getMetrics().get("sparkplug.edgeNode.temperature"))
+                .isInstanceOf(SettableIntGauge.class);
+        assertThat(((SettableIntGauge) metricRegistry.getMetrics().get("sparkplug.edgeNode.temperature")).getValue())
+                .isEqualTo(42);
     }
 
     @Test
@@ -182,8 +182,8 @@ class SparkplugBInterceptorTest {
         publishWith("spBv1.0/group/NDATA/edgeNode", dataPayload);
 
         assertThat(metricRegistry.getMetrics().get("sparkplug.edgeNode.uptime")).isInstanceOf(SettableLongGauge.class);
-        assertThat(((SettableLongGauge) metricRegistry.getMetrics()
-                .get("sparkplug.edgeNode.uptime")).getValue()).isEqualTo(123456789L);
+        assertThat(((SettableLongGauge) metricRegistry.getMetrics().get("sparkplug.edgeNode.uptime")).getValue())
+                .isEqualTo(123456789L);
     }
 
     @Test
@@ -202,10 +202,10 @@ class SparkplugBInterceptorTest {
                 .build();
         publishWith("spBv1.0/group/NDATA/edgeNode", dataPayload);
 
-        assertThat(metricRegistry.getMetrics()
-                .get("sparkplug.edgeNode.voltage")).isInstanceOf(SettableDoubleGauge.class);
-        assertThat(((SettableDoubleGauge) metricRegistry.getMetrics()
-                .get("sparkplug.edgeNode.voltage")).getValue()).isEqualTo(3.14);
+        assertThat(metricRegistry.getMetrics().get("sparkplug.edgeNode.voltage"))
+                .isInstanceOf(SettableDoubleGauge.class);
+        assertThat(((SettableDoubleGauge) metricRegistry.getMetrics().get("sparkplug.edgeNode.voltage")).getValue())
+                .isEqualTo(3.14);
     }
 
     @Test
@@ -224,10 +224,10 @@ class SparkplugBInterceptorTest {
                 .build();
         publishWith("spBv1.0/group/NDATA/edgeNode", dataPayload);
 
-        assertThat(metricRegistry.getMetrics()
-                .get("sparkplug.edgeNode.active")).isInstanceOf(SettableBooleanGauge.class);
-        assertThat(((SettableBooleanGauge) metricRegistry.getMetrics()
-                .get("sparkplug.edgeNode.active")).getValue()).isTrue();
+        assertThat(metricRegistry.getMetrics().get("sparkplug.edgeNode.active"))
+                .isInstanceOf(SettableBooleanGauge.class);
+        assertThat(((SettableBooleanGauge) metricRegistry.getMetrics().get("sparkplug.edgeNode.active")).getValue())
+                .isTrue();
     }
 
     @Test
@@ -246,10 +246,10 @@ class SparkplugBInterceptorTest {
                 .build();
         publishWith("spBv1.0/group/NDATA/edgeNode", dataPayload);
 
-        assertThat(metricRegistry.getMetrics()
-                .get("sparkplug.edgeNode.pressure")).isInstanceOf(SettableDoubleGauge.class);
-        assertThat(((SettableDoubleGauge) metricRegistry.getMetrics()
-                .get("sparkplug.edgeNode.pressure")).getValue()).isEqualTo((double) 1.5f);
+        assertThat(metricRegistry.getMetrics().get("sparkplug.edgeNode.pressure"))
+                .isInstanceOf(SettableDoubleGauge.class);
+        assertThat(((SettableDoubleGauge) metricRegistry.getMetrics().get("sparkplug.edgeNode.pressure")).getValue())
+                .isEqualTo((double) 1.5f);
     }
 
     @Test
@@ -271,8 +271,8 @@ class SparkplugBInterceptorTest {
         publishWith("spBv1.0/group/DDATA/edgeNode/device1", dataPayload);
 
         assertThat(metricRegistry.getMetrics()).containsKey("sparkplug.edgeNode.device1.speed");
-        assertThat(((SettableIntGauge) metricRegistry.getMetrics()
-                .get("sparkplug.edgeNode.device1.speed")).getValue()).isEqualTo(100);
+        assertThat(((SettableIntGauge) metricRegistry.getMetrics().get("sparkplug.edgeNode.device1.speed")).getValue())
+                .isEqualTo(100);
     }
 
     @Test

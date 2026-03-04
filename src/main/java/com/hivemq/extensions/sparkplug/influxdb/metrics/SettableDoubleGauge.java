@@ -22,26 +22,27 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * <p>
- * Works like a Gauge, but rather than getting its value from a callback, the value
- * is set when needed.  This can be somewhat convienent, but direct use of a Gauge is likely better
+ * Works like a Gauge, but rather than getting its value from a callback, the value is set when needed. This can be
+ * somewhat convienent, but direct use of a Gauge is likely better
  * </p>
  * <p>
  * Usage example:
+ *
  * <pre>{@code
- *       MetricRegister metricRegistry;
- *       SettableDoubleGauge settable = metricRegistry.register("metric.name", new SettableDoubleGauge());
- *       // ...
- *       settable.setValue(1.234);
- *       // ...
- *       settable.setValue(3.156);
- *     }
+ * MetricRegister metricRegistry;
+ * SettableDoubleGauge settable = metricRegistry.register("metric.name", new SettableDoubleGauge());
+ * // ...
+ * settable.setValue(1.234);
+ * // ...
+ * settable.setValue(3.156);
+ * }
  *     </pre>
  */
 public class SettableDoubleGauge implements Metric, Gauge<Double> {
 
     /**
-     * Current value.  Assignment will be atomic.  <a
-     * href="http://docs.oracle.com/javase/specs/jls/se7/html/jls-17.html#jls-17.7">See 17.7</a>
+     * Current value. Assignment will be atomic.
+     * <a href="http://docs.oracle.com/javase/specs/jls/se7/html/jls-17.html#jls-17.7">See 17.7</a>
      */
     private volatile double value;
 
@@ -57,8 +58,8 @@ public class SettableDoubleGauge implements Metric, Gauge<Double> {
     /**
      * Set the current value the {@link Gauge} will return to something else.
      *
-     * @param value last set value
-     * @return itself
+     * @param  value last set value
+     * @return       itself
      */
     public @NotNull SettableDoubleGauge setValue(final double value) {
         this.value = value;

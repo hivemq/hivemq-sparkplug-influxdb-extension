@@ -29,8 +29,8 @@ import java.util.Objects;
 import java.util.Properties;
 
 /**
- * Reads a property file containing influxdb properties
- * and provides some utility methods for working with {@link Properties}.
+ * Reads a property file containing influxdb properties and provides some utility methods for working with
+ * {@link Properties}.
  *
  * @author David Sondermann
  */
@@ -105,8 +105,8 @@ public class SparkplugConfiguration extends PropertiesReader {
     /**
      * Check if mandatory property exists.
      *
-     * @param property Property to check.
-     * @return 0 if property exists, else 1.
+     * @param  property Property to check.
+     * @return          0 if property exists, else 1.
      */
     private int checkMandatoryProperty(@NotNull final String property) {
         Objects.requireNonNull(property, "Mandatory property must not be null");
@@ -194,9 +194,9 @@ public class SparkplugConfiguration extends PropertiesReader {
      * Fetch property with given <b>key</b>. If the fetched {@link String} is <b>null</b> the <b>defaultValue</b> will
      * be returned.
      *
-     * @param key          Key of the property.
-     * @param defaultValue Default value as fallback, if property has no value.
-     * @return the actual value of the property if it is set, else the <b>defaultValue</b>.
+     * @param  key          Key of the property.
+     * @param  defaultValue Default value as fallback, if property has no value.
+     * @return              the actual value of the property if it is set, else the <b>defaultValue</b>.
      */
     private @NotNull String validateStringProperty(@NotNull final String key, @NotNull final String defaultValue) {
         Objects.requireNonNull(key, "Key to fetch property must not be null");
@@ -212,13 +212,12 @@ public class SparkplugConfiguration extends PropertiesReader {
     }
 
     /**
-     * Fetch property with given <b>key</b>.
-     * If the fetched {@link String} value is not <b>null</b> convert the value to an int and check validation
-     * constraints if given flags are <b>false</b> before returning the value.
+     * Fetch property with given <b>key</b>. If the fetched {@link String} value is not <b>null</b> convert the value to
+     * an int and check validation constraints if given flags are <b>false</b> before returning the value.
      *
-     * @param key          Key of the property
-     * @param defaultValue Default value as fallback, if property has no value
-     * @return the actual value of the property if it is set and valid, else the <b>defaultValue</b>
+     * @param  key          Key of the property
+     * @param  defaultValue Default value as fallback, if property has no value
+     * @return              the actual value of the property if it is set and valid, else the <b>defaultValue</b>
      */
     private int validateIntProperty(final @NotNull String key, final int defaultValue) {
         Objects.requireNonNull(key, "Key to fetch property must not be null");
