@@ -62,8 +62,7 @@ class SparkplugBInterceptorIT {
     @Container
     private final @NotNull HiveMQContainer hivemq =
             new HiveMQContainer(OciImages.getImageName("hivemq/extensions/hivemq-sparkplug-extension")
-                    .asCompatibleSubstituteFor("hivemq/hivemq4")) //
-                    .withNetwork(network)
+                    .asCompatibleSubstituteFor("hivemq/hivemq4")).withNetwork(network)
                     .withHiveMQConfig(MountableFile.forClasspathResource("config.xml"))
                     .withCopyToContainer(MountableFile.forClasspathResource("config.properties"),
                             "/opt/hivemq/extensions/hivemq-sparkplug-extension/conf/config.properties")

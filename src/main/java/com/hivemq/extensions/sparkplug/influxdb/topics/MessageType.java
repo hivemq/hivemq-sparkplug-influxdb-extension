@@ -21,25 +21,26 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Enumeration of Sparkplug message types as defined in the Sparkplug specification.
  * <p>
- * Sparkplug defines specific message types for lifecycle management, data transmission,
- * and command execution within an Industrial IoT infrastructure:
+ * Sparkplug defines specific message types for lifecycle management, data transmission, and command execution within an
+ * Industrial IoT infrastructure:
  * <ul>
- *     <li><b>BIRTH messages</b> - Announce availability and publish metrics/metadata</li>
- *     <li><b>DEATH messages</b> - Announce disconnection or unavailability</li>
- *     <li><b>DATA messages</b> - Publish metric data updates</li>
- *     <li><b>CMD messages</b> - Receive commands from SCADA host applications</li>
- *     <li><b>STATE messages</b> - SCADA host availability status</li>
+ * <li><b>BIRTH messages</b> - Announce availability and publish metrics/metadata</li>
+ * <li><b>DEATH messages</b> - Announce disconnection or unavailability</li>
+ * <li><b>DATA messages</b> - Publish metric data updates</li>
+ * <li><b>CMD messages</b> - Receive commands from SCADA host applications</li>
+ * <li><b>STATE messages</b> - SCADA host availability status</li>
  * </ul>
  * <p>
  * Message types are prefixed with:
  * <ul>
- *     <li><b>N</b> - Node (Edge of Network node)</li>
- *     <li><b>D</b> - Device (under an edge node)</li>
+ * <li><b>N</b> - Node (Edge of Network node)</li>
+ * <li><b>D</b> - Device (under an edge node)</li>
  * </ul>
  *
  * @author David Sondermann
  */
 public enum MessageType {
+
     /**
      * THE BIRTH certificate message of a device
      */

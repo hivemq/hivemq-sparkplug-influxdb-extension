@@ -44,9 +44,8 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Main entrypoint for Sparkplug extension.
- * Starts InfluxDB reporter after validating the configuration.
- * Initializes the Sparkplug interceptor.
+ * Main entrypoint for Sparkplug extension. Starts InfluxDB reporter after validating the configuration. Initializes the
+ * Sparkplug interceptor.
  *
  * @author David Sondermann
  */
@@ -131,8 +130,8 @@ public class SparkplugExtensionMain implements ExtensionMain {
     /**
      * Initializes and registers the Sparkplug B interceptor with the HiveMQ client initializer registry.
      * <p>
-     * The interceptor will be added to all connecting clients and will process incoming
-     * Sparkplug B messages to extract and register metrics.
+     * The interceptor will be added to all connecting clients and will process incoming Sparkplug B messages to extract
+     * and register metrics.
      *
      * @param configuration the extension configuration
      */
@@ -140,8 +139,8 @@ public class SparkplugExtensionMain implements ExtensionMain {
         final var metricsHolder = new MetricsHolder(Services.metricRegistry());
         final var sparkplugBInterceptor = new SparkplugBInterceptor(metricsHolder, configuration);
         Services.initializerRegistry()
-                .setClientInitializer((initializerInput, clientContext) -> clientContext.addPublishInboundInterceptor(
-                        sparkplugBInterceptor));
+                .setClientInitializer((initializerInput, clientContext) -> clientContext
+                        .addPublishInboundInterceptor(sparkplugBInterceptor));
     }
 
     /**
@@ -149,16 +148,16 @@ public class SparkplugExtensionMain implements ExtensionMain {
      * <p>
      * The reporter is configured to:
      * <ul>
-     *     <li>Use tags from the configuration</li>
-     *     <li>Convert rates to seconds</li>
-     *     <li>Convert durations to milliseconds</li>
-     *     <li>Include specific meter and timer fields</li>
+     * <li>Use tags from the configuration</li>
+     * <li>Convert rates to seconds</li>
+     * <li>Convert durations to milliseconds</li>
+     * <li>Include specific meter and timer fields</li>
      * </ul>
      *
-     * @param metricRegistry the metric registry to report from
-     * @param sender         the InfluxDB sender to use for reporting
-     * @param configuration  the extension configuration
-     * @return the configured scheduled reporter
+     * @param  metricRegistry the metric registry to report from
+     * @param  sender         the InfluxDB sender to use for reporting
+     * @param  configuration  the extension configuration
+     * @return                the configured scheduled reporter
      */
     private @NotNull ScheduledReporter setupReporter(
             final @NotNull MetricRegistry metricRegistry,
@@ -183,14 +182,14 @@ public class SparkplugExtensionMain implements ExtensionMain {
      * <p>
      * Supported modes:
      * <ul>
-     *     <li><b>http</b> - HTTP sender for InfluxDB 1.x or 2.x compatibility mode</li>
-     *     <li><b>tcp</b> - TCP sender for direct line protocol communication</li>
-     *     <li><b>udp</b> - UDP sender for high-throughput, fire-and-forget scenarios</li>
-     *     <li><b>cloud</b> - Cloud sender for InfluxDB Cloud with token authentication</li>
+     * <li><b>http</b> - HTTP sender for InfluxDB 1.x or 2.x compatibility mode</li>
+     * <li><b>tcp</b> - TCP sender for direct line protocol communication</li>
+     * <li><b>udp</b> - UDP sender for high-throughput, fire-and-forget scenarios</li>
+     * <li><b>cloud</b> - Cloud sender for InfluxDB Cloud with token authentication</li>
      * </ul>
      *
-     * @param configuration the extension configuration
-     * @return the configured InfluxDB sender, or {@code null} if creation failed
+     * @param  configuration the extension configuration
+     * @return               the configured InfluxDB sender, or {@code null} if creation failed
      */
     private @Nullable InfluxDbSender setupSender(final @NotNull SparkplugConfiguration configuration) {
         final var host = configuration.getHost();
@@ -207,7 +206,7 @@ public class SparkplugExtensionMain implements ExtensionMain {
 
         try {
             switch (configuration.getMode()) {
-                case "http":
+                case "http" :
                     LOG.info("Creating InfluxDB HTTP sender for server {}:{} and database {}", host, port, database);
                     return new InfluxDbHttpSender(protocol,
                             host,
@@ -218,13 +217,13 @@ public class SparkplugExtensionMain implements ExtensionMain {
                             connectTimeout,
                             connectTimeout,
                             prefix);
-                case "tcp":
+                case "tcp" :
                     LOG.info("Creating InfluxDB TCP sender for server {}:{} and database {}", host, port, database);
                     return new InfluxDbTcpSender(host, port, connectTimeout, database, prefix);
-                case "udp":
+                case "udp" :
                     LOG.info("Creating InfluxDB UDP sender for server {}:{} and database {}", host, port, database);
                     return new InfluxDbUdpSender(host, port, connectTimeout, database, prefix);
-                case "cloud":
+                case "cloud" :
                     LOG.info("Creating InfluxDB Cloud sender for endpoint {}, bucket {}, organization {}",
                             host,
                             bucket,

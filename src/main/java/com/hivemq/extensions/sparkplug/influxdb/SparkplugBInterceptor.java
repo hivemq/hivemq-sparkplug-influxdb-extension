@@ -38,26 +38,26 @@ import static com.hivemq.extensions.sparkplug.influxdb.topics.MessageType.STATE;
  * <p>
  * This interceptor is responsible for:
  * <ul>
- *     <li>Validating incoming MQTT topics against the Sparkplug topic structure</li>
- *     <li>Parsing Sparkplug B protobuf payloads to extract metrics</li>
- *     <li>Maintaining an alias-to-metric-name mapping for efficient data transmission</li>
- *     <li>Registering metrics in the {@link MetricsHolder} for reporting to InfluxDB</li>
+ * <li>Validating incoming MQTT topics against the Sparkplug topic structure</li>
+ * <li>Parsing Sparkplug B protobuf payloads to extract metrics</li>
+ * <li>Maintaining an alias-to-metric-name mapping for efficient data transmission</li>
+ * <li>Registering metrics in the {@link MetricsHolder} for reporting to InfluxDB</li>
  * </ul>
  * <p>
- * The interceptor handles all Sparkplug message types including BIRTH, DEATH, DATA,
- * and STATE messages, updating metrics accordingly.
+ * The interceptor handles all Sparkplug message types including BIRTH, DEATH, DATA, and STATE messages, updating
+ * metrics accordingly.
  *
  * @author David Sondermann
- * @see TopicStructure
- * @see MetricsHolder
+ * @see    TopicStructure
+ * @see    MetricsHolder
  */
 public class SparkplugBInterceptor implements PublishInboundInterceptor {
 
     private static final @NotNull Logger LOG = LoggerFactory.getLogger(SparkplugBInterceptor.class);
 
     /**
-     * Maps Sparkplug metric aliases to their full metric names.
-     * Sparkplug uses aliases to reduce message size after initial BIRTH messages.
+     * Maps Sparkplug metric aliases to their full metric names. Sparkplug uses aliases to reduce message size after
+     * initial BIRTH messages.
      */
     private final @NotNull Map<Long, String> aliasToMetric = new HashMap<>();
 
@@ -89,9 +89,8 @@ public class SparkplugBInterceptor implements PublishInboundInterceptor {
      * <p>
      * Processes incoming publish messages and extracts Sparkplug B metrics.
      * <p>
-     * If the topic matches the configured Sparkplug version namespace and has a valid
-     * Sparkplug topic structure, the protobuf payload is parsed and metrics are extracted
-     * and registered with the metrics holder.
+     * If the topic matches the configured Sparkplug version namespace and has a valid Sparkplug topic structure, the
+     * protobuf payload is parsed and metrics are extracted and registered with the metrics holder.
      */
     @Override
     public void onInboundPublish(
@@ -130,8 +129,8 @@ public class SparkplugBInterceptor implements PublishInboundInterceptor {
     /**
      * Generates metrics from a Sparkplug message based on its type.
      * <p>
-     * For STATE messages, updates the SCADA host status metric.
-     * For all other message types, delegates to {@link #generateMetricForEdgesAndDevices}.
+     * For STATE messages, updates the SCADA host status metric. For all other message types, delegates to
+     * {@link #generateMetricForEdgesAndDevices}.
      *
      * @param topicStructure the parsed Sparkplug topic structure
      * @param metricsList    the list of metrics from the Sparkplug payload
@@ -154,11 +153,11 @@ public class SparkplugBInterceptor implements PublishInboundInterceptor {
      * <p>
      * Handles the following message types:
      * <ul>
-     *     <li><b>NBIRTH</b> - Sets edge node status to online and increments online counter</li>
-     *     <li><b>NDEATH</b> - Sets edge node status to offline and decrements online counter</li>
-     *     <li><b>DBIRTH</b> - Sets device status to online and increments device counter</li>
-     *     <li><b>DDEATH</b> - Sets device status to offline and decrements device counter</li>
-     *     <li><b>NDATA/DDATA</b> - Extracts and registers individual metric values</li>
+     * <li><b>NBIRTH</b> - Sets edge node status to online and increments online counter</li>
+     * <li><b>NDEATH</b> - Sets edge node status to offline and decrements online counter</li>
+     * <li><b>DBIRTH</b> - Sets device status to online and increments device counter</li>
+     * <li><b>DDEATH</b> - Sets device status to offline and decrements device counter</li>
+     * <li><b>NDATA/DDATA</b> - Extracts and registers individual metric values</li>
      * </ul>
      *
      * @param topicStructure the parsed Sparkplug topic structure containing edge node and device IDs
@@ -172,56 +171,66 @@ public class SparkplugBInterceptor implements PublishInboundInterceptor {
             return;
         }
         switch (topicStructure.getMessageType()) {
-            case NBIRTH: {
+            case NBIRTH : {
                 metricsHolder.getStatusMetrics(topicStructure.getEonId(), null).setValue(1);
                 metricsHolder.getCurrentEonsOnline().inc();
                 break;
             }
-            case NDEATH: {
+            case NDEATH : {
                 metricsHolder.getStatusMetrics(topicStructure.getEonId(), null).setValue(0);
                 metricsHolder.getCurrentEonsOnline().dec();
                 break;
             }
-            case DBIRTH: {
+            case DBIRTH : {
                 metricsHolder.getStatusMetrics(topicStructure.getEonId(), topicStructure.getDeviceId()).setValue(1);
                 metricsHolder.getCurrentDeviceOnline().inc();
                 break;
             }
-            case DDEATH: {
+            case DDEATH : {
                 metricsHolder.getStatusMetrics(topicStructure.getEonId(), topicStructure.getDeviceId()).setValue(0);
                 metricsHolder.getCurrentDeviceOnline().dec();
                 break;
             }
-            case DDATA:
-            case NDATA: {
+            case DDATA :
+            case NDATA : {
                 for (final var metric : metricsList) {
                     final var alias = metric.getAlias();
                     final var metricName = aliasToMetric.get(alias);
                     if (metric.hasIntValue()) {
-                        metricsHolder.getDeviceInformationMetricsInt(topicStructure.getEonId(),
-                                topicStructure.getDeviceId(),
-                                metricName).setValue(metric.getIntValue());
+                        metricsHolder
+                                .getDeviceInformationMetricsInt(topicStructure.getEonId(),
+                                        topicStructure.getDeviceId(),
+                                        metricName)
+                                .setValue(metric.getIntValue());
                     } else if (metric.hasLongValue()) {
-                        metricsHolder.getDeviceInformationMetricsLong(topicStructure.getEonId(),
-                                topicStructure.getDeviceId(),
-                                metricName).setValue(metric.getLongValue());
+                        metricsHolder
+                                .getDeviceInformationMetricsLong(topicStructure.getEonId(),
+                                        topicStructure.getDeviceId(),
+                                        metricName)
+                                .setValue(metric.getLongValue());
                     } else if (metric.hasDoubleValue()) {
-                        metricsHolder.getDeviceInformationMetricsDouble(topicStructure.getEonId(),
-                                topicStructure.getDeviceId(),
-                                metricName).setValue(metric.getDoubleValue());
+                        metricsHolder
+                                .getDeviceInformationMetricsDouble(topicStructure.getEonId(),
+                                        topicStructure.getDeviceId(),
+                                        metricName)
+                                .setValue(metric.getDoubleValue());
                     } else if (metric.hasBooleanValue()) {
-                        metricsHolder.getDeviceInformationMetricsBoolean(topicStructure.getEonId(),
-                                topicStructure.getDeviceId(),
-                                metricName).setValue(metric.getBooleanValue());
+                        metricsHolder
+                                .getDeviceInformationMetricsBoolean(topicStructure.getEonId(),
+                                        topicStructure.getDeviceId(),
+                                        metricName)
+                                .setValue(metric.getBooleanValue());
                     } else if (metric.hasFloatValue()) {
-                        metricsHolder.getDeviceDataMetrics(topicStructure.getEonId(),
-                                topicStructure.getDeviceId(),
-                                metricName).setValue(metric.getFloatValue());
+                        metricsHolder
+                                .getDeviceDataMetrics(topicStructure.getEonId(),
+                                        topicStructure.getDeviceId(),
+                                        metricName)
+                                .setValue(metric.getFloatValue());
                     }
                 }
                 break;
             }
-            default: {
+            default : {
                 LOG.error("Unknown Sparkplug Message Type: {} ", topicStructure);
             }
         }

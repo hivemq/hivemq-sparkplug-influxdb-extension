@@ -162,8 +162,7 @@ class SparkplugConfigurationTest {
         assertThat(sparkplugConfiguration.validateConfiguration()).isTrue();
 
         assertThat(sparkplugConfiguration.getMode()).isEqualTo("tcp");
-        assertThat(sparkplugConfiguration.getTags()).containsExactly( //
-                entry("host", "hivemq1"), //
+        assertThat(sparkplugConfiguration.getTags()).containsExactly(entry("host", "hivemq1"),
                 entry("version", "3.4.1"));
         assertThat(sparkplugConfiguration.getPrefix()).isEqualTo("node1");
         assertThat(sparkplugConfiguration.getProtocol()).isEqualTo("tcp");
@@ -182,8 +181,7 @@ class SparkplugConfigurationTest {
         assertThat(sparkplugConfiguration.readPropertiesFromFile()).isTrue();
         assertThat(sparkplugConfiguration.validateConfiguration()).isFalse();
 
-        assertThat(sparkplugConfiguration.getTags()).containsExactly( //
-                entry("use", "monitoring"), //
+        assertThat(sparkplugConfiguration.getTags()).containsExactly(entry("use", "monitoring"),
                 entry("host", "hivemq1"));
     }
 

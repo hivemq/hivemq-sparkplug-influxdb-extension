@@ -22,27 +22,27 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * <p>
- * Works like a Gauge, but rather than getting its value from a callback, the value
- * is set when needed.
+ * Works like a Gauge, but rather than getting its value from a callback, the value is set when needed.
  * </p>
  * <p>
  * Usage example:
+ *
  * <pre>{@code
- *       MetricRegister metricRegistry;
- *       SettableLongGauge settable = metricRegistry.register("metric.name", new SettableIntGauge());
- *       // ...
- *       settable.setValue(100);
- *       // ...
- *       settable.setValue(200);
- *     }
+ * MetricRegister metricRegistry;
+ * SettableLongGauge settable = metricRegistry.register("metric.name", new SettableIntGauge());
+ * // ...
+ * settable.setValue(100);
+ * // ...
+ * settable.setValue(200);
+ * }
  *
  *     </pre>
  */
 public class SettableIntGauge implements Metric, Gauge<Integer> {
 
     /**
-     * Current value.  Assignment will be atomic.  <a
-     * href="http://docs.oracle.com/javase/specs/jls/se7/html/jls-17.html#jls-17.7">See 17.7</a>
+     * Current value. Assignment will be atomic.
+     * <a href="http://docs.oracle.com/javase/specs/jls/se7/html/jls-17.html#jls-17.7">See 17.7</a>
      */
     private volatile int value = 0;
 
@@ -58,8 +58,8 @@ public class SettableIntGauge implements Metric, Gauge<Integer> {
     /**
      * Set the current value the {@link Gauge} will return to something else.
      *
-     * @param value last set value
-     * @return itself
+     * @param  value last set value
+     * @return       itself
      */
     public @NotNull SettableIntGauge setValue(final int value) {
         this.value = value;
