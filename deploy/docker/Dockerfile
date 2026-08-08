@@ -1,5 +1,5 @@
 # hivemq/hivemq4:4.40.0
-FROM hivemq/hivemq4@sha256:e74fc0bca64d5834d192f38a8c3f2d61cf2d83642b169358ed6f62228ba9371c
+FROM hivemq/hivemq4@sha256:5e253faf87ac7fddb63c3c02b3deb89818fc7ff97a3f1776fbe6fb49b5bce689
 
 # Add extensions
 COPY hivemq-sparkplug-extension /opt/hivemq/extensions/hivemq-sparkplug-extension
